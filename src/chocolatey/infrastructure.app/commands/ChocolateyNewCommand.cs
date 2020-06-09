@@ -65,6 +65,9 @@ namespace chocolatey.infrastructure.app.commands
                 .Add("built-in|built-in-template|originaltemplate|original-template|use-original-template|use-built-in-template",
                     "BuiltInTemplate - Use the original built-in template instead of any override. Available in 0.9.10+.",
                     option => configuration.NewCommand.UseOriginalTemplate = option != null)
+                .Add("l|list",
+                    "List - Display templates installed in{0} {1}\\templates Available in 0.10.16+".format_with(Environment.NewLine, ApplicationParameters.InstallLocation),
+                    option => configuration.NewCommand.List = option != null)
                 ;
             //todo: more built-in templates
         }
@@ -105,7 +108,7 @@ namespace chocolatey.infrastructure.app.commands
 
         public virtual void handle_validation(ChocolateyConfiguration configuration)
         {
-            if (string.IsNullOrWhiteSpace(configuration.NewCommand.Name))
+            if (string.IsNullOrWhiteSpace(configuration.NewCommand.Name) && !configuration.NewCommand.List)
             {
                 throw new ApplicationException("Name is required. Please pass in a name for the new package.");
             }
@@ -156,6 +159,7 @@ NOTE: Chocolatey for Business can also download and internalize remote
     choco new bob -a --version 1.2.0 maintainername=""'This guy'""
     choco new bob silentargs=""'/S'"" url=""'https://somewhere/out/there.msi'""
     choco new bob --outputdirectory Packages
+    choco new --list
 
 NOTE: See scripting in the command reference (`choco -?`) for how to 
  write proper scripts and integrations.
@@ -186,7 +190,14 @@ If you find other exit codes that we have not yet documented, please
 
         public virtual void run(ChocolateyConfiguration configuration)
         {
-            _templateService.generate(configuration);
+            if (configuration.NewCommand.List)
+            {
+                _templateService.list(configuration);
+            }
+            else
+            {
+                _templateService.generate(configuration);
+            }
         }
 
         public virtual bool may_require_admin_access()

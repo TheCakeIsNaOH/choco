@@ -22,5 +22,6 @@ namespace chocolatey.infrastructure.app.services
     {
         void noop(ChocolateyConfiguration configuration);
         void generate(ChocolateyConfiguration configuration);
+        void list(ChocolateyConfiguration configuration);
     }
 }

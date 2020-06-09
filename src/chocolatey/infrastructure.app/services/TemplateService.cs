@@ -19,6 +19,7 @@ namespace chocolatey.infrastructure.app.services
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Reflection;
     using System.Text;
     using configuration;
@@ -45,8 +46,15 @@ namespace chocolatey.infrastructure.app.services
 
         public void noop(ChocolateyConfiguration configuration)
         {
-            var templateLocation = _fileSystem.combine_paths(configuration.OutputDirectory ?? _fileSystem.get_current_directory(), configuration.NewCommand.Name);
-            this.Log().Info(() => "Would have generated a new package specification at {0}".format_with(templateLocation));
+            if (configuration.NewCommand.List)
+            {
+                this.Log().Info(() => "Would have listed templates in {0}".format_with(ApplicationParameters.InstallLocation));
+            }
+            else
+            {
+                var templateLocation = _fileSystem.combine_paths(configuration.OutputDirectory ?? _fileSystem.get_current_directory(), configuration.NewCommand.Name);
+                this.Log().Info(() => "Would have generated a new package specification at {0}".format_with(templateLocation));
+            }
         }
 
         public void generate(ChocolateyConfiguration configuration)
@@ -158,6 +166,29 @@ namespace chocolatey.infrastructure.app.services
             this.Log().Debug(() => "{0}".format_with(template));
             _fileSystem.create_directory_if_not_exists(_fileSystem.get_directory_name(fileLocation));
             _fileSystem.write_file(fileLocation, template, encoding);
+        }
+
+        public void list(ChocolateyConfiguration configuration)
+        {
+
+            var logger = ChocolateyLoggers.Normal;
+            if (configuration.QuietOutput) logger = ChocolateyLoggers.LogFileOnly;
+            var templateDirList = _fileSystem.get_directories(ApplicationParameters.TemplatesLocation);
+
+            if (templateDirList.Any())
+            {
+                foreach (var templateDir in templateDirList)
+                {
+                    var templateName = _fileSystem.get_file_name(templateDir) ;
+                    this.Log().Info(() => "{0}".format_with(templateName));
+                    this.Log().Debug(() => "template {0} full path of {1}".format_with(templateName, templateDir));
+                }
+            }
+            else
+            {
+                this.Log().Info(() => "No custom templates installed in {0}".format_with(ApplicationParameters.TemplatesLocation));
+            }
+            this.Log().Info(configuration.QuietOutput ? logger : ChocolateyLoggers.Important, "{0} Templates found.".format_with(templateDirList.Count()));
         }
     }
 }

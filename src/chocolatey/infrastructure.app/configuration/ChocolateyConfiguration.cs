@@ -451,6 +451,7 @@ NOTE: Hiding sensitive configuration data! Please double and triple
         public bool AutomaticPackage { get; set; }
         public IDictionary<string, string> TemplateProperties { get; private set; }
         public bool UseOriginalTemplate { get; set; }
+        public bool List { get; set; }
     }
 
     [Serializable]
