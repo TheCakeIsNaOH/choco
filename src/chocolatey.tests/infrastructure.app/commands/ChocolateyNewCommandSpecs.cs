@@ -108,6 +108,18 @@ namespace chocolatey.tests.infrastructure.app.commands
             {
                 optionSet.Contains("outputdirectory").ShouldBeTrue();
             }
+
+            [Fact]
+            public void should_add_list_to_the_option_set()
+            {
+                optionSet.Contains("list").ShouldBeTrue();
+            }
+
+            [Fact]
+            public void should_add_short_list_to_the_option_set()
+            {
+                optionSet.Contains("l").ShouldBeTrue();
+            }
         }
 
         public class when_handling_additional_argument_parsing : ChocolateyNewCommandSpecsBase
@@ -374,7 +386,7 @@ namespace chocolatey.tests.infrastructure.app.commands
 
             public override void Because()
             {
-                optionSet.Parse(new[] { "--name", "Bob", "--automaticpackage", "--template-name", "custom", "--version", "0.42.0", "--maintainer", "Loyd", "--outputdirectory", "c:\\packages" });
+                optionSet.Parse(new[] { "--name", "Bob", "--automaticpackage", "--template-name", "custom", "--version", "0.42.0", "--maintainer", "Loyd", "--outputdirectory", "c:\\packages","--list" });
             }
 
             [Fact]
@@ -412,6 +424,12 @@ namespace chocolatey.tests.infrastructure.app.commands
             public void should_outputdirectory_equal_packages()
             {
                 configuration.OutputDirectory.ShouldEqual("c:\\packages");
+            }
+
+            [Fact]
+            public void should_list_equal_to_true()
+            {
+                configuration.NewCommand.List.ShouldBeTrue();
             }
         }
     }

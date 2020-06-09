@@ -21,6 +21,7 @@ namespace chocolatey.tests.infrastructure.app.services
     using System.IO;
     using System.Linq;
     using System.Text;
+    using chocolatey.infrastructure.app;
     using chocolatey.infrastructure.app.configuration;
     using chocolatey.infrastructure.app.services;
     using chocolatey.infrastructure.app.templates;
@@ -88,6 +89,18 @@ namespace chocolatey.tests.infrastructure.app.services
                 var infos = MockLogger.MessagesFor(LogLevel.Info);
                 infos.Count.ShouldEqual(1);
                 infos[0].ShouldEqual("Would have generated a new package specification at c:\\packages\\Bob");
+            }
+
+            [Fact]
+            public void should_log_templates_directory_when_list()
+            {
+                config.NewCommand.List = true;
+                
+                because();
+
+                var infos = MockLogger.MessagesFor(LogLevel.Info);
+                infos.Count.ShouldEqual(1);
+                infos[0].ShouldEqual("Would have listed templates in {0}".format_with(ApplicationParameters.TemplatesLocation));
             }
         }
 
@@ -423,6 +436,79 @@ namespace chocolatey.tests.infrastructure.app.services
 
                 MockLogger.MessagesFor(LogLevel.Info).Last().ShouldEqual(string.Format(@"Successfully generated Bob package specification files{0} at 'c:\packages\Bob'", Environment.NewLine));
             }
+        }
+
+        public class when_list_is_called_without_custom_templates : TemplateServiceSpecsBase
+        {
+            private Action because;
+            private readonly ChocolateyConfiguration config = new ChocolateyConfiguration();
+            private readonly List<string> files = new List<string>();
+            private readonly HashSet<string> directoryCreated = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+
+            public override void Because()
+            {
+                because = () => service.list(config);
+            }
+
+            public override void BeforeEachSpec()
+            {
+                MockLogger.reset();
+                files.Clear();
+                directoryCreated.Clear();
+            }
+
+            [Fact]
+            public void should_report_number_and_location_of_templates()
+            {
+                because();
+
+                var infos = MockLogger.MessagesFor(LogLevel.Info);
+                infos.Count.ShouldEqual(2);
+                infos.First().ShouldEqual(string.Format(@"No custom templates installed in {0}".format_with(ApplicationParameters.TemplatesLocation), Environment.NewLine));
+                infos.Last().ShouldEqual(string.Format(@"0 Templates found.", Environment.NewLine));
+            }
+
+        }
+        
+        public class when_list_is_called_with_custom_templates : TemplateServiceSpecsBase
+        {
+            private Action because;
+            private readonly ChocolateyConfiguration config = new ChocolateyConfiguration();
+            private readonly List<string> files = new List<string>();
+            private readonly HashSet<string> directoryCreated = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+
+            public override void Context()
+            {
+                base.Context();
+
+                fileSystem.Setup(x => x.get_current_directory()).Returns("c:\\chocolatey");
+                fileSystem.Setup(x => x.combine_paths(It.IsAny<string>(), It.IsAny<string>()))
+                    .Returns((string a, string[] b) => { return a + "\\" + b[0]; });
+            }
+
+            public override void Because()
+            {
+                because = () => service.list(config);
+            }
+
+            public override void BeforeEachSpec()
+            {
+                MockLogger.reset();
+                files.Clear();
+                directoryCreated.Clear();
+            }
+
+            [Fact]
+            public void should_report_number_and_location_of_templates()
+            {
+                because();
+
+                var infos = MockLogger.MessagesFor(LogLevel.Info);
+                //infos.Count.ShouldEqual(2);
+                //infos.First().ShouldEqual(string.Format(@"No custom templates installed in {0}".format_with(ApplicationParameters.TemplatesLocation), Environment.NewLine));
+                //infos.Last().ShouldEqual(string.Format(@"0 Templates found.", Environment.NewLine));
+            }
+
         }
     }
 }
