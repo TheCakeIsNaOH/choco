@@ -48,7 +48,7 @@ namespace chocolatey.infrastructure.app.services
         {
             if (configuration.NewCommand.List)
             {
-                this.Log().Info(() => "Would have listed templates in {0}".format_with(ApplicationParameters.InstallLocation));
+                this.Log().Info(() => "Would have listed templates in {0}\\templates".format_with(ApplicationParameters.InstallLocation));
             }
             else
             {
@@ -173,7 +173,7 @@ namespace chocolatey.infrastructure.app.services
 
             var logger = ChocolateyLoggers.Normal;
             if (configuration.QuietOutput) logger = ChocolateyLoggers.LogFileOnly;
-            var templateDirList = _fileSystem.get_directories(ApplicationParameters.TemplatesLocation);
+            var templateDirList = _fileSystem.get_directories(ApplicationParameters.TemplatesLocation).ToList();
 
             if (templateDirList.Any())
             {
