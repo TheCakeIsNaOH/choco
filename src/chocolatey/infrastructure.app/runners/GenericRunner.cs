@@ -87,7 +87,7 @@ namespace chocolatey.infrastructure.app.runners
                 }
 
                 var token = Assembly.GetExecutingAssembly().get_public_key_token();
-                if (string.IsNullOrWhiteSpace(token) || !token.is_equal_to(ApplicationParameters.OfficialChocolateyPublicKey))
+                /*if (string.IsNullOrWhiteSpace(token) || !token.is_equal_to(ApplicationParameters.OfficialChocolateyPublicKey))
                 {
                     if (!config.AllowUnofficialBuild)
                     {
@@ -106,7 +106,7 @@ Chocolatey is not an official build (bypassed with --allow-unofficial).
                         );
 
                     }
-                }
+                }*/
             }
 
             return command;
