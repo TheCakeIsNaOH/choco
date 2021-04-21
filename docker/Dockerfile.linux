@@ -11,11 +11,12 @@ RUN chmod +x build.sh
 RUN chmod +x zip.sh
 RUN ./build.sh
 
-WORKDIR /usr/local/bin
-RUN ln -s /usr/local/src/choco/code_drop/chocolatey
+WORKDIR /opt
+RUN cp -r /usr/local/src/choco/code_drop/chocolatey/console /opt/chocolatey && mkdir /opt/chocolatey/lib
 
 COPY docker/choco_wrapper /usr/local/bin/choco
+COPY docker/choco_wrapper /usr/local/bin/choco.exe
 
-ENV ChocolateyInstall /usr/local/bin/chocolatey
+ENV ChocolateyInstall /opt/chocolatey
 
 WORKDIR /root
