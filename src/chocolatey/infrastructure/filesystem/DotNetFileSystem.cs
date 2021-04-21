@@ -493,6 +493,11 @@ namespace chocolatey.infrastructure.filesystem
             return new FileStream(filePath, FileMode.OpenOrCreate);
         }
 
+        public FileStream create_file_overwrite(string filePath)
+        {
+            return new FileStream(filePath, FileMode.Create);
+        }
+
         public string read_file(string filePath)
         {
             try

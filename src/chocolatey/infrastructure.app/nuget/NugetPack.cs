@@ -34,7 +34,7 @@ namespace chocolatey.infrastructure.app.nuget
             bool isExistingPackage = fileSystem.file_exists(outputPath);
             try
             {
-                using (Stream stream = fileSystem.create_file(outputPath))
+                using (Stream stream = fileSystem.create_file_overwrite(outputPath))
                 {
                     builder.Save(stream);
                 }

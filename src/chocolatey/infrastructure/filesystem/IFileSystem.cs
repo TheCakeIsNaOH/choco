@@ -227,6 +227,13 @@ namespace chocolatey.infrastructure.filesystem
         FileStream create_file(string filePath);
 
         /// <summary>
+        ///   Creates a file, truncating if it already exists
+        /// </summary>
+        /// <param name="filePath">Path to the file name</param>
+        /// <returns>A file stream object for use after creating the file</returns>
+        FileStream create_file_overwrite(string filePath);
+
+        /// <summary>
         ///   Returns the contents of a file
         /// </summary>
         /// <param name="filePath">Path to the file name</param>
