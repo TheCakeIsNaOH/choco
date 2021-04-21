@@ -310,7 +310,7 @@ Did you know Pro / Business automatically syncs with Programs and
         /// <remarks>We want it random enough not to be annoying, but informative enough for awareness.</remarks>
         public void randomly_notify_about_pro_business(ChocolateyConfiguration config, string message = null)
         {
-            if (!config.Information.IsLicensedVersion && config.RegularOutput)
+            /*if (!config.Information.IsLicensedVersion && config.RegularOutput)
             {
                 // magic numbers! Basically about 10% of the time show a message.
                 if (new Random().Next(1, 10) == 3)
@@ -328,7 +328,7 @@ Did you know Pro / Business automatically syncs with Programs and
 
                     this.Log().Warn(ChocolateyLoggers.Important, message);
                 }
-            }
+            }*/
         }
 
         public virtual void handle_package_result(PackageResult packageResult, ChocolateyConfiguration config, CommandNameType commandName)
