@@ -29,6 +29,7 @@ goto finish
 echo.
 echo Usage: test.bat
 echo Usage: test.bat all - to run all tests
+echo Usage: test.bat full - to run all tests but notworking and ignored tests
 echo.
 goto finish
 
