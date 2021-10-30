@@ -1215,10 +1215,9 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [ExpectedException(typeof(ApplicationException))]
             public void should_throw_an_error_that_it_is_not_allowed()
             {
-                Results = Service.upgrade_run(Configuration);
+                Assert.Throws<ApplicationException>(() => Results = Service.upgrade_run(Configuration));
             }
         }
 

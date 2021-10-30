@@ -27,6 +27,7 @@ namespace chocolatey.tests.integration.scenarios
     using chocolatey.infrastructure.commands;
     using chocolatey.infrastructure.results;
     using NuGet;
+    using NUnit.Framework;
     using Should;
 
     public class PinScenarios
@@ -217,11 +218,10 @@ namespace chocolatey.tests.integration.scenarios
                 MockLogger.reset();
             }
 
-            [ExpectedException(typeof(ApplicationException), ExpectedMessage = "Unable to find package named 'whatisthis' to pin. Please check to ensure it is installed.")]
             [Fact]
             public void should_throw_an_error_about_not_finding_the_package()
             {
-                Service.run(Configuration);
+                Assert.Throws<ApplicationException>(() => Service.run(Configuration), "Unable to find package named 'whatisthis' to pin. Please check to ensure it is installed.");
             }
         }
 
@@ -286,11 +286,10 @@ namespace chocolatey.tests.integration.scenarios
                 MockLogger.reset();
             }
 
-            [ExpectedException(typeof(ApplicationException), ExpectedMessage = "Unable to find package named 'whatisthis' to pin. Please check to ensure it is installed.")]
             [Fact]
             public void should_throw_an_error_about_not_finding_the_package()
             {
-                Service.run(Configuration);
+                Assert.Throws<ApplicationException>(() => Service.run(Configuration), "Unable to find package named 'whatisthis' to pin. Please check to ensure it is installed.");
             }
         }
     }
