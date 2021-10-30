@@ -25,7 +25,7 @@ jobs:
         chmod +x build.sh
         $GITHUB_WORKSPACE//build.sh -v
     - name: Test with Nunit on Mono
-      run: $GITHUB_WORKSPACE//test.sh
+      run: $GITHUB_WORKSPACE//test.sh full
   # Build on Windows
   windows-build:
     runs-on: windows-latest
@@ -45,7 +45,7 @@ jobs:
           chmod +x build.sh
           $GITHUB_WORKSPACE//build.sh -v
      - name: Test with Nunit on Mono
-       run: $GITHUB_WORKSPACE//test.sh
+       run: $GITHUB_WORKSPACE//test.sh full
   # Build using Mono in Docker on Ubuntu
   docker-build:
     runs-on: ubuntu-latest
