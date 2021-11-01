@@ -1,13 +1,13 @@
 ﻿// Copyright © 2017 - 2021 Chocolatey Software, Inc
 // Copyright © 2011 - 2017 RealDimensions Software, LLC
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
-//
+// 
 // You may obtain a copy of the License at
-//
+// 
 // 	http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,10 +18,11 @@ namespace chocolatey.tests.integration.scenarios
 {
     using System;
     using System.IO;
+    using bdddoc.core;
     using chocolatey.infrastructure.app.commands;
     using chocolatey.infrastructure.app.configuration;
     using chocolatey.infrastructure.app.services;
-    using Should;
+    using FluentAssertions;
 
     public class PackScenarios
     {
@@ -40,6 +41,7 @@ namespace chocolatey.tests.integration.scenarios
             }
         }
 
+        [Concern(typeof(ChocolateyPackCommand))]
         public class when_packing_without_specifying_an_output_directory : ScenariosBase
         {
             private readonly string package_path = Path.Combine(Scenario.get_top_level(), "test-package.0.1.0.nupkg");
@@ -63,20 +65,21 @@ namespace chocolatey.tests.integration.scenarios
             public void generated_package_should_be_in_current_directory()
             {
                 var infos = MockLogger.MessagesFor(LogLevel.Info);
-                infos.Count.ShouldEqual(2);
-                infos[0].ShouldEqual("Attempting to build package from 'myPackage.nuspec'.");
-                infos[1].ShouldEqual(string.Concat("Successfully created package '", package_path, "'"));
+                infos.Count.Should().Be(2);
+                infos[0].Should().Be("Attempting to build package from 'myPackage.nuspec'.");
+                infos[1].Should().Be(string.Concat("Successfully created package '", package_path, "'"));
 
-                File.Exists(package_path).ShouldBeTrue();
+                File.Exists(package_path).Should().BeTrue();
             }
 
             [Fact]
             public void sources_should_be_set_to_current_directory()
             {
-                Configuration.Sources.ShouldEqual(Scenario.get_top_level());
+                Configuration.Sources.Should().Be(Scenario.get_top_level());
             }
         }
 
+        [Concern(typeof(ChocolateyPackCommand))]
         public class when_packing_with_an_output_directory : ScenariosBase
         {
             private readonly string package_path = Path.Combine("PackageOutput", "test-package.0.1.0.nupkg");
@@ -98,20 +101,21 @@ namespace chocolatey.tests.integration.scenarios
             public void generated_package_should_be_in_specified_output_directory()
             {
                 var infos = MockLogger.MessagesFor(LogLevel.Info);
-                infos.Count.ShouldEqual(2);
-                infos[0].ShouldEqual("Attempting to build package from 'myPackage.nuspec'.");
-                infos[1].ShouldEqual(string.Concat("Successfully created package '", package_path, "'"));
+                infos.Count.Should().Be(2);
+                infos[0].Should().Be("Attempting to build package from 'myPackage.nuspec'.");
+                infos[1].Should().Be(string.Concat("Successfully created package '", package_path, "'"));
 
-                File.Exists(package_path).ShouldBeTrue();
+                File.Exists(package_path).Should().BeTrue();
             }
 
             [Fact]
             public void sources_should_be_set_to_specified_output_directory()
             {
-                Configuration.Sources.ShouldEqual("PackageOutput");
+                Configuration.Sources.Should().Be("PackageOutput");
             }
         }
 
+        [Concern(typeof(ChocolateyPackCommand))]
         public class when_packing_with_properties : ScenariosBase
         {
             private readonly string package_path = Path.Combine(Scenario.get_top_level(), "test-package.0.1.0.nupkg");
@@ -142,18 +146,18 @@ namespace chocolatey.tests.integration.scenarios
             public void generated_package_should_be_in_current_directory()
             {
                 var infos = MockLogger.MessagesFor(LogLevel.Info);
-                infos.Count.ShouldEqual(2);
-                infos[0].ShouldEqual("Attempting to build package from 'myPackage.nuspec'.");
-                infos[1].ShouldEqual(string.Concat("Successfully created package '", package_path, "'"));
+                infos.Count.Should().Be(2);
+                infos[0].Should().Be("Attempting to build package from 'myPackage.nuspec'.");
+                infos[1].Should().Be(string.Concat("Successfully created package '", package_path, "'"));
 
-                File.Exists(package_path).ShouldBeTrue();
+                File.Exists(package_path).Should().BeTrue();
             }
 
             [Fact]
             public void property_settings_should_be_logged_as_debug_messages()
             {
                 var messages = MockLogger.MessagesFor(LogLevel.Debug);
-                messages.Count.ShouldEqual(2);
+                messages.Count.Should().Be(2);
                 messages.Contains("Setting property 'commitId': 1234abcd");
                 messages.Contains("Setting property 'version': 0.1.0");
             }
@@ -175,8 +179,8 @@ namespace chocolatey.tests.integration.scenarios
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <releaseNotes></releaseNotes>
   </metadata>
-</package>";
-
+</package>";      
+        
         private const string NuspecContentWithChocolateyData = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <package xmlns=""http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"">
   <metadata>
