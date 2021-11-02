@@ -20,6 +20,7 @@ namespace chocolatey.infrastructure.cryptography
     using System.Security.Cryptography;
     using System.Text;
     using adapters;
+    using platforms;
 
     public class DefaultEncryptionUtility : IEncryptionUtility
     {
@@ -30,7 +31,26 @@ namespace chocolatey.infrastructure.cryptography
             if (string.IsNullOrWhiteSpace(cleartextValue)) return null;
 
             var decryptedByteArray = Encoding.UTF8.GetBytes(cleartextValue);
-            var encryptedByteArray = ProtectedData.Protect(decryptedByteArray, _entropyBytes, DataProtectionScope.LocalMachine);
+            byte[] encryptedByteArray;
+            try
+            {
+                encryptedByteArray = ProtectedData.Protect(decryptedByteArray, _entropyBytes, DataProtectionScope.LocalMachine);
+            }
+            catch(Exception ex)
+            {
+                if (Platform.get_platform() != PlatformType.Windows && ex is CryptographicException)
+                {
+                    this.Log().Warn(@"Could not encrypt with LocalMachine scope.
+Falling back to CurrentUser scope for encryption.
+This is can be because the machine keyfile cannot be written as a normal user.
+Anything encrypted as CurrentUser can only be decrypted by your current user.");
+                    encryptedByteArray = ProtectedData.Protect(decryptedByteArray, _entropyBytes, DataProtectionScope.CurrentUser);
+                }
+                else
+                {
+                    throw;
+                }
+            }
             var encryptedString = Convert.ToBase64String(encryptedByteArray);
 
             return encryptedString;
@@ -39,7 +59,26 @@ namespace chocolatey.infrastructure.cryptography
         public string decrypt_string(string encryptedString)
         {
             var encryptedByteArray = Convert.FromBase64String(encryptedString);
-            var decryptedByteArray = ProtectedData.Unprotect(encryptedByteArray, _entropyBytes, DataProtectionScope.LocalMachine);
+            byte[] decryptedByteArray;
+
+            try
+            {
+                decryptedByteArray = ProtectedData.Unprotect(encryptedByteArray, _entropyBytes, DataProtectionScope.LocalMachine);
+            }
+            catch (Exception ex)
+            {
+                if (Platform.get_platform() != PlatformType.Windows && ex is CryptographicException)
+                {
+                    this.Log().Warn(@"Could not decrypt with LocalMachine scope.
+Falling back to CurrentUser scope for decryption.
+Anything encrypted as CurrentUser can only be decrypted by your current user.");
+                    decryptedByteArray = ProtectedData.Unprotect(encryptedByteArray, _entropyBytes, DataProtectionScope.CurrentUser);
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
             return Encoding.UTF8.GetString(decryptedByteArray);
         }
