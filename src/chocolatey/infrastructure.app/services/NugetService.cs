@@ -524,6 +524,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                 }
                 catch (Exception ex)
                 {
+                    throw;
                     var message = ex.Message;
                     var webException = ex as System.Net.WebException;
                     if (webException != null)
