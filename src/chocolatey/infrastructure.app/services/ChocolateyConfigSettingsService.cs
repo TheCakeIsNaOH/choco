@@ -70,7 +70,7 @@ namespace chocolatey.infrastructure.app.services
                 {
                     if (configuration.RegularOutput)
                     {
-                        this.Log().Info(() => "{0}{1} - {2} {3}| Priority {4}|Bypass Proxy - {5}|Self-Service - {6}|Admin Only - {7}.".format_with(
+                        this.Log().Info(() => "{0}{1} - {2} {3}| Priority {4}|Bypass Proxy - {5}|Self-Service - {6}|Admin Only - {7}|Confirm - {8}.".format_with(
                         source.Id,
                         source.Disabled ? " [Disabled]" : string.Empty,
                         source.Value,
@@ -78,12 +78,13 @@ namespace chocolatey.infrastructure.app.services
                         source.Priority,
                         source.BypassProxy.to_string(),
                         source.AllowSelfService.to_string(),
-                        source.VisibleToAdminsOnly.to_string()
+                        source.VisibleToAdminsOnly.to_string(),
+                        source.Confirm.to_string()
                         ));
                     }
                     else
                     {
-                        this.Log().Info(() => "{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}".format_with(
+                        this.Log().Info(() => "{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}".format_with(
                         source.Id.quote_if_pipe_found(),
                         source.Value,
                         source.Disabled.to_string(),
@@ -92,7 +93,8 @@ namespace chocolatey.infrastructure.app.services
                         source.Priority,
                         source.BypassProxy.to_string(),
                         source.AllowSelfService.to_string(),
-                        source.VisibleToAdminsOnly.to_string()
+                        source.VisibleToAdminsOnly.to_string(),
+                        source.Confirm.to_string()
                         ));
                     }
                 }
@@ -105,7 +107,8 @@ namespace chocolatey.infrastructure.app.services
                     Priority = source.Priority,
                     BypassProxy = source.BypassProxy,
                     AllowSelfService = source.AllowSelfService,
-                    VisibleToAdminOnly = source.VisibleToAdminsOnly
+                    VisibleToAdminOnly = source.VisibleToAdminsOnly,
+                    Confirm = source.Confirm
                 });
             }
             return list;
@@ -127,7 +130,8 @@ namespace chocolatey.infrastructure.app.services
                     Priority = configuration.SourceCommand.Priority,
                     BypassProxy = configuration.SourceCommand.BypassProxy,
                     AllowSelfService = configuration.SourceCommand.AllowSelfService,
-                    VisibleToAdminsOnly = configuration.SourceCommand.VisibleToAdminsOnly
+                    VisibleToAdminsOnly = configuration.SourceCommand.VisibleToAdminsOnly,
+                    Confirm = configuration.SourceCommand.Confirm
                 };
                 configFileSettings.Sources.Add(source);
 
@@ -146,7 +150,8 @@ namespace chocolatey.infrastructure.app.services
                     configuration.SourceCommand.Certificate.is_equal_to(source.Certificate) &&
                     configuration.SourceCommand.BypassProxy == source.BypassProxy &&
                     configuration.SourceCommand.AllowSelfService == source.AllowSelfService &&
-                    configuration.SourceCommand.VisibleToAdminsOnly == source.VisibleToAdminsOnly
+                    configuration.SourceCommand.VisibleToAdminsOnly == source.VisibleToAdminsOnly &&
+                    configuration.SourceCommand.Confirm == source.Confirm
                     )
                 {
                     if (!configuration.QuietOutput) this.Log().Warn(NO_CHANGE_MESSAGE);
@@ -162,6 +167,7 @@ namespace chocolatey.infrastructure.app.services
                     source.BypassProxy = configuration.SourceCommand.BypassProxy;
                     source.AllowSelfService = configuration.SourceCommand.AllowSelfService;
                     source.VisibleToAdminsOnly = configuration.SourceCommand.VisibleToAdminsOnly;
+                    source.Confirm = configuration.SourceCommand.Confirm;
 
                     _xmlService.serialize(configFileSettings, ApplicationParameters.GlobalConfigFileLocation);
                     if (!configuration.QuietOutput) this.Log().Warn(() => "Updated {0} - {1} (Priority {2})".format_with(source.Id, source.Value, source.Priority));

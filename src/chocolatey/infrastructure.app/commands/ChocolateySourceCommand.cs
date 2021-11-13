@@ -74,6 +74,9 @@ namespace chocolatey.infrastructure.app.commands
                 .Add("adminonly|admin-only",
                      "Visible to Administrators Only - Should this source be visible to non-administrators? Requires business edition (v1.12.2+). Defaults to false. Available in 0.10.8+.",
                      option => configuration.SourceCommand.VisibleToAdminsOnly = option != null)
+                .Add("confirm",
+                    "Confirm - Should this source automatically run package scripts instead of prompting to confirm? Defaults to false. Available in 0.12.0+.",
+                    option => configuration.SourceCommand.Confirm = option != null)
                 ;
         }
 

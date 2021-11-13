@@ -33,5 +33,7 @@ namespace chocolatey.infrastructure.app.configuration
         public bool VisibleToAdminOnly { get; set; }
 
         public int Priority { get; set; }
+
+        public int Priority { get; set; }
     }
 }

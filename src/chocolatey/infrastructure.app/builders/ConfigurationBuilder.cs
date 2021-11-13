@@ -201,7 +201,8 @@ namespace chocolatey.infrastructure.app.builders
                         Priority = source.Priority,
                         BypassProxy = source.BypassProxy,
                         AllowSelfService = source.AllowSelfService,
-                        VisibleToAdminsOnly = source.VisibleToAdminsOnly
+                        VisibleToAdminsOnly = source.VisibleToAdminsOnly,
+                        Confirm = source.Confirm
                     });
             }
         }

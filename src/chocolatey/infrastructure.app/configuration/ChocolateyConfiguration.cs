@@ -487,6 +487,7 @@ NOTE: Hiding sensitive configuration data! Please double and triple
         public bool BypassProxy { get; set; }
         public bool AllowSelfService { get; set; }
         public bool VisibleToAdminsOnly { get; set; }
+        public bool Confirm { get; set; }
     }
 
     [Serializable]
@@ -502,6 +503,7 @@ NOTE: Hiding sensitive configuration data! Please double and triple
         public bool BypassProxy { get; set; }
         public bool AllowSelfService { get; set; }
         public bool VisibleToAdminsOnly { get; set; }
+        public bool Confirm { get; set; }
     }
 
     [Serializable]

@@ -59,6 +59,9 @@ namespace chocolatey.infrastructure.app.configuration
         [XmlAttribute(AttributeName = "certificatePassword")]
         public string CertificatePassword { get; set; }
 
+        [XmlAttribute(AttributeName = "confirm")]
+        public bool Confirm { get; set; }
+
         public override bool Equals(object obj)
         {
             // Check for null values and compare run-time types.
@@ -79,7 +82,8 @@ namespace chocolatey.infrastructure.app.configuration
                 && (Password == item.Password)
                 && (Priority == item.Priority)
                 && (Certificate == item.Certificate)
-                && (CertificatePassword == item.CertificatePassword);
+                && (CertificatePassword == item.CertificatePassword)
+                && (Confirm == item.Confirm);
         }
 
         public override int GetHashCode()
@@ -95,7 +99,8 @@ namespace chocolatey.infrastructure.app.configuration
                 .And(Password)
                 .And(Priority)
                 .And(Certificate)
-                .And(CertificatePassword);
+                .And(CertificatePassword)
+                .And(Confirm);
         }
     }
 }
