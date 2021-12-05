@@ -586,15 +586,16 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
         public ConcurrentDictionary<string, PackageResult> upgrade_noop(ChocolateyConfiguration config, Action<PackageResult> continueAction)
         {
             config.Force = false;
-            return upgrade_run(config, continueAction, performAction: false);
+            var resetConfigAction = new Action<ChocolateyConfiguration>(newConfig => { });
+            return upgrade_run(config, continueAction, false, resetConfigAction);
         }
 
-        public ConcurrentDictionary<string, PackageResult> upgrade_run(ChocolateyConfiguration config, Action<PackageResult> continueAction, Action<PackageResult> beforeUpgradeAction = null)
+        public ConcurrentDictionary<string, PackageResult> upgrade_run(ChocolateyConfiguration config, Action<PackageResult> continueAction, Action<ChocolateyConfiguration> resetConfigAction, Action<PackageResult> beforeUpgradeAction = null)
         {
-            return upgrade_run(config, continueAction, performAction: true, beforeUpgradeAction: beforeUpgradeAction);
+            return upgrade_run(config, continueAction, true, resetConfigAction, beforeUpgradeAction);
         }
 
-        public virtual ConcurrentDictionary<string, PackageResult> upgrade_run(ChocolateyConfiguration config, Action<PackageResult> continueAction, bool performAction, Action<PackageResult> beforeUpgradeAction = null)
+        public virtual ConcurrentDictionary<string, PackageResult> upgrade_run(ChocolateyConfiguration config, Action<PackageResult> continueAction, bool performAction, Action<ChocolateyConfiguration> resetConfigAction, Action<PackageResult> beforeUpgradeAction = null)
         {
             _fileSystem.create_directory_if_not_exists(ApplicationParameters.PackagesLocation);
             var packageInstalls = new ConcurrentDictionary<string, PackageResult>(StringComparer.InvariantCultureIgnoreCase);
@@ -877,6 +878,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                         }
                     }
                 }
+                resetConfigAction.Invoke(originalConfig);
             }
 
             return packageInstalls;
@@ -951,6 +953,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                 packageResult.Messages.Add(new ResultMessage(ResultType.Note, logMessage));
 
                 this.Log().Info("{0}|{1}|{2}|{3}".format_with(installedPackage.Id, installedPackage.Version, latestPackage.Version, isPinned.to_string().to_lower()));
+
             }
 
             return outdatedPackages;

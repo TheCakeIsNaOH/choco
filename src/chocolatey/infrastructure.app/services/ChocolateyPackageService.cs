@@ -787,6 +787,8 @@ Would have determined packages that are out of date based on what is
 
             try
             {
+                var resetConfigAction = new Action<ChocolateyConfiguration>(newConfig => config = newConfig.deep_copy());
+                
                 Action<PackageResult> action = null;
                 if (config.SourceType == SourceType.normal)
                 {
@@ -796,7 +798,7 @@ Would have determined packages that are out of date based on what is
                 get_environment_before(config, allowLogging: true);
 
                 var beforeUpgradeAction = new Action<PackageResult>(packageResult => before_package_modify(packageResult, config));
-                var results = perform_source_runner_function(config, r => r.upgrade_run(config, action, beforeUpgradeAction));
+                var results = perform_source_runner_function(config, r => r.upgrade_run(config, action, resetConfigAction, beforeUpgradeAction));
 
                 foreach (var result in results)
                 {

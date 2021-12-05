@@ -87,9 +87,10 @@ namespace chocolatey.infrastructure.app.services
         /// </summary>
         /// <param name="config">The configuration.</param>
         /// <param name="continueAction">The action to continue with when upgrade is successful.</param>
+        /// <param name="resetConfigAction">The action that can be used to reset the configuration in the caller</param>
         /// <param name="beforeUpgradeAction">The action (if any) to run on any currently installed package before triggering the upgrade.</param>
         /// <returns>results of installs</returns>
-        ConcurrentDictionary<string, PackageResult> upgrade_run(ChocolateyConfiguration config, Action<PackageResult> continueAction, Action<PackageResult> beforeUpgradeAction = null);
+        ConcurrentDictionary<string, PackageResult> upgrade_run(ChocolateyConfiguration config, Action<PackageResult> continueAction, Action<ChocolateyConfiguration> resetConfigAction, Action<PackageResult> beforeUpgradeAction = null);
 
         /// <summary>
         ///   Run uninstall in noop mode

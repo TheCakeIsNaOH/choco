@@ -258,7 +258,7 @@ namespace chocolatey.infrastructure.app.services
             return new ConcurrentDictionary<string, PackageResult>(StringComparer.InvariantCultureIgnoreCase);
         }
 
-        public ConcurrentDictionary<string, PackageResult> upgrade_run(ChocolateyConfiguration config, Action<PackageResult> continueAction, Action<PackageResult> beforeUpgradeAction = null)
+        public ConcurrentDictionary<string, PackageResult> upgrade_run(ChocolateyConfiguration config, Action<PackageResult> continueAction, Action<ChocolateyConfiguration> resetConfigAction, Action<PackageResult> beforeUpgradeAction = null)
         {
             throw new NotImplementedException("{0} does not implement upgrade".format_with(APP_NAME));
         }
