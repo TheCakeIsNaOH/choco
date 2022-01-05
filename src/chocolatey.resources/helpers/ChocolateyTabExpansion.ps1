@@ -63,7 +63,7 @@ $commandOptions = @{
   download = "--internalize --internalize-all-urls --ignore-dependencies --installed-packages --ignore-unfound-packages --resources-location='' --download-location='' --outputdirectory='' --source='' --version='' --prerelease --user='' --password='' --cert='' --certpassword='' --append-use-original-location --recompile --disable-package-repository-optimizations -?" + $allcommands
   sync = "--output-directory='' --id='' --package-id='' -?" + $allcommands
   optimize = "--deflate-nupkg-only --id='' -?" + $allcommands
-  export = "--include-version-numbers --output-file-path='' -?" + $allcommands
+  export = "--include-version-numbers --output-file-path='' --include-remembered-arguments -?" + $allcommands
   template = "--name=''" + $allcommands
 }
 

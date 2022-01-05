@@ -36,16 +36,20 @@ namespace chocolatey.tests.infrastructure.app.commands
             protected Mock<INugetService> nugetService = new Mock<INugetService>();
             protected Mock<IFileSystem> fileSystem = new Mock<IFileSystem>();
             protected ChocolateyConfiguration configuration = new ChocolateyConfiguration();
+            protected Mock<IChocolateyPackageInformationService> packageInfoService = new Mock<IChocolateyPackageInformationService>();
+            protected Mock<IChocolateyPackageService> packageService = new Mock<IChocolateyPackageService>();
 
             public override void Context()
             {
-                command = new ChocolateyExportCommand(nugetService.Object, fileSystem.Object);
+                command = new ChocolateyExportCommand(nugetService.Object, fileSystem.Object, packageInfoService.Object, packageService.Object);
             }
 
             public void reset()
             {
                 nugetService.ResetCalls();
                 fileSystem.ResetCalls();
+                packageInfoService.ResetCalls();
+                packageService.ResetCalls();
             }
         }
 
@@ -102,6 +106,18 @@ namespace chocolatey.tests.infrastructure.app.commands
             public void should_add_include_version_to_the_option_set()
             {
                 optionSet.Contains("include-version").ShouldBeTrue();
+            }
+
+            [Fact]
+            public void should_add_include_arguments_to_the_option_set()
+            {
+                optionSet.Contains("include-arguments").ShouldBeTrue();
+            }
+
+            [Fact]
+            public void should_add_include_remembered_arguments_to_the_option_set()
+            {
+                optionSet.Contains("include-remembered-arguments").ShouldBeTrue();
             }
         }
 

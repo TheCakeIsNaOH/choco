@@ -36,11 +36,19 @@ namespace chocolatey.infrastructure.app.commands
     {
         private readonly INugetService _nugetService;
         private readonly IFileSystem _fileSystem;
+        private readonly IChocolateyPackageInformationService _packageInfoService;
+        private readonly IChocolateyPackageService _packageService;
 
-        public ChocolateyExportCommand(INugetService nugetService, IFileSystem fileSystem)
+        public ChocolateyExportCommand(
+            INugetService nugetService, 
+            IFileSystem fileSystem, 
+            IChocolateyPackageInformationService packageInfoService, 
+            IChocolateyPackageService packageService)
         {
             _nugetService = nugetService;
             _fileSystem = fileSystem;
+            _packageInfoService = packageInfoService;
+            _packageService = packageService;
         }
 
         public void configure_argument_parser(OptionSet optionSet, ChocolateyConfiguration configuration)
@@ -52,6 +60,9 @@ namespace chocolatey.infrastructure.app.commands
                 .Add("include-version-numbers|include-version",
                      "Include Version Numbers - controls whether or not version numbers for each package appear in generated file.  Defaults to false.",
                      option => configuration.ExportCommand.IncludeVersionNumbers = option != null)
+                .Add("include-arguments|include-remembered-arguments",
+                    "Include Remembered Arguments - controls whether or not remembered arguments for each package appear in generated file.  Defaults to false. Available in 1.2.0+",
+                    option => configuration.ExportCommand.IncludeRememberedPackageArguments = option != null)
                 ;
         }
 
@@ -97,12 +108,14 @@ NOTE: Available with 0.11.0+.
             "chocolatey".Log().Info(@"
     choco export
     choco export --include-version-numbers
+    choco export --include-version-numbers --include-remembered-arguments
     choco export ""'c:\temp\packages.config'""
     choco export ""'c:\temp\packages.config'"" --include-version-numbers
     choco export -o=""'c:\temp\packages.config'""
     choco export -o=""'c:\temp\packages.config'"" --include-version-numbers
     choco export --output-file-path=""'c:\temp\packages.config'""
     choco export --output-file-path=""'c:\temp\packages.config'"" --include-version-numbers
+    choco export --output-file-path=""'c:\temp\packages.config'"" --include-remembered-arguments
 
 NOTE: See scripting in the command reference (`choco -?`) for how to
  write proper scripts and integrations.
@@ -133,13 +146,24 @@ If you find other exit codes that we have not yet documented, please
 
         public void noop(ChocolateyConfiguration configuration)
         {
-            this.Log().Info("Export would have been with options: {0} Output File Path={1}{0} Include Version Numbers:{2}".format_with(Environment.NewLine, configuration.ExportCommand.OutputFilePath, configuration.ExportCommand.IncludeVersionNumbers));
+            this.Log().Info("Export would have been with options: {0} Output File Path={1}{0} Include Version Numbers:{2}{0} Include Remembered Arguments: {3}".format_with(Environment.NewLine, configuration.ExportCommand.OutputFilePath, configuration.ExportCommand.IncludeVersionNumbers, configuration.ExportCommand.IncludeRememberedPackageArguments));
         }
 
         public void run(ChocolateyConfiguration configuration)
         {
             var packageResults = _nugetService.get_all_installed_packages(configuration);
             var settings = new XmlWriterSettings { Indent = true, Encoding = new UTF8Encoding(false) };
+            var originalConfiguration = configuration.deep_copy();
+
+            if (configuration.ExportCommand.IncludeRememberedPackageArguments)
+            {
+                // The -o argument from the export command options set interferes with the -o argument from the install command options set.
+                ConfigurationOptions.OptionSet.Remove("o");
+
+                // Add the options set from the install command.
+                var installCommand = new ChocolateyInstallCommand(_packageService);
+                installCommand.configure_argument_parser(ConfigurationOptions.OptionSet, configuration);
+            }
 
             FaultTolerance.try_catch_with_logging_exception(
                 () =>
@@ -159,6 +183,49 @@ If you find other exit codes that we have not yet documented, please
                                 if (configuration.ExportCommand.IncludeVersionNumbers)
                                 {
                                     xw.WriteAttributeString("version", packageResult.Package.Version.ToString());
+                                }
+
+                                if (configuration.ExportCommand.IncludeRememberedPackageArguments)
+                                {
+                                    var pkgInfo = _packageInfoService.get_package_information(packageResult.Package);
+                                    configuration.Features.UseRememberedArgumentsForUpgrades = true;
+                                    _nugetService.set_package_config_for_upgrade(configuration, pkgInfo);
+
+                                    // Mirrors the arguments captured in ChocolateyPackageService.capture_arguments()
+
+                                    if (configuration.Prerelease) xw.WriteAttributeString("prerelease", "true");
+                                    if (configuration.IgnoreDependencies) xw.WriteAttributeString("ignoreDependencies", "true");
+                                    if (configuration.ForceX86) xw.WriteAttributeString("forceX86", "true");
+
+                                    if (!string.IsNullOrWhiteSpace(configuration.InstallArguments)) xw.WriteAttributeString("installArguments", configuration.InstallArguments);
+                                    if (configuration.OverrideArguments) xw.WriteAttributeString("overrideArguments", "true");
+                                    if (configuration.ApplyInstallArgumentsToDependencies) xw.WriteAttributeString("applyInstallArgumentsToDependencies", "true");
+
+                                    if (!string.IsNullOrWhiteSpace(configuration.PackageParameters)) xw.WriteAttributeString("packageParameters", configuration.PackageParameters);
+                                    if (configuration.ApplyPackageParametersToDependencies) xw.WriteAttributeString("applyPackageParametersToDependencies", "true");
+
+                                    if (configuration.AllowDowngrade) xw.WriteAttributeString("allowDowngrade", "true");
+                                    if (configuration.AllowMultipleVersions) xw.WriteAttributeString("allowMultipleVersions", "true");
+
+                                    if (!string.IsNullOrWhiteSpace(configuration.SourceCommand.Username)) xw.WriteAttributeString("user", configuration.SourceCommand.Username);
+                                    if (!string.IsNullOrWhiteSpace(configuration.SourceCommand.Password)) xw.WriteAttributeString("password", configuration.SourceCommand.Password);
+                                    if (!string.IsNullOrWhiteSpace(configuration.SourceCommand.Certificate)) xw.WriteAttributeString("cert", configuration.SourceCommand.Certificate);
+                                    if (!string.IsNullOrWhiteSpace(configuration.SourceCommand.CertificatePassword)) xw.WriteAttributeString("certPassword", configuration.SourceCommand.CertificatePassword);
+
+                                    // Arguments from the global options set
+                                    if (configuration.CommandExecutionTimeoutSeconds != ApplicationParameters.DefaultWaitForExitInSeconds)
+                                    {
+                                        xw.WriteAttributeString("timeout",configuration.CommandExecutionTimeoutSeconds.to_string());
+                                    }
+
+                                    // This was discussed in the PR, and because it is potentially system specific, it should not be included in the exported file
+                                    // if (!string.IsNullOrWhiteSpace(configuration.CacheLocation)) xw.WriteAttributeString("cacheLocation", configuration.CacheLocation);
+
+                                    if (configuration.Features.FailOnStandardError) xw.WriteAttributeString("failOnStderr", "true");
+                                    if (!configuration.Features.UsePowerShellHost) xw.WriteAttributeString("useSystemPowershell", "true");
+
+                                    // Make sure to reset the configuration
+                                    configuration = originalConfiguration.deep_copy();
                                 }
 
                                 xw.WriteEndElement();
