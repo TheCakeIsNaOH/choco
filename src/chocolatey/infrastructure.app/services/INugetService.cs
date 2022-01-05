@@ -19,6 +19,7 @@ namespace chocolatey.infrastructure.app.services
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using configuration;
+    using domain;
     using results;
 
     public interface INugetService : ISourceRunner
@@ -65,5 +66,13 @@ namespace chocolatey.infrastructure.app.services
         /// </summary>
         /// <param name="config">The configuration</param>
         IEnumerable<PackageResult> get_all_installed_packages(ChocolateyConfiguration config);
+
+        /// <summary>
+        /// Sets the configuration for the package upgrade
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <param name="packageInfo">The package information.</param>
+        /// <returns>The original unmodified configuration, so it can be reset after upgrade</returns>
+        ChocolateyConfiguration set_package_config_for_upgrade(ChocolateyConfiguration config, ChocolateyPackageInformation packageInfo);
     }
 }

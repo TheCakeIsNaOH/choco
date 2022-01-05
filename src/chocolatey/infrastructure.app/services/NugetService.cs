@@ -986,7 +986,7 @@ Side by side installations are deprecated and is pending removal in v2.0.0".form
         /// <param name="config">The configuration.</param>
         /// <param name="packageInfo">The package information.</param>
         /// <returns>The original unmodified configuration, so it can be reset after upgrade</returns>
-        protected virtual ChocolateyConfiguration set_package_config_for_upgrade(ChocolateyConfiguration config, ChocolateyPackageInformation packageInfo)
+        public virtual ChocolateyConfiguration set_package_config_for_upgrade(ChocolateyConfiguration config, ChocolateyPackageInformation packageInfo)
         {
             if (!config.Features.UseRememberedArgumentsForUpgrades || string.IsNullOrWhiteSpace(packageInfo.Arguments)) return config;
 
