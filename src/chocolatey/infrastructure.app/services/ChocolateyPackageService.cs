@@ -407,6 +407,7 @@ Did you know Pro / Business automatically syncs with Programs and
             {
                 handle_extension_packages(config, packageResult);
                 handle_template_packages(config, packageResult);
+                handle_license_packages(config, packageResult);
                 pkgInfo.Arguments = capture_arguments(config, packageResult);
             }
 
@@ -1052,6 +1053,7 @@ package '{0}' - stopping further execution".format_with(packageResult.Name));
             remove_rollback_if_exists(packageResult);
             handle_extension_packages(config, packageResult);
             handle_template_packages(config, packageResult);
+            handle_license_packages(config, packageResult);
 
             if (config.Force)
             {
@@ -1201,6 +1203,49 @@ package '{0}' - stopping further execution".format_with(packageResult.Name));
                 this.Log().Warn(logMessage);
                 packageResult.Messages.Add(new ResultMessage(ResultType.Note, logMessage));
             }
+        }
+
+        private void handle_license_packages(ChocolateyConfiguration config, PackageResult packageResult)
+        {
+            if (packageResult == null) return;
+            if (!packageResult.Name.to_lower().EndsWith(".license")) return;
+
+            _fileSystem.create_directory_if_not_exists(ApplicationParameters.LicenseFolderLocation);
+
+            FaultTolerance.try_catch_with_logging_exception(
+                () => _fileSystem.delete_directory_if_exists(ApplicationParameters.LicenseFolderLocation, true),
+            "Attempted to remove '{0}' but had an error".format_with(ApplicationParameters.LicenseFolderLocation));
+
+            if (!config.CommandName.is_equal_to(CommandNameType.uninstall.to_string()))
+            {
+                _fileSystem.create_directory_if_not_exists(ApplicationParameters.LicenseFolderLocation);
+                var templatesPath = _fileSystem.combine_paths(packageResult.InstallLocation, "templates");
+                var templatesFolderToCopy = _fileSystem.directory_exists(templatesPath) ? templatesPath : packageResult.InstallLocation;
+
+                FaultTolerance.try_catch_with_logging_exception(
+                    () =>
+                    {
+                        _fileSystem.copy_directory(templatesFolderToCopy, installTemplatePath, overwriteExisting: true);
+                        foreach (var nuspecFile in _fileSystem.get_files(installTemplatePath, "*.nuspec.template").or_empty_list_if_null())
+                        {
+                            _fileSystem.move_file(nuspecFile, nuspecFile.Replace(".nuspec.template", ".nuspec"));
+                        }
+                    },
+                    "Attempted to copy{0} '{1}'{0} to '{2}'{0} but had an error".format_with(Environment.NewLine, templatesFolderToCopy, installTemplatePath));
+
+                string logMessage = " Installed/updated {0} template.".format_with(templateFolderName);
+                this.Log().Warn(logMessage);
+                packageResult.Messages.Add(new ResultMessage(ResultType.Note, logMessage));
+
+                Environment.SetEnvironmentVariable(ApplicationParameters.Environment.ChocolateyPackageInstallLocation, installTemplatePath, EnvironmentVariableTarget.Process);
+            }
+            else
+            {
+                string logMessage = " Uninstalled {0} template.".format_with(templateFolderName);
+                this.Log().Warn(logMessage);
+                packageResult.Messages.Add(new ResultMessage(ResultType.Note, logMessage));
+            }
+
         }
 
         private void ensure_bad_package_path_is_clean(ChocolateyConfiguration config, PackageResult packageResult)
