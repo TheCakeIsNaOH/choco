@@ -18,6 +18,7 @@ namespace chocolatey.infrastructure.app.commands
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using attributes;
     using commandline;
@@ -234,6 +235,10 @@ namespace chocolatey.infrastructure.app.commands
 
         public virtual void help_message(ChocolateyConfiguration configuration)
         {
+            //var thing = new PackagesConfigFilePackageSetting{};
+            //var thing2 = thing.GetType().GetMembers();
+            var thing3 = typeof(PackagesConfigFilePackageSetting).GetProperties();
+
             this.Log().Info(ChocolateyLoggers.Important, "Install Command");
             this.Log().Info(@"
 Installs a package or a list of packages (sometimes specified as a
