@@ -56,7 +56,7 @@ param(
   Write-FunctionCallLogMessage -Invocation $MyInvocation -Parameters $PSBoundParameters
   Write-Warning "Write-ChocolateyFailure is deprecated and will be removed in v2. If you are the package maintainer, please use 'throw `$_.Exception' instead."
 
-  $error | ForEach-Object{ $_.Exception | Format-List * | Out-String }
+  $error | %{ $_.Exception | fl * | Out-String }
 
   throw "$failureMessage"
 }

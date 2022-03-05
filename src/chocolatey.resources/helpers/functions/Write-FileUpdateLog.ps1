@@ -72,11 +72,11 @@ param (
   $changedFiles = Compare-Object $originalContents $newContents -Property LastWriteTimeUtc,FullName,Length -PassThru | Group-Object FullName
 
   #log modified files
-  $changedFiles | Where-Object {$_.Count -gt 1} | ForEach-Object {$_.Name} | Add-Content $logFilePath
+  $changedFiles | ? {$_.Count -gt 1} | % {$_.Name} | Add-Content $logFilePath
 
   #log added files
-  $addOrDelete = $changedFiles | Where-Object { $_.Count -eq 1 } | ForEach-Object {$_.Group}
-  $addOrDelete | Where-Object {$_.SideIndicator -eq "=>"} | ForEach-Object {$_.FullName} | Add-Content $logFilePath
+  $addOrDelete = $changedFiles | ? { $_.Count -eq 1 } | % {$_.Group}
+  $addOrDelete | ? {$_.SideIndicator -eq "=>"} | % {$_.FullName} | Add-Content $logFilePath
 
   #log deleted files
   #$addOrDelete | ? {$_.SideIndicator -eq "<="} | % {$_.FullName} | Add-Content $logFilePath
