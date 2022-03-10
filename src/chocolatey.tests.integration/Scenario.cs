@@ -20,6 +20,7 @@ namespace chocolatey.tests.integration
     using System.Collections.Generic;
     using System.IO;
     using chocolatey.infrastructure.app;
+    using chocolatey.infrastructure.app.commands;
     using chocolatey.infrastructure.app.configuration;
     using chocolatey.infrastructure.app.domain;
     using chocolatey.infrastructure.app.services;

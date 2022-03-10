@@ -351,6 +351,33 @@
     <None Include="context\nonterminatingerror\1.0\tools\chocolateyInstall.ps1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="context\paramthrowpackage\1.0.0\paramthrowpackage.nuspec">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="context\paramthrowpackage\1.0.0\tools\chocolateyinstall.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="context\paramthrowpackage\1.0.0\tools\chocolateyuninstall.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="context\paramthrowpackage\2.0.0-beta\paramthrowpackage.nuspec">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="context\paramthrowpackage\2.0.0-beta\tools\chocolateyinstall.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="context\paramthrowpackage\2.0.0-beta\tools\chocolateyuninstall.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="context\paramthrowpackage\2.0.0\paramthrowpackage.nuspec">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="context\paramthrowpackage\2.0.0\tools\chocolateyinstall.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="context\paramthrowpackage\2.0.0\tools\chocolateyuninstall.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="context\testing.packages.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

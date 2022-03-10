@@ -3173,5 +3173,67 @@ namespace chocolatey.tests.integration.scenarios
                 upgradePackageResult.Count.ShouldEqual(0, "upgradepackage should not be in the results list");
             }
         }
+
+        [Concern(typeof(ChocolateyUpgradeCommand))]
+        [WindowsOnly]
+        [Platform(Exclude = "Mono")]
+        public class when_upgrading_multiple_packages_with_remembered_arguments : ScenariosBase
+        {
+            public override void Context()
+            {
+                base.Context();
+                Scenario.add_packages_to_source_location(Configuration, "paramthrowpackage.*" + Constants.PackageExtension);
+                Configuration.Features.UseRememberedArgumentsForUpgrades = true;
+
+                Configuration.Force = true;
+                Configuration.Prerelease = true;
+                Configuration.PackageParameters = "/UpgradePackageOnlyParameter";
+                Scenario.install_package(Configuration, "upgradepackage", "1.0.0");
+                Configuration.Force = false;
+                Configuration.Prerelease = false;
+                Configuration.PackageParameters = "";
+
+                Scenario.install_package(Configuration, "paramthrowpackage", "1.0.0");
+                Configuration.PackageNames = Configuration.Input = "upgradepackage;paramthrowpackage";
+            }
+
+            public override void Because()
+            {
+                var upgradeCommand = new ChocolateyUpgradeCommand(Service);
+                upgradeCommand.configure_argument_parser(ConfigurationOptions.OptionSet, Configuration);
+                Results = Service.upgrade_run(Configuration);
+                ConfigurationOptions.reset_options();
+            }
+
+            [Fact]
+            public void should_report_for_upgraded_packages()
+            {
+                Results.Count().ShouldEqual(2);
+            }
+
+            [Fact]
+            public void should_set_prerelease_on_first_package()
+            {
+                var upgradePackageResult = Results.Where(x => x.Key == "upgradepackage").ToList();
+                upgradePackageResult.Count.ShouldEqual(1, "upgradepackage must be there once");
+                upgradePackageResult.First().Value.Version.ShouldEqual("1.1.1-beta2");
+            }
+
+            [Fact]
+            public void should_not_set_prerelease_on_second_package()
+            {
+                var upgradePackageResult = Results.Where(x => x.Key == "paramthrowpackage").ToList();
+                upgradePackageResult.Count.ShouldEqual(1, "paramthrowpackage must be there once");
+                upgradePackageResult.First().Value.Version.ShouldEqual("2.0.0");
+            }
+
+            [Fact]
+            public void should_not_set_parameters_on_second_package()
+            {
+                var upgradePackageResult = Results.Where(x => x.Key == "paramthrowpackage").ToList();
+                upgradePackageResult.First().Value.Success.ShouldBeTrue();
+            }
+        }
+
     }
 }
