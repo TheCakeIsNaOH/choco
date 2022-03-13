@@ -72,8 +72,7 @@ namespace chocolatey.tests.integration.infrastructure.filesystem
                 FileSystem.get_executable_path("cmd.exe").Should().BeEquivalentTo(
                     Platform.get_platform() == PlatformType.Windows
                         ? "c:\\windows\\system32\\cmd.exe"
-                        : "cmd.exe",
-                    StringComparer.OrdinalIgnoreCase
+                        : "cmd.exe"
                 );
             }
 

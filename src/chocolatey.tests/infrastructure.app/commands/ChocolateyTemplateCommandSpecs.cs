@@ -27,7 +27,7 @@ namespace chocolatey.tests.infrastructure.app.commands
     using chocolatey.infrastructure.commandline;
     using chocolatey.infrastructure.filesystem;
     using Moq;
-    using Should;
+    using FluentAssertions;
 
     public class ChocolateyTemplateCommandSpecs
     {
@@ -60,8 +60,8 @@ namespace chocolatey.tests.infrastructure.app.commands
             [Fact]
             public void should_implement_help()
             {
-                results.ShouldContain("template");
-                results.ShouldContain("templates");
+                results.Should().Contain("template");
+                results.Should().Contain("templates");
             }
         }
 
@@ -83,13 +83,13 @@ namespace chocolatey.tests.infrastructure.app.commands
             [Fact]
             public void should_add_name_to_the_option_set()
             {
-                optionSet.Contains("name").ShouldBeTrue();
+                optionSet.Contains("name").Should().BeTrue();
             }
 
             [Fact]
             public void should_add_short_version_of_name_to_the_option_set()
             {
-                optionSet.Contains("n").ShouldBeTrue();
+                optionSet.Contains("n").Should().BeTrue();
             }
         }
 
@@ -119,7 +119,7 @@ namespace chocolatey.tests.infrastructure.app.commands
                 unparsedArgs.Add("list");
                 because();
 
-                configuration.TemplateCommand.Command.ShouldEqual(TemplateCommandType.list);
+                configuration.TemplateCommand.Command.Should().Be(TemplateCommandType.list);
             }
 
             [Fact]
@@ -141,10 +141,10 @@ namespace chocolatey.tests.infrastructure.app.commands
                     error = ex;
                 }
 
-                errorred.ShouldBeTrue();
-                error.ShouldNotBeNull();
-                error.ShouldBeType<ApplicationException>();
-                error.Message.ShouldContain("A single template command must be listed");
+                errorred.Should().BeTrue();
+                error.Should().NotBeNull();
+                error.Should().BeOfType<ApplicationException>();
+                error.Message.Should().Contain("A single template command must be listed");
             }
 
             [Fact]
@@ -154,7 +154,7 @@ namespace chocolatey.tests.infrastructure.app.commands
                 unparsedArgs.Add("list");
                 because();
 
-                configuration.TemplateCommand.Command.ShouldEqual(TemplateCommandType.list);
+                configuration.TemplateCommand.Command.Should().Be(TemplateCommandType.list);
             }
 
             [Fact]
@@ -164,7 +164,7 @@ namespace chocolatey.tests.infrastructure.app.commands
                 unparsedArgs.Add("LIST");
                 because();
 
-                configuration.TemplateCommand.Command.ShouldEqual(TemplateCommandType.list);
+                configuration.TemplateCommand.Command.Should().Be(TemplateCommandType.list);
             }
 
             [Fact]
@@ -174,7 +174,7 @@ namespace chocolatey.tests.infrastructure.app.commands
                 unparsedArgs.Add("info");
                 because();
 
-                configuration.TemplateCommand.Command.ShouldEqual(TemplateCommandType.info);
+                configuration.TemplateCommand.Command.Should().Be(TemplateCommandType.info);
             }
 
             [Fact]
@@ -184,7 +184,7 @@ namespace chocolatey.tests.infrastructure.app.commands
                 unparsedArgs.Add("INFO");
                 because();
 
-                configuration.TemplateCommand.Command.ShouldEqual(TemplateCommandType.info);
+                configuration.TemplateCommand.Command.Should().Be(TemplateCommandType.info);
             }
 
             [Fact]
@@ -194,7 +194,7 @@ namespace chocolatey.tests.infrastructure.app.commands
                 unparsedArgs.Add("badcommand");
                 because();
 
-                configuration.TemplateCommand.Command.ShouldEqual(TemplateCommandType.list);
+                configuration.TemplateCommand.Command.Should().Be(TemplateCommandType.list);
             }
 
             [Fact]
@@ -203,7 +203,7 @@ namespace chocolatey.tests.infrastructure.app.commands
                 reset();
                 because();
 
-                configuration.TemplateCommand.Command.ShouldEqual(TemplateCommandType.list);
+                configuration.TemplateCommand.Command.Should().Be(TemplateCommandType.list);
             }
 
             [Fact]
@@ -213,7 +213,7 @@ namespace chocolatey.tests.infrastructure.app.commands
                 unparsedArgs.Add(" ");
                 because();
 
-                configuration.TemplateCommand.Command.ShouldEqual(TemplateCommandType.list);
+                configuration.TemplateCommand.Command.Should().Be(TemplateCommandType.list);
             }
         }
 
@@ -260,10 +260,10 @@ namespace chocolatey.tests.infrastructure.app.commands
                     error = ex;
                 }
 
-                errorred.ShouldBeTrue();
-                error.ShouldNotBeNull();
-                error.ShouldBeType<ApplicationException>();
-                error.Message.ShouldEqual("When specifying the subcommand '{0}', you must also specify --name.".format_with(configuration.TemplateCommand.Command.to_string()));
+                errorred.Should().BeTrue();
+                error.Should().NotBeNull();
+                error.Should().BeOfType<ApplicationException>();
+                error.Message.Should().Be("When specifying the subcommand '{0}', you must also specify --name.".format_with(configuration.TemplateCommand.Command.to_string()));
             }
 
             [Fact]

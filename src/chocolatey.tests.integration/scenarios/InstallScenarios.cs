@@ -576,7 +576,7 @@ namespace chocolatey.tests.integration.scenarios
             public void should_remove_and_re_add_the_package_files_in_the_lib_directory()
             {
                 var modifiedFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, "tools", "chocolateyinstall.ps1");
-                File.ReadAllText(modifiedFile).ShouldNotEqual(modifiedText);
+                File.ReadAllText(modifiedFile).Should().NotBe(modifiedText);
             }
 
             [Fact]

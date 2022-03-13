@@ -67,7 +67,7 @@ namespace chocolatey.tests.infrastructure.app.commands
             [Fact]
             public void should_implement_find()
             {
-                results.ShouldContain("find");
+                results.Should().Contain("find");
             }
         }
 
@@ -90,25 +90,25 @@ namespace chocolatey.tests.infrastructure.app.commands
             [Fact]
             public void should_add_source_to_the_option_set()
             {
-                optionSet.Contains("source").ShouldBeTrue();
+                optionSet.Contains("source").Should().BeTrue();
             }
 
             [Fact]
             public void should_add_short_version_of_source_to_the_option_set()
             {
-                optionSet.Contains("s").ShouldBeTrue();
+                optionSet.Contains("s").Should().BeTrue();
             }
 
             [Fact, Obsolete("Local Only will be removed in v2.0.0 for the list command")]
             public void should_add_localonly_to_the_option_set()
             {
-                optionSet.Contains("localonly").ShouldBeTrue();
+                optionSet.Contains("localonly").Should().BeTrue();
             }
 
             [Fact, Obsolete("Local Only will be removed in v2.0.0 for the list command")]
             public void should_add_short_version_of_localonly_to_the_option_set()
             {
-                optionSet.Contains("l").ShouldBeTrue();
+                optionSet.Contains("l").Should().BeTrue();
             }
 
             [NUnit.Framework.Theory]
@@ -124,67 +124,67 @@ namespace chocolatey.tests.infrastructure.app.commands
             [Obsolete("Will be removed in v2.0.0 for the list command")]
             public void should_add_deprecation_notice_to_option(string argument)
             {
-                optionSet[argument].Description.ShouldContain("DEPRECATION NOTICE");
+                optionSet[argument].Description.Should().Contain("DEPRECATION NOTICE");
             }
 
             [Fact]
             public void should_add_prerelease_to_the_option_set()
             {
-                optionSet.Contains("prerelease").ShouldBeTrue();
+                optionSet.Contains("prerelease").Should().BeTrue();
             }
 
             [Fact]
             public void should_add_short_version_of_prerelease_to_the_option_set()
             {
-                optionSet.Contains("pre").ShouldBeTrue();
+                optionSet.Contains("pre").Should().BeTrue();
             }
 
             [Fact]
             public void should_add_includeprograms_to_the_option_set()
             {
-                optionSet.Contains("includeprograms").ShouldBeTrue();
+                optionSet.Contains("includeprograms").Should().BeTrue();
             }
 
             [Fact]
             public void should_add_short_version_of_includeprograms_to_the_option_set()
             {
-                optionSet.Contains("i").ShouldBeTrue();
+                optionSet.Contains("i").Should().BeTrue();
             }
 
             [Fact]
             public void should_add_allversions_to_the_option_set()
             {
-                optionSet.Contains("allversions").ShouldBeTrue();
+                optionSet.Contains("allversions").Should().BeTrue();
             }
 
             [Fact]
             public void should_add_short_version_of_allversions_to_the_option_set()
             {
-                optionSet.Contains("a").ShouldBeTrue();
+                optionSet.Contains("a").Should().BeTrue();
             }
 
             [Fact, Obsolete("Will be removed in v2.0.0")]
             public void should_add_user_to_the_option_set()
             {
-                optionSet.Contains("user").ShouldBeTrue();
+                optionSet.Contains("user").Should().BeTrue();
             }
 
             [Fact, Obsolete("Will be removed in v2.0.0")]
             public void should_add_short_version_of_user_to_the_option_set()
             {
-                optionSet.Contains("u").ShouldBeTrue();
+                optionSet.Contains("u").Should().BeTrue();
             }
 
             [Fact, Obsolete("Will be removed in v2.0.0")]
             public void should_add_password_to_the_option_set()
             {
-                optionSet.Contains("password").ShouldBeTrue();
+                optionSet.Contains("password").Should().BeTrue();
             }
 
             [Fact, Obsolete("Will be removed in v2.0.0")]
             public void should_add_short_version_of_password_to_the_option_set()
             {
-                optionSet.Contains("p").ShouldBeTrue();
+                optionSet.Contains("p").Should().BeTrue();
             }
         }
 
@@ -306,7 +306,7 @@ namespace chocolatey.tests.infrastructure.app.commands
             [NUnit.Framework.TestCase("disable-package-repository-optimizations")]
             public void should_add_deprecation_notice_to_option(string argument)
             {
-                optionSet[argument].Description.ShouldNotContain("DEPRECATION NOTICE");
+                optionSet[argument].Description.Should().NotContain("DEPRECATION NOTICE");
             }
         }
 
@@ -367,8 +367,8 @@ namespace chocolatey.tests.infrastructure.app.commands
             [Fact]
             public void should_report_deprecation_of_remote_sources()
             {
-                MockLogger.Messages.Keys.ShouldContain("Warn");
-                MockLogger.Messages["Warn"].ShouldContain(@"Using the list command with remote sources is deprecated and will be made
+                MockLogger.Messages.Keys.Should().Contain("Warn");
+                MockLogger.Messages["Warn"].Should().Contain(@"Using the list command with remote sources is deprecated and will be made
 to only list locally installed packages in v2.0.0. Use the search, or find,
 command to find packages on remote sources (such as the Chocolatey Community
 Repository).");
@@ -398,7 +398,7 @@ Repository).");
             [Fact]
             public void should_not_report_any_warning_messages()
             {
-                MockLogger.Messages.Keys.ShouldNotContain("Warn");
+                MockLogger.Messages.Keys.Should().NotContain("Warn");
             }
         }
 
@@ -418,7 +418,7 @@ Repository).");
             [Fact]
             public void should_not_report_any_warning_messages()
             {
-                MockLogger.Messages.Keys.ShouldNotContain("Warn");
+                MockLogger.Messages.Keys.Should().NotContain("Warn");
             }
         }
 
@@ -444,8 +444,8 @@ Repository).");
             [Fact]
             public void should_report_deprecation_of_remote_sources()
             {
-                MockLogger.Messages.Keys.ShouldContain("Warn");
-                MockLogger.Messages["Warn"].ShouldContain(@"Using the list command with remote sources is deprecated and will be made
+                MockLogger.Messages.Keys.Should().Contain("Warn");
+                MockLogger.Messages["Warn"].Should().Contain(@"Using the list command with remote sources is deprecated and will be made
 to only list locally installed packages in v2.0.0. Use the search, or find,
 command to find packages on remote sources (such as the Chocolatey Community
 Repository).");
@@ -475,7 +475,7 @@ Repository).");
             [Fact]
             public void should_not_report_any_warning_messages()
             {
-                MockLogger.Messages.Keys.ShouldNotContain("Warn");
+                MockLogger.Messages.Keys.Should().NotContain("Warn");
             }
         }
 
@@ -495,7 +495,7 @@ Repository).");
             [Fact]
             public void should_not_report_any_warning_messages()
             {
-                MockLogger.Messages.Keys.ShouldNotContain("Warn");
+                MockLogger.Messages.Keys.Should().NotContain("Warn");
             }
         }
 
@@ -515,15 +515,15 @@ Repository).");
             [Fact, Obsolete("Will be removed in v2.0.0")]
             public void should_output_deprecation_notice_header()
             {
-                MockLogger.Messages.Keys.ShouldContain("Warn");
-                MockLogger.Messages["Warn"].ShouldContain("DEPRECATION NOTICE");
+                MockLogger.Messages.Keys.Should().Contain("Warn");
+                MockLogger.Messages["Warn"].Should().Contain("DEPRECATION NOTICE");
             }
 
             [Fact]
             public void should_ouput_removal_in_v2_0_0()
             {
-                MockLogger.Messages.Keys.ShouldContain("Warn");
-                MockLogger.Messages["Warn"].ShouldContain(@"
+                MockLogger.Messages.Keys.Should().Contain("Warn");
+                MockLogger.Messages["Warn"].Should().Contain(@"
 Will be removed for the list command in v2.0.0.");
             }
         }
@@ -545,7 +545,7 @@ Will be removed for the list command in v2.0.0.");
             [Fact]
             public void should_not_output_warnings()
             {
-                MockLogger.Messages.Keys.ShouldNotContain("Warn");
+                MockLogger.Messages.Keys.Should().NotContain("Warn");
             }
         }
     }

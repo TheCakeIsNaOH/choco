@@ -31,7 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="NuGet.Core">
-      <HintPath>..\..\lib\Chocolatey-NuGet.Core.2.11.0.20210506\lib\net6.0\NuGet.Core.dll</HintPath>
+      <HintPath>..\..\lib\Chocolatey-NuGet.Core.2.11.0.20211014\lib\net6.0\NuGet.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

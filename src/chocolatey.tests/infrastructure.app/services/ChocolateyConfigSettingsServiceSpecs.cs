@@ -3,13 +3,13 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reactive.Subjects;
     using chocolatey.infrastructure.app;
     using chocolatey.infrastructure.app.configuration;
     using chocolatey.infrastructure.app.services;
     using chocolatey.infrastructure.services;
     using Moq;
-    using Should;
-    using Assert = Should.Core.Assertions.Assert;
+    using FluentAssertions;
 
     public class ChocolateyConfigSettingsServiceSpecs
     {
@@ -61,14 +61,14 @@
             [Fact]
             public void should_not_report_feature_being_unsupported()
             {
-                MockLogger.Messages["Warn"].ShouldNotContain("Feature '{0}' is not supported. Any change have no effect on running Chocolatey.".format_with(ApplicationParameters.Features.ChecksumFiles));
+                MockLogger.Messages["Warn"].Should().NotContain("Feature '{0}' is not supported. Any change have no effect on running Chocolatey.".format_with(ApplicationParameters.Features.ChecksumFiles));
             }
 
             [Fact]
             public void should_report_feature_being_disabled()
             {
-                MockLogger.Messages.Keys.ShouldContain("Warn");
-                MockLogger.Messages["Warn"].ShouldContain("Disabled {0}".format_with(ApplicationParameters.Features.ChecksumFiles));
+                MockLogger.Messages.Keys.Should().Contain("Warn");
+                MockLogger.Messages["Warn"].Should().Contain("Disabled {0}".format_with(ApplicationParameters.Features.ChecksumFiles));
             }
 
             [Fact]
@@ -102,13 +102,13 @@
             [Fact]
             public void should_not_contain_any_warnings()
             {
-                MockLogger.Messages.Keys.ShouldNotContain("Warn");
+                MockLogger.Messages.Keys.Should().NotContain("Warn");
             }
 
             [Fact]
             public void should_throw_exception_on_unknown_feature()
             {
-                Assert.ThrowsDelegate action = () =>
+                Action action = () =>
                 {
                     var config = new ChocolateyConfiguration()
                     {
@@ -121,8 +121,8 @@
                     Service.feature_disable(config);
                 };
 
-                Assert.Throws<ApplicationException>(action)
-                    .Message.ShouldEqual("Feature 'unknown' not found");
+                action.Should().Throw<ApplicationException>()
+                    .WithMessage("Feature 'unknown' not found");
             }
         }
 
@@ -156,7 +156,7 @@
             [Fact]
             public void should_throw_exception_on_unsupported_feature()
             {
-                Assert.Throws<ApplicationException>(() =>
+                Action action = () =>
                 {
                     var config = new ChocolateyConfiguration()
                     {
@@ -167,7 +167,10 @@
                     };
 
                     Service.feature_disable(config);
-                }).Message.ShouldEqual("Feature '{0}' is not supported.".format_with(FEATURE_NAME));
+                };
+
+                action.Should().Throw<ApplicationException>()
+                    .WithMessage("Feature '{0}' is not supported.".format_with(FEATURE_NAME));
             }
         }
 
@@ -208,14 +211,14 @@
             [Fact]
             public void should_not_report_feature_being_unsupported()
             {
-                MockLogger.Messages["Warn"].ShouldNotContain("Feature '{0}' is not supported. Any change have no effect on running Chocolatey.".format_with(ApplicationParameters.Features.ChecksumFiles));
+                MockLogger.Messages["Warn"].Should().NotContain("Feature '{0}' is not supported. Any change have no effect on running Chocolatey.".format_with(ApplicationParameters.Features.ChecksumFiles));
             }
 
             [Fact]
             public void should_report_feature_being_enabled()
             {
-                MockLogger.Messages.Keys.ShouldContain("Warn");
-                MockLogger.Messages["Warn"].ShouldContain("Enabled {0}".format_with(ApplicationParameters.Features.ChecksumFiles));
+                MockLogger.Messages.Keys.Should().Contain("Warn");
+                MockLogger.Messages["Warn"].Should().Contain("Enabled {0}".format_with(ApplicationParameters.Features.ChecksumFiles));
             }
 
             [Fact]
@@ -249,13 +252,13 @@
             [Fact]
             public void should_not_contain_any_warnings()
             {
-                MockLogger.Messages.Keys.ShouldNotContain("Warn");
+                MockLogger.Messages.Keys.Should().NotContain("Warn");
             }
 
             [Fact]
             public void should_throw_exception_on_unknown_feature()
             {
-                Assert.ThrowsDelegate action = () =>
+                Action action = () =>
                 {
                     var config = new ChocolateyConfiguration()
                     {
@@ -268,8 +271,7 @@
                     Service.feature_enable(config);
                 };
 
-                Assert.Throws<ApplicationException>(action)
-                    .Message.ShouldEqual("Feature 'unknown' not found");
+                action.Should().Throw<ApplicationException>().WithMessage("Feature 'unknown' not found");
             }
         }
 
@@ -303,7 +305,7 @@
             [Fact]
             public void should_throw_exception_on_unsupported_feature()
             {
-                Assert.Throws<ApplicationException>(() =>
+                Action action = () =>
                 {
                     var config = new ChocolateyConfiguration()
                     {
@@ -314,7 +316,9 @@
                     };
 
                     Service.feature_enable(config);
-                }).Message.ShouldEqual("Feature '{0}' is not supported.".format_with(FEATURE_NAME));
+                };
+
+                action.Should().Throw<ApplicationException>().WithMessage("Feature '{0}' is not supported.".format_with(FEATURE_NAME));
             }
         }
     }
