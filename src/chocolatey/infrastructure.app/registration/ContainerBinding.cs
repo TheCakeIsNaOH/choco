@@ -19,7 +19,6 @@ namespace chocolatey.infrastructure.app.registration
     using System.Collections.Generic;
     using infrastructure.events;
     using infrastructure.tasks;
-    using NuGet;
     using SimpleInjector;
     using adapters;
     using commands;

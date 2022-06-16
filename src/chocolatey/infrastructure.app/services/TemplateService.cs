@@ -26,7 +26,6 @@ namespace chocolatey.infrastructure.app.services
     using logging;
     using templates;
     using tokens;
-    using NuGet;
     using nuget;
     using IFileSystem = filesystem.IFileSystem;
 
