@@ -171,8 +171,7 @@ BuildParameters.SetParameters(context: Context,
                             getILMergeConfigs: getILMergeConfigs,
                             preferDotNetGlobalToolUsage: !IsRunningOnWindows());
 
-ToolSettings.SetToolSettings(context: Context,
-                            buildMSBuildToolVersion: MSBuildToolVersion.NET40);
+ToolSettings.SetToolSettings(context: Context);
 
 BuildParameters.PrintParameters(Context);
 
