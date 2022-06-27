@@ -17,6 +17,12 @@
 namespace chocolatey.infrastructure.app.nuget
 {
     using System.IO;
+    using filesystem;
+    using NuGet.Configuration;
+    using NuGet.Packaging;
+    using NuGet.Packaging.Core;
+    using NuGet.ProjectManagement;
+    using NuGet.Versioning;
 
     // ReSharper disable InconsistentNaming
 

@@ -28,6 +28,9 @@ namespace chocolatey.tests.infrastructure.app.commands
     using chocolatey.infrastructure.commandline;
     using chocolatey.infrastructure.results;
     using Moq;
+    using NuGet.Common;
+    using NuGet.Packaging;
+    using NuGet.Versioning;
     using Should;
 
     public class ChocolateyPinCommandSpecs

@@ -16,7 +16,9 @@
 
 namespace chocolatey.infrastructure.app.nuget
 {
+    using System.Threading.Tasks;
     using logging;
+    using NuGet.Common;
 
     // ReSharper disable InconsistentNaming
 

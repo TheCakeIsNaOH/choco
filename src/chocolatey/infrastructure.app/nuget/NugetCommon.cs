@@ -21,11 +21,24 @@ namespace chocolatey.infrastructure.app.nuget
     using System.ComponentModel;
     using System.Linq;
     using System.Net;
+    using System.Net.Http;
+    using System.Net.Security;
+    using System.Security.Cryptography.X509Certificates;
     using System.Text;
+    using System.Threading;
+    using System.Threading.Tasks;
     using adapters;
     using infrastructure.configuration;
     using configuration;
+    using filesystem;
     using logging;
+    using NuGet.Common;
+    using NuGet.Configuration;
+    using NuGet.Credentials;
+    using NuGet.PackageManagement;
+    using NuGet.Packaging;
+    using NuGet.Protocol;
+    using NuGet.Protocol.Core.Types;
     using Console = adapters.Console;
     using Environment = adapters.Environment;
 

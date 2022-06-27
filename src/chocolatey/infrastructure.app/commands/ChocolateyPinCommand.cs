@@ -27,6 +27,9 @@ namespace chocolatey.infrastructure.app.commands
     using infrastructure.configuration;
     using logging;
     using nuget;
+    using NuGet.Common;
+    using NuGet.PackageManagement;
+    using NuGet.Versioning;
     using services;
 
     [CommandFor("pin", "suppress upgrades for a package")]

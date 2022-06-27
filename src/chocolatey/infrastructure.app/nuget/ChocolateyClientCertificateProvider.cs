@@ -21,7 +21,9 @@ namespace chocolatey.infrastructure.app.nuget
     using System.Linq;
     using System.Net;
     using System.Security.Cryptography.X509Certificates;
-
+    using NuGet.Configuration;
+    using System.Collections.Generic;
+    
     class ChocolateyClientCertificateProvider : IClientCertificateProvider
     {
         ChocolateyConfiguration _configuration;

@@ -28,6 +28,7 @@ namespace chocolatey.infrastructure.app.registration
     using infrastructure.services;
     using infrastructure.validations;
     using nuget;
+    using NuGet.Common;
     using services;
     using tasks;
     using validations;

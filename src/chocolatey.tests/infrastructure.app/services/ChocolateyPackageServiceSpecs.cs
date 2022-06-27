@@ -32,6 +32,8 @@ using IFileSystem = chocolatey.infrastructure.filesystem.IFileSystem;
 
 namespace chocolatey.tests.infrastructure.app.services
 {
+    using NuGet.Packaging;
+
     public class ChocolateyPackageServiceSpecs
     {
         public abstract class ChocolateyPackageServiceSpecsBase : TinySpec

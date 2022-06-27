@@ -17,9 +17,15 @@
 namespace chocolatey.infrastructure.app.nuget
 {
     using System;
-    using System.IO;
     using configuration;
     using logging;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using NuGet.Common;
+    using NuGet.Configuration;
+    using NuGet.Protocol;
+    using NuGet.Protocol.Core.Types;
 
     public class NugetPush
     {

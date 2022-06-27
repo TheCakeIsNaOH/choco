@@ -38,6 +38,13 @@ namespace chocolatey.infrastructure.app.services
     using Environment = System.Environment;
     using IFileSystem = filesystem.IFileSystem;
     using chocolatey.infrastructure.app.utility;
+    using NuGet.Common;
+    using NuGet.Configuration;
+    using NuGet.Packaging;
+    using NuGet.Protocol;
+    using NuGet.Packaging.Core;
+    using NuGet.Protocol.Core.Types;
+    using NuGet.Versioning;
 
     //todo: #2575 - this monolith is too large. Refactor once test coverage is up.
 

@@ -17,10 +17,22 @@
 namespace chocolatey.infrastructure.app.nuget
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
+    using System.Runtime.CompilerServices;
+    using System.Threading;
+    using System.Threading.Tasks;
     using configuration;
+    using NuGet.Common;
+    using NuGet.Configuration;
+    using NuGet.PackageManagement;
+    using NuGet.Packaging;
+    using NuGet.Packaging.Core;
+    using NuGet.Protocol;
+    using NuGet.Protocol.Core.Types;
+    using NuGet.Versioning;
 
     // ReSharper disable InconsistentNaming
 

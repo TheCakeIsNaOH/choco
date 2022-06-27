@@ -23,6 +23,10 @@ namespace chocolatey.infrastructure.app.nuget
     using commandline;
     using configuration;
     using logging;
+    using NuGet.Credentials;
+    using System.Threading.Tasks;
+    using NuGet.Configuration;
+    using System.Threading;
 
     // ReSharper disable InconsistentNaming
 
