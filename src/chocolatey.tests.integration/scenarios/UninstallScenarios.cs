@@ -45,9 +45,9 @@ namespace chocolatey.tests.integration.scenarios
                 Configuration = Scenario.uninstall();
                 Scenario.reset(Configuration);
                 Configuration.PackageNames = Configuration.Input = "installpackage";
-                Scenario.add_packages_to_source_location(Configuration, Configuration.Input + "*" + Constants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, Configuration.Input + "*" +  NuGetConstants.PackageExtension);
                 Scenario.install_package(Configuration, "installpackage", "1.0.0");
-                Scenario.add_packages_to_source_location(Configuration, "badpackage*" + Constants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "badpackage*" +  NuGetConstants.PackageExtension);
                 Configuration.SkipPackageInstallProvider = true;
                 Scenario.install_package(Configuration, "badpackage", "1.0");
                 Configuration.SkipPackageInstallProvider = false;
@@ -986,7 +986,7 @@ namespace chocolatey.tests.integration.scenarios
             [Fact]
             public void should_still_have_the_package_file_in_the_directory()
             {
-                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + Constants.PackageExtension);
+                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames +  NuGetConstants.PackageExtension);
                 File.Exists(packageFile).ShouldBeTrue();
             }
 

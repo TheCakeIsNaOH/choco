@@ -45,9 +45,9 @@ namespace chocolatey.tests.integration.scenarios
                 Configuration = Scenario.upgrade();
                 Scenario.reset(Configuration);
                 Configuration.PackageNames = Configuration.Input = "upgradepackage";
-                Scenario.add_packages_to_source_location(Configuration, Configuration.Input + "*" + Constants.PackageExtension);
-                Scenario.add_packages_to_source_location(Configuration, "installpackage*" + Constants.PackageExtension);
-                Scenario.add_packages_to_source_location(Configuration, "badpackage*" + Constants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, Configuration.Input + "*" +  NuGetConstants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "installpackage*" +  NuGetConstants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "badpackage*" +  NuGetConstants.PackageExtension);
                 Scenario.install_package(Configuration, "installpackage", "1.0.0");
                 Scenario.install_package(Configuration, "upgradepackage", "1.0.0");
                 Configuration.SkipPackageInstallProvider = true;
@@ -241,7 +241,7 @@ namespace chocolatey.tests.integration.scenarios
             [Fact]
             public void should_upgrade_the_package()
             {
-                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + Constants.PackageExtension);
+                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames +  NuGetConstants.PackageExtension);
                 var package = new OptimizedZipPackage(packageFile);
                 package.Version.Version.to_string().ShouldEqual("1.1.0.0");
             }
@@ -399,7 +399,7 @@ namespace chocolatey.tests.integration.scenarios
             [Fact]
             public void should_be_the_same_version_of_the_package()
             {
-                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + Constants.PackageExtension);
+                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames +  NuGetConstants.PackageExtension);
                 var package = new OptimizedZipPackage(packageFile);
                 package.Version.Version.to_string().ShouldEqual("1.1.0.0");
             }
@@ -478,7 +478,7 @@ namespace chocolatey.tests.integration.scenarios
             [Fact]
             public void should_upgrade_the_package()
             {
-                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + Constants.PackageExtension);
+                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames +  NuGetConstants.PackageExtension);
                 var package = new OptimizedZipPackage(packageFile);
                 package.Version.Version.to_string().ShouldEqual("1.1.1.0");
                 package.Version.to_string().ShouldEqual("1.1.1-beta2");
@@ -629,7 +629,7 @@ namespace chocolatey.tests.integration.scenarios
             [Fact]
             public void should_upgrade_the_package()
             {
-                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + Constants.PackageExtension);
+                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames +  NuGetConstants.PackageExtension);
                 var package = new OptimizedZipPackage(packageFile);
                 package.Version.Version.to_string().ShouldEqual("1.1.1.0");
                 package.Version.to_string().ShouldEqual("1.1.1-beta2");
@@ -791,7 +791,7 @@ namespace chocolatey.tests.integration.scenarios
             [Fact]
             public void should_be_the_same_version_of_the_package()
             {
-                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + Constants.PackageExtension);
+                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames +  NuGetConstants.PackageExtension);
                 var package = new OptimizedZipPackage(packageFile);
                 package.Version.Version.to_string().ShouldEqual("1.1.1.0");
             }
@@ -884,7 +884,7 @@ namespace chocolatey.tests.integration.scenarios
             [Fact]
             public void should_be_the_same_version_of_the_package()
             {
-                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + Constants.PackageExtension);
+                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames +  NuGetConstants.PackageExtension);
                 var package = new OptimizedZipPackage(packageFile);
                 package.Version.Version.to_string().ShouldEqual("1.1.1.0");
             }
@@ -947,7 +947,7 @@ namespace chocolatey.tests.integration.scenarios
             [Fact]
             public void should_upgrade_the_package()
             {
-                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + Constants.PackageExtension);
+                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames +  NuGetConstants.PackageExtension);
                 var package = new OptimizedZipPackage(packageFile);
                 package.Version.Version.to_string().ShouldEqual("1.1.0.0");
             }
@@ -1082,7 +1082,7 @@ namespace chocolatey.tests.integration.scenarios
             [Fact]
             public void should_be_the_same_version_of_the_package()
             {
-                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + Constants.PackageExtension);
+                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames +  NuGetConstants.PackageExtension);
                 var package = new OptimizedZipPackage(packageFile);
                 package.Version.Version.to_string().ShouldEqual("1.0.0.0");
             }
@@ -1172,7 +1172,7 @@ namespace chocolatey.tests.integration.scenarios
             [Fact]
             public void should_be_the_same_version_of_the_package()
             {
-                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + Constants.PackageExtension);
+                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames +  NuGetConstants.PackageExtension);
                 var package = new OptimizedZipPackage(packageFile);
                 package.Version.Version.to_string().ShouldEqual("1.0.0.0");
             }
@@ -1260,7 +1260,7 @@ namespace chocolatey.tests.integration.scenarios
             [Fact]
             public void should_upgrade_the_package()
             {
-                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + Constants.PackageExtension);
+                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames +  NuGetConstants.PackageExtension);
                 var package = new OptimizedZipPackage(packageFile);
                 package.Version.Version.to_string().ShouldEqual("1.1.0.0");
             }
@@ -1368,7 +1368,7 @@ namespace chocolatey.tests.integration.scenarios
             [Fact]
             public void should_upgrade_the_package()
             {
-                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + Constants.PackageExtension);
+                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames +  NuGetConstants.PackageExtension);
                 var package = new OptimizedZipPackage(packageFile);
                 package.Version.Version.to_string().ShouldEqual("1.1.0.0");
             }
@@ -1487,7 +1487,7 @@ namespace chocolatey.tests.integration.scenarios
             [Fact]
             public void should_not_upgrade_the_package()
             {
-                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + Constants.PackageExtension);
+                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames +  NuGetConstants.PackageExtension);
                 var package = new OptimizedZipPackage(packageFile);
                 package.Version.Version.to_string().ShouldEqual("1.0.0.0");
             }
@@ -1571,7 +1571,7 @@ namespace chocolatey.tests.integration.scenarios
             [Fact]
             public void should_upgrade_the_package()
             {
-                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + Constants.PackageExtension);
+                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames +  NuGetConstants.PackageExtension);
                 var package = new OptimizedZipPackage(packageFile);
                 package.Version.Version.to_string().ShouldEqual("1.1.0.0");
             }
@@ -1649,7 +1649,7 @@ namespace chocolatey.tests.integration.scenarios
             [Fact]
             public void should_upgrade_the_package()
             {
-                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + Constants.PackageExtension);
+                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames +  NuGetConstants.PackageExtension);
                 var package = new OptimizedZipPackage(packageFile);
                 package.Version.Version.to_string().ShouldEqual("1.1.0.0");
             }
@@ -1976,7 +1976,7 @@ namespace chocolatey.tests.integration.scenarios
             [Fact]
             public void should_not_upgrade_the_package()
             {
-                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + Constants.PackageExtension);
+                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames +  NuGetConstants.PackageExtension);
                 var package = new OptimizedZipPackage(packageFile);
                 package.Version.Version.to_string().ShouldEqual("1.0.0.0");
             }
@@ -1992,7 +1992,7 @@ namespace chocolatey.tests.integration.scenarios
             [Fact]
             public void should_have_the_erroring_upgraded_package_in_the_lib_bad_directory()
             {
-                var packageFile = Path.Combine(Scenario.get_top_level(), "lib-bad", Configuration.PackageNames, Configuration.PackageNames + Constants.PackageExtension);
+                var packageFile = Path.Combine(Scenario.get_top_level(), "lib-bad", Configuration.PackageNames, Configuration.PackageNames +  NuGetConstants.PackageExtension);
                 var package = new OptimizedZipPackage(packageFile);
                 package.Version.Version.to_string().ShouldEqual("2.0.0.0");
             }
@@ -2072,9 +2072,9 @@ namespace chocolatey.tests.integration.scenarios
             {
                 base.Context();
                 Configuration.PackageNames = Configuration.Input = "hasdependency";
-                Scenario.add_packages_to_source_location(Configuration, "hasdependency.*" + Constants.PackageExtension);
-                Scenario.add_packages_to_source_location(Configuration, "isdependency.*" + Constants.PackageExtension);
-                Scenario.add_packages_to_source_location(Configuration, "isexactversiondependency*" + Constants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "hasdependency.*" +  NuGetConstants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "isdependency.*" +  NuGetConstants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "isexactversiondependency*" +  NuGetConstants.PackageExtension);
                 Scenario.install_package(Configuration, "isdependency", "1.0.0");
                 Scenario.install_package(Configuration, "hasdependency", "1.0.0");
             }
@@ -2154,9 +2154,9 @@ namespace chocolatey.tests.integration.scenarios
             {
                 base.Context();
                 Configuration.PackageNames = Configuration.Input = "hasdependency";
-                Scenario.add_packages_to_source_location(Configuration, "hasdependency.*" + Constants.PackageExtension);
-                Scenario.add_packages_to_source_location(Configuration, "isdependency.*" + Constants.PackageExtension);
-                Scenario.add_packages_to_source_location(Configuration, "isexactversiondependency.1*" + Constants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "hasdependency.*" +  NuGetConstants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "isdependency.*" +  NuGetConstants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "isexactversiondependency.1*" +  NuGetConstants.PackageExtension);
                 Scenario.install_package(Configuration, "isdependency", "1.0.0");
                 Scenario.install_package(Configuration, "hasdependency", "1.0.0");
             }
@@ -2274,9 +2274,9 @@ namespace chocolatey.tests.integration.scenarios
             {
                 base.Context();
                 Configuration.PackageNames = Configuration.Input = "hasdependency";
-                Scenario.add_packages_to_source_location(Configuration, "hasdependency.*" + Constants.PackageExtension);
-                Scenario.add_packages_to_source_location(Configuration, "isdependency.*" + Constants.PackageExtension);
-                Scenario.add_packages_to_source_location(Configuration, "isexactversiondependency.1*" + Constants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "hasdependency.*" +  NuGetConstants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "isdependency.*" +  NuGetConstants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "isexactversiondependency.1*" +  NuGetConstants.PackageExtension);
                 Scenario.install_package(Configuration, "isdependency", "1.0.0");
                 Scenario.install_package(Configuration, "hasdependency", "1.0.0");
                 Configuration.IgnoreDependencies = true;
@@ -2357,9 +2357,9 @@ namespace chocolatey.tests.integration.scenarios
             {
                 base.Context();
                 Configuration.PackageNames = Configuration.Input = "isdependency";
-                Scenario.add_packages_to_source_location(Configuration, "hasdependency.*" + Constants.PackageExtension);
-                Scenario.add_packages_to_source_location(Configuration, "isdependency.1*" + Constants.PackageExtension);
-                Scenario.add_packages_to_source_location(Configuration, "isexactversiondependency*" + Constants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "hasdependency.*" +  NuGetConstants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "isdependency.1*" +  NuGetConstants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "isexactversiondependency*" +  NuGetConstants.PackageExtension);
                 Scenario.install_package(Configuration, "isdependency", "1.0.0");
                 Scenario.install_package(Configuration, "hasdependency", "1.0.0");
             }
@@ -2439,9 +2439,9 @@ namespace chocolatey.tests.integration.scenarios
             {
                 base.Context();
                 Configuration.PackageNames = Configuration.Input = "isdependency";
-                Scenario.add_packages_to_source_location(Configuration, "hasdependency.*" + Constants.PackageExtension);
-                Scenario.add_packages_to_source_location(Configuration, "isdependency.1*" + Constants.PackageExtension);
-                Scenario.add_packages_to_source_location(Configuration, "isexactversiondependency*" + Constants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "hasdependency.*" +  NuGetConstants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "isdependency.1*" +  NuGetConstants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "isexactversiondependency*" +  NuGetConstants.PackageExtension);
                 Configuration.AllowMultipleVersions = true;
                 Scenario.install_package(Configuration, "isdependency", "1.0.0");
                 Scenario.install_package(Configuration, "hasdependency", "1.0.0");
@@ -2579,9 +2579,9 @@ namespace chocolatey.tests.integration.scenarios
             {
                 base.Context();
                 Configuration.PackageNames = Configuration.Input = "isdependency";
-                Scenario.add_packages_to_source_location(Configuration, "hasdependency.*" + Constants.PackageExtension);
-                Scenario.add_packages_to_source_location(Configuration, "isdependency.*" + Constants.PackageExtension);
-                Scenario.add_packages_to_source_location(Configuration, "isexactversiondependency*" + Constants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "hasdependency.*" +  NuGetConstants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "isdependency.*" +  NuGetConstants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "isexactversiondependency*" +  NuGetConstants.PackageExtension);
                 Scenario.install_package(Configuration, "isdependency", "1.0.0");
                 Scenario.install_package(Configuration, "hasdependency", "1.0.0");
             }
@@ -2661,9 +2661,9 @@ namespace chocolatey.tests.integration.scenarios
             {
                 base.Context();
                 Configuration.PackageNames = Configuration.Input = "isdependency";
-                Scenario.add_packages_to_source_location(Configuration, "hasdependency.*" + Constants.PackageExtension);
-                Scenario.add_packages_to_source_location(Configuration, "isdependency.*" + Constants.PackageExtension);
-                Scenario.add_packages_to_source_location(Configuration, "isexactversiondependency*" + Constants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "hasdependency.*" +  NuGetConstants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "isdependency.*" +  NuGetConstants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "isexactversiondependency*" +  NuGetConstants.PackageExtension);
                 Configuration.AllowMultipleVersions = true;
                 Scenario.install_package(Configuration, "isdependency", "1.0.0");
                 Scenario.install_package(Configuration, "hasdependency", "1.0.0");
@@ -2814,7 +2814,7 @@ namespace chocolatey.tests.integration.scenarios
             [Fact]
             public void should_upgrade_the_package()
             {
-                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + Constants.PackageExtension);
+                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames +  NuGetConstants.PackageExtension);
                 var package = new OptimizedZipPackage(packageFile);
                 package.Version.Version.to_string().ShouldEqual("1.1.0.0");
             }
@@ -2912,7 +2912,7 @@ namespace chocolatey.tests.integration.scenarios
             [Fact]
             public void should_upgrade_the_package()
             {
-                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + Constants.PackageExtension);
+                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames +  NuGetConstants.PackageExtension);
                 var package = new OptimizedZipPackage(packageFile);
                 package.Version.Version.to_string().ShouldEqual("1.1.0.0");
             }
@@ -3083,7 +3083,7 @@ namespace chocolatey.tests.integration.scenarios
             [Fact]
             public void should_upgrade_upgradepackage()
             {
-                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "upgradepackage", "upgradepackage" + Constants.PackageExtension);
+                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "upgradepackage", "upgradepackage" +  NuGetConstants.PackageExtension);
                 var package = new OptimizedZipPackage(packageFile);
                 package.Version.to_string().ShouldEqual("1.1.1-beta2");
             }
@@ -3133,7 +3133,7 @@ namespace chocolatey.tests.integration.scenarios
             [Fact]
             public void should_not_upgrade_upgradepackage()
             {
-                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "upgradepackage", "upgradepackage" + Constants.PackageExtension);
+                var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "upgradepackage", "upgradepackage" +  NuGetConstants.PackageExtension);
                 var package = new OptimizedZipPackage(packageFile);
                 package.Version.to_string().ShouldEqual("1.1.1-beta");
             }

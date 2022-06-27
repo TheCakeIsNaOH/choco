@@ -263,7 +263,7 @@ namespace chocolatey.infrastructure.app.services
 
         public virtual void pack_run(ChocolateyConfiguration config)
         {
-            var nuspecFilePath = validate_and_return_package_file(config, Constants.ManifestExtension);
+            var nuspecFilePath = validate_and_return_package_file(config, PackagingConstants.ManifestExtension);
             var nuspecDirectory = _fileSystem.get_full_path(_fileSystem.get_directory_name(nuspecFilePath));
             if (string.IsNullOrWhiteSpace(nuspecDirectory)) nuspecDirectory = _fileSystem.get_current_directory();
 
@@ -298,7 +298,7 @@ namespace chocolatey.infrastructure.app.services
                 builder.Version = new SemanticVersion(config.Version);
             }
 
-            string outputFile = builder.Id + "." + builder.Version + Constants.PackageExtension;
+            string outputFile = builder.Id + "." + builder.Version + NuGetConstants.PackageExtension;
             string outputFolder = config.OutputDirectory ?? _fileSystem.get_current_directory();
             string outputPath = _fileSystem.combine_paths(outputFolder, outputFile);
 
@@ -323,7 +323,7 @@ namespace chocolatey.infrastructure.app.services
 
         public void push_noop(ChocolateyConfiguration config)
         {
-            string nupkgFilePath = validate_and_return_package_file(config, Constants.PackageExtension);
+            string nupkgFilePath = validate_and_return_package_file(config, NuGetConstants.PackageExtension);
             this.Log().Info(() => "Would have attempted to push '{0}' to source '{1}'.".format_with(_fileSystem.get_file_name(nupkgFilePath), config.Sources));
         }
 
@@ -396,14 +396,14 @@ folder.");
             if (packageNames.Count == 1)
             {
                 var packageName = packageNames.DefaultIfEmpty(string.Empty).FirstOrDefault();
-                if (packageName.EndsWith(Constants.PackageExtension) || packageName.EndsWith(Constants.ManifestExtension))
+                if (packageName.EndsWith(NuGetConstants.PackageExtension) || packageName.EndsWith(PackagingConstants.ManifestExtension))
                 {
                     this.Log().Debug("Updating source and package name to handle *.nupkg or *.nuspec file.");
                     packageNames.Clear();
 
                     config.Sources = _fileSystem.get_directory_name(_fileSystem.get_full_path(packageName));
 
-                    if (packageName.EndsWith(Constants.ManifestExtension))
+                    if (packageName.EndsWith(PackagingConstants.ManifestExtension))
                     {
                         packageNames.Add(_fileSystem.get_file_name_without_extension(packageName));
 
@@ -423,7 +423,7 @@ folder.");
 
             // this is when someone points the source directly at a nupkg
             // e.g. -source c:\somelocation\somewhere\packagename.nupkg
-            if (config.Sources.to_string().EndsWith(Constants.PackageExtension))
+            if (config.Sources.to_string().EndsWith(NuGetConstants.PackageExtension))
             {
                 config.Sources = _fileSystem.get_directory_name(_fileSystem.get_full_path(config.Sources));
             }
