@@ -30,9 +30,10 @@ namespace chocolatey.infrastructure.app.nuget
 
     public sealed class NugetPack
     {
-        public static IPackage BuildPackage(PackageBuilder builder, IFileSystem fileSystem, string outputPath = null)
+        public static bool BuildPackage(PackageBuilder builder, IFileSystem fileSystem, string outputPath)
         {
             ExcludeFiles(builder.Files);
+
             // Track if the package file was already present on disk
             bool isExistingPackage = fileSystem.file_exists(outputPath);
             try
@@ -56,7 +57,7 @@ namespace chocolatey.infrastructure.app.nuget
                 throw;
             }
 
-            return new OptimizedZipPackage(outputPath);
+            return true;
         }
 
         private static void ExcludeFiles(ICollection<IPackageFile> packageFiles)

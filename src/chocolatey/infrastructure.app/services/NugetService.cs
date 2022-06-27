@@ -294,7 +294,11 @@ namespace chocolatey.infrastructure.app.services
             // Initialize the property provider based on what was passed in using the properties flag
             var propertyProvider = new DictionaryPropertyProvider(properties);
 
-            var builder = new PackageBuilder(nuspecFilePath, nuspecDirectory, propertyProvider, includeEmptyDirectories: true);
+            //Allows empty directories to be distributed in templates via .template packages, issue #1003
+            bool includeEmptyDirectories = true;
+            //No need to be deterministic, it's ok to include timestamps 
+            bool deterministic = false;
+            var builder = new PackageBuilder(nuspecFilePath, nuspecDirectory, propertyProvider.GetPropertyValue, includeEmptyDirectories, deterministic, _nugetLogger);
             if (!string.IsNullOrWhiteSpace(config.Version))
             {
                 builder.Version = new SemanticVersion(config.Version);
@@ -307,10 +311,11 @@ namespace chocolatey.infrastructure.app.services
             config.Sources = outputFolder;
 
             this.Log().Info(config.QuietOutput ? ChocolateyLoggers.LogFileOnly : ChocolateyLoggers.Normal, () => "Attempting to build package from '{0}'.".format_with(_fileSystem.get_file_name(nuspecFilePath)));
+            _fileSystem.create_directory_if_not_exists(outputFolder);
 
-            IPackage package = NugetPack.BuildPackage(builder, _fileSystem, outputPath);
+            var createdPackage = NugetPack.BuildPackage(builder, _fileSystem, outputPath);
             // package.Validate().Any(v => v.Level == PackageIssueLevel.Error)
-            if (package == null)
+            if (!createdPackage)
             {
                 throw new ApplicationException("Unable to create nupkg. See the log for error details.");
             }
