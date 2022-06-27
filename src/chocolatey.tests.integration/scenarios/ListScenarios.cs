@@ -39,8 +39,8 @@ namespace chocolatey.tests.integration.scenarios
             {
                 Configuration = Scenario.list();
                 Scenario.reset(Configuration);
-                Scenario.add_packages_to_source_location(Configuration, Configuration.Input + "*" + Constants.PackageExtension);
-                Scenario.add_packages_to_source_location(Configuration, "installpackage*" + Constants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, Configuration.Input + "*" + NuGetConstants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "installpackage*" + NuGetConstants.PackageExtension);
                 Scenario.install_package(Configuration, "installpackage", "1.0.0");
                 Scenario.install_package(Configuration, "upgradepackage", "1.0.0");
 
@@ -437,7 +437,7 @@ namespace chocolatey.tests.integration.scenarios
             {
                 Configuration = Scenario.list();
                 Scenario.reset(Configuration);
-                Scenario.add_packages_to_source_location(Configuration, "exactpackage*" + Constants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "exactpackage*" + NuGetConstants.PackageExtension);
                 Service = NUnitSetup.Container.GetInstance<IChocolateyPackageService>();
 
                 Configuration.ListCommand.Exact = true;
@@ -496,7 +496,7 @@ namespace chocolatey.tests.integration.scenarios
             {
                 Configuration = Scenario.list();
                 Scenario.reset(Configuration);
-                Scenario.add_packages_to_source_location(Configuration, "exactpackage*" + Constants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "exactpackage*" + NuGetConstants.PackageExtension);
                 Service = NUnitSetup.Container.GetInstance<IChocolateyPackageService>();
 
                 Configuration.ListCommand.Exact = true;
@@ -551,7 +551,7 @@ namespace chocolatey.tests.integration.scenarios
             {
                 Configuration = Scenario.list();
                 Scenario.reset(Configuration);
-                Scenario.add_packages_to_source_location(Configuration, "exactpackage*" + Constants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "exactpackage*" + NuGetConstants.PackageExtension);
                 Service = NUnitSetup.Container.GetInstance<IChocolateyPackageService>();
 
                 Configuration.ListCommand.Exact = true;
@@ -598,7 +598,7 @@ namespace chocolatey.tests.integration.scenarios
             {
                 Configuration = Scenario.list();
                 Scenario.reset(Configuration);
-                Scenario.add_packages_to_source_location(Configuration, "exactpackage*" + Constants.PackageExtension);
+                Scenario.add_packages_to_source_location(Configuration, "exactpackage*" + NuGetConstants.PackageExtension);
                 Service = NUnitSetup.Container.GetInstance<IChocolateyPackageService>();
 
                 Configuration.ListCommand.Exact = true;

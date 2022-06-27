@@ -70,7 +70,7 @@ namespace chocolatey.infrastructure.app.nuget
             {
                 fileNameBase += "." + version.to_string();
             }
-            return fileNameBase + Constants.PackageExtension;
+            return fileNameBase + NuGetConstants.PackageExtension;
         }
     }
 

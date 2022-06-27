@@ -66,7 +66,7 @@ namespace chocolatey.infrastructure.app.nuget
             // manifest file.
             var filter = Platform.get_platform() == PlatformType.Windows ? @"**\*" : "**/*";
             var excludes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            var wildCards = excludes.Concat(new[] { filter + Constants.ManifestExtension, filter + Constants.PackageExtension });
+            var wildCards = excludes.Concat(new[] { filter + PackagingConstants.ManifestExtension, filter + NuGetConstants.PackageExtension });
 
             PathResolver.FilterPackageFiles(packageFiles, ResolvePath, wildCards);
         }
