@@ -27,6 +27,10 @@ namespace chocolatey.infrastructure.app.services
     using templates;
     using tokens;
     using nuget;
+    using NuGet.Common;
+    using NuGet.PackageManagement;
+    using NuGet.Protocol.Core.Types;
+    using NuGet.Versioning;
     using IFileSystem = filesystem.IFileSystem;
 
     public class TemplateService : ITemplateService

@@ -17,10 +17,15 @@
 namespace chocolatey.tests.infrastructure.app.nuget
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using chocolatey.infrastructure.app.configuration;
     using chocolatey.infrastructure.app.nuget;
     using Moq;
+    using NuGet.Common;
+    using NuGet.Packaging;
+    using NuGet.Protocol;
+    using NuGet.Protocol.Core.Types;
     using Should;
 
     public class NugetCommonSpecs

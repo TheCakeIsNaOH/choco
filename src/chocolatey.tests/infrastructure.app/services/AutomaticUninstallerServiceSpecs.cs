@@ -31,6 +31,8 @@ namespace chocolatey.tests.infrastructure.app.services
     using chocolatey.infrastructure.commands;
     using chocolatey.infrastructure.results;
     using Moq;
+    using NuGet.Packaging;
+    using NuGet.Versioning;
     using IFileSystem = chocolatey.infrastructure.filesystem.IFileSystem;
 
     public class AutomaticUninstallerServiceSpecs

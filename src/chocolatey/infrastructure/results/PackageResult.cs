@@ -18,7 +18,12 @@ namespace chocolatey.infrastructure.results
 {
 	using System;
 	using System.Collections.Generic;
-	using System.Linq;
+    using System.Linq;
+    using app.domain;
+    using NuGet.Packaging;
+    using NuGet.Protocol.Core.Types;
+    using NuGet.Protocol;
+    using NuGet.Versioning;
 
     /// <summary>
     ///   Outcome of package installation

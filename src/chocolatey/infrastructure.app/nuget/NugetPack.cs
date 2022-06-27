@@ -22,6 +22,9 @@ namespace chocolatey.infrastructure.app.nuget
     using System.Linq;
     using IFileSystem = filesystem.IFileSystem;
     using chocolatey.infrastructure.platforms;
+    using NuGet.Common;
+    using NuGet.Configuration;
+    using NuGet.Packaging;
 
     // ReSharper disable InconsistentNaming
 

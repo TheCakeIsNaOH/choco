@@ -17,6 +17,7 @@
 namespace chocolatey.infrastructure.app.services
 {
     using domain;
+    using NuGet.Packaging;
 
     public interface IChocolateyPackageInformationService
     {

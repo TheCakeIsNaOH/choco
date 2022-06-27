@@ -32,6 +32,8 @@ namespace chocolatey.infrastructure.app.services
     using infrastructure.services;
     using logging;
     using nuget;
+    using NuGet.Packaging;
+    using NuGet.Protocol.Core.Types;
     using platforms;
     using results;
     using tolerance;

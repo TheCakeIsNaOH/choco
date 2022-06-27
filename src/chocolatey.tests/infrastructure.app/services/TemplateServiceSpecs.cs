@@ -27,8 +27,10 @@ namespace chocolatey.tests.infrastructure.app.services
     using chocolatey.infrastructure.app.templates;
     using chocolatey.infrastructure.filesystem;
     using Moq;
+    using NuGet.Common;
     using NUnit.Framework;
     using Should;
+    using LogLevel = tests.LogLevel;
 
     public class TemplateServiceSpecs
     {
