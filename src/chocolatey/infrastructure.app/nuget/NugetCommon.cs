@@ -74,11 +74,15 @@ namespace chocolatey.infrastructure.app.nuget
             return new ChocolateyLocalPackageRepository(pathResolver, nugetPackagesFileSystem) { Logger = nugetLogger, PackageSaveMode = PackageSaveModes.Nupkg | PackageSaveModes.Nuspec };
         }
 
-        public static IPackageRepository GetRemoteRepository(ChocolateyConfiguration configuration, ILogger nugetLogger, IPackageDownloader packageDownloader)
+        public static IEnumerable<SourceRepository> GetRemoteRepository(ChocolateyConfiguration configuration, ILogger nugetLogger)
         {
+
+            //TODO, fix
+            /*
             if (configuration.Features.ShowDownloadProgress)
             {
-                packageDownloader.ProgressAvailable += (sender, e) =>
+                PackageDownloader.
+                PackageDownloader.ProgressAvailable += (sender, e) =>
                 {
                     // http://stackoverflow.com/a/888569/18475
                     Console.Write("\rProgress: {0} {1}%".format_with(e.Operation, e.PercentComplete.to_string()).PadRight(Console.WindowWidth));
@@ -88,18 +92,16 @@ namespace chocolatey.infrastructure.app.nuget
                     }
                 };
             }
+            */
 
-            IEnumerable<string> sources = configuration.Sources.to_string().Split(new[] { ";", "," }, StringSplitOptions.RemoveEmptyEntries);
-
-            IList<IPackageRepository> repositories = new List<IPackageRepository>();
 
             // ensure credentials can be grabbed from configuration
-            HttpClient.DefaultCredentialProvider = new ChocolateyNugetCredentialProvider(configuration);
-            HttpClient.DefaultCertificateProvider = new ChocolateyClientCertificateProvider(configuration);
+            SetHttpHandlerCredentialService(configuration);
+
             if (!string.IsNullOrWhiteSpace(configuration.Proxy.Location))
             {
                 "chocolatey".Log().Debug("Using proxy server '{0}'.".format_with(configuration.Proxy.Location));
-                var proxy = new WebProxy(configuration.Proxy.Location, true);
+                var proxy = new System.Net.WebProxy(configuration.Proxy.Location, true);
 
                 if (!String.IsNullOrWhiteSpace(configuration.Proxy.User) && !String.IsNullOrWhiteSpace(configuration.Proxy.EncryptedPassword))
                 {
@@ -117,12 +119,24 @@ namespace chocolatey.infrastructure.app.nuget
                 ProxyCache.Instance.Override(proxy);
             }
 
+            IEnumerable<string> sources = configuration.Sources.to_string().Split(new[] { ";", "," }, StringSplitOptions.RemoveEmptyEntries);
+
+            IList<SourceRepository> repositories = new List<SourceRepository>();
+
             var updatedSources = new StringBuilder();
             foreach (var sourceValue in sources.or_empty_list_if_null())
             {
 
                 var source = sourceValue;
                 var bypassProxy = false;
+
+                var sourceClientCertificates = new List<X509Certificate>();
+                if (!string.IsNullOrWhiteSpace(configuration.SourceCommand.Certificate))
+                {
+                    "chocolatey".Log().Debug("Using passed in certificate for source {0}".format_with(source));
+                    sourceClientCertificates.Add(new X509Certificate2(configuration.SourceCommand.Certificate, configuration.SourceCommand.CertificatePassword));
+                }
+
                 if (configuration.MachineSources.Any(m => m.Name.is_equal_to(source) || m.Key.is_equal_to(source)))
                 {
                     try
@@ -139,6 +153,12 @@ namespace chocolatey.infrastructure.app.nuget
                         {
                             bypassProxy = machineSource.BypassProxy;
                             if (bypassProxy) "chocolatey".Log().Debug("Source '{0}' is configured to bypass proxies.".format_with(source));
+
+                            if (!string.IsNullOrWhiteSpace(machineSource.Certificate))
+                            {
+                                "chocolatey".Log().Debug("Using configured certificate for source {0}".format_with(source));
+                                sourceClientCertificates.Add(new X509Certificate2(machineSource.Certificate, NugetEncryptionUtility.DecryptString(machineSource.EncryptedCertificatePassword)));
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -149,22 +169,10 @@ namespace chocolatey.infrastructure.app.nuget
 
                 updatedSources.AppendFormat("{0};", source);
 
-                try
-                {
-                    var uri = new Uri(source);
-                    if (uri.IsFile || uri.IsUnc)
-                    {
-                        repositories.Add(new ChocolateyLocalPackageRepository(uri.LocalPath) { Logger = nugetLogger });
-                    }
-                    else
-                    {
-                        repositories.Add(new DataServicePackageRepository(new RedirectedHttpClient(uri, bypassProxy) { UserAgent = "Chocolatey Core" }, packageDownloader) { Logger = nugetLogger });
-                    }
-                }
-                catch (Exception)
-                {
-                    repositories.Add(new ChocolateyLocalPackageRepository(source) { Logger = nugetLogger });
-                }
+                var nugetSource = new PackageSource(source);
+                nugetSource.ClientCertificates = sourceClientCertificates;
+                var repo = Repository.Factory.GetCoreV3(nugetSource);
+                repositories.Add(repo);
             }
 
             if (updatedSources.Length != 0)
@@ -172,14 +180,7 @@ namespace chocolatey.infrastructure.app.nuget
                 configuration.Sources = updatedSources.Remove(updatedSources.Length - 1, 1).to_string();
             }
 
-            var repository = new AggregateRepository(repositories, ignoreFailingRepositories: true)
-            {
-                IgnoreFailingRepositories = true,
-                Logger = nugetLogger,
-                ResolveDependenciesVertically = true
-            };
-
-            return repository;
+            return repositories;
         }
 
         // keep this here for the licensed edition for now
@@ -253,6 +254,53 @@ namespace chocolatey.infrastructure.app.nuget
             }
 
             return packageManager;
+        }
+
+        public static IEnumerable<T> GetRepositoryResource<T>(IEnumerable<SourceRepository> packageRepositories) where T : class, INuGetResource
+        {
+            foreach (var repository in packageRepositories)
+            {
+                var resource = repository.GetResource<T>();
+                if (resource is null)
+                {
+                    "chocolatey".Log().Warn("The source {0} failed to get a {1} resource".format_with(repository.PackageSource.Source, typeof(T)));
+                }
+                else
+                {
+                    yield return resource;
+                }
+            }
+        }
+
+        public static IEnumerable<(SourceRepository repository,
+                PackageSearchResource searchResource,
+                FindPackageByIdResource findPackageByIdResource,
+                PackageMetadataResource packageMetadataResource,
+                ListResource listResource
+                )> GetRepositoryResources(IEnumerable<SourceRepository> packageRepositories)
+        {
+            foreach (var repository in packageRepositories)
+            {
+                yield return (
+                    repository,
+                    repository.GetResource<PackageSearchResource>(),
+                    repository.GetResource<FindPackageByIdResource>(),
+                    repository.GetResource<PackageMetadataResource>(),
+                    repository.GetResource<ListResource>());
+            }
+        }
+
+        public static void SetHttpHandlerCredentialService(ChocolateyConfiguration configuration)
+        {
+            HttpHandlerResourceV3.CredentialService = new Lazy<ICredentialService>(
+                () => new CredentialService(
+                    new AsyncLazy<IEnumerable<ICredentialProvider>>(
+                        () => GetCredentialProvidersAsync(configuration)), false, true));
+        }
+
+        private static async Task<IEnumerable<ICredentialProvider>> GetCredentialProvidersAsync(ChocolateyConfiguration configuration)
+        {
+            return new List<ICredentialProvider>() { new ChocolateyNugetCredentialProvider(configuration) };
         }
     }
 
