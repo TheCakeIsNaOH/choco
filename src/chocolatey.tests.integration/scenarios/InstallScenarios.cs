@@ -178,8 +178,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_install_the_expected_version_of_the_package()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + NuGetConstants.PackageExtension);
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -502,8 +502,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_still_have_the_expected_version_of_the_package_installed()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + NuGetConstants.PackageExtension);
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -585,8 +585,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_install_the_same_version_of_the_package()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + NuGetConstants.PackageExtension);
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -677,8 +677,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_restore_the_backup_version_of_the_package()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + NuGetConstants.PackageExtension);
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -773,8 +773,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_reinstall_the_same_version_of_the_package()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + NuGetConstants.PackageExtension);
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -869,8 +869,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_still_have_the_package_installed_with_the_expected_version_of_the_package()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + NuGetConstants.PackageExtension);
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -1223,8 +1223,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_install_the_expected_version_of_the_package()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.Input, Configuration.Input + NuGetConstants.PackageExtension);
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -1637,8 +1637,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_install_the_expected_version_of_the_dependency()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "isdependency", "isdependency.nupkg");
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -1731,8 +1731,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_reinstall_the_exact_same_version_of_the_package()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + NuGetConstants.PackageExtension);
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -1747,8 +1747,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_not_upgrade_the_dependency()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "isdependency", "isdependency.nupkg");
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -1842,8 +1842,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_reinstall_the_exact_same_version_of_the_package()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + NuGetConstants.PackageExtension);
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -1858,16 +1858,16 @@ namespace chocolatey.tests.integration.scenarios
             public void should_reinstall_the_floating_dependency_with_the_latest_version_that_satisfies_the_dependency()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "isdependency", "isdependency.nupkg");
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.1.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.1.0.0");
             }
 
             [Fact]
             public void should_reinstall_the_exact_same_version_of_the_exact_dependency()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "isexactversiondependency", "isexactversiondependency.nupkg");
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -1952,8 +1952,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_reinstall_the_exact_same_version_of_the_package()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + NuGetConstants.PackageExtension);
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -1968,16 +1968,16 @@ namespace chocolatey.tests.integration.scenarios
             public void should_not_touch_the_floating_dependency()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "isdependency", "isdependency.nupkg");
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
             public void should_not_touch_the_exact_dependency()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "isexactversiondependency", "isexactversiondependency.nupkg");
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -2063,8 +2063,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_reinstall_the_exact_same_version_of_the_package()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + NuGetConstants.PackageExtension);
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -2265,8 +2265,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_install_the_expected_version_of_the_package()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + NuGetConstants.PackageExtension);
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("2.1.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("2.1.0.0");
             }
 
             [Fact]
@@ -2353,8 +2353,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_install_the_expected_version_of_the_package()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + NuGetConstants.PackageExtension);
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.6.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.6.0.0");
             }
 
             [Fact]
@@ -2369,8 +2369,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_upgrade_the_dependency()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "isdependency", "isdependency.nupkg");
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.1.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.1.0.0");
             }
 
             [Fact]
@@ -2517,8 +2517,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_install_the_expected_version_of_the_package()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + NuGetConstants.PackageExtension);
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.6.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.6.0.0");
             }
 
             [Fact]
@@ -2592,8 +2592,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_not_upgrade_the_dependency()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "isdependency", "isdependency.nupkg");
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -2714,8 +2714,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_upgrade_the_dependency()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "isdependency", "isdependency.nupkg");
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.1.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.1.0");
             }
 
             [Fact]
@@ -2801,8 +2801,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_not_upgrade_the_minimum_version_dependency()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "isdependency", "isdependency.nupkg");
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -2810,8 +2810,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_not_upgrade_the_exact_version_dependency()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "isexactversiondependency", "isexactversiondependency.nupkg");
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -2917,8 +2917,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_not_upgrade_the_exact_version_dependency()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "isexactversiondependency", "isexactversiondependency.nupkg");
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -3041,8 +3041,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_install_the_expected_version_of_the_dependency()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "childdependencywithlooserversiondependency", "childdependencywithlooserversiondependency.nupkg");
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -3050,8 +3050,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_install_the_expected_version_of_the_constrained_dependency()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "isexactversiondependency", "isexactversiondependency.nupkg");
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -3132,8 +3132,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_install_the_expected_version_of_the_package()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "installpackage", "installpackage" + NuGetConstants.PackageExtension);
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
@@ -3304,8 +3304,8 @@ namespace chocolatey.tests.integration.scenarios
             public void should_install_the_expected_version_of_the_package()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames, Configuration.PackageNames + NuGetConstants.PackageExtension);
-                var package = new OptimizedZipPackage(packageFile);
-                package.Version.Version.to_string().ShouldEqual("1.0.0.0");
+                var packageReader = new PackageArchiveReader(packageFile);
+                packageReader.NuspecReader.GetVersion().to_string().ShouldEqual("1.0.0.0");
             }
 
             [Fact]
