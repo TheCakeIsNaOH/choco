@@ -422,9 +422,12 @@ folder.");
                     }
                     else
                     {
-                        var packageFile = new OptimizedZipPackage(_fileSystem.get_full_path(packageName));
-                        version = packageFile.Version;
-                        packageNames.Add(packageFile.Id);
+                        using (var packageFile = new PackageArchiveReader(_fileSystem.get_full_path(packageName)))
+                        {
+                            version = packageFile.NuspecReader.GetVersion();
+                            packageNames.Add(packageFile.NuspecReader.GetId());
+                            packageFile.Dispose();
+                        }
                     }
                 }
             }
