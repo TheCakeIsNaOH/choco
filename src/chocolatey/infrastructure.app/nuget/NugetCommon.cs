@@ -193,15 +193,15 @@ namespace chocolatey.infrastructure.app.nuget
 
         /*
         // keep this here for the licensed edition for now
-        public static NuGetPackageManager GetPackageManager(ChocolateyConfiguration configuration, ILogger nugetLogger, Action<PackageOperationEventArgs> installSuccessAction, Action<PackageOperationEventArgs> uninstallSuccessAction, bool addUninstallHandler)
+        public static NuGetPackageManager GetPackageManager(ChocolateyConfiguration configuration, ILogger nugetLogger, Action<ChocolateyPackageOperationEventArgs> installSuccessAction, Action<ChocolateyPackageOperationEventArgs> uninstallSuccessAction, bool addUninstallHandler)
         {
             return GetPackageManager(configuration, nugetLogger, new PackageDownloader(), installSuccessAction, uninstallSuccessAction, addUninstallHandler);
         }
         */
 
         // keep this here for the licensed edition for now
-        //public static NuGetPackageManager GetPackageManager(ChocolateyConfiguration configuration, ILogger nugetLogger, Action<PackageEventArgs> installSuccessAction, Action<PackageEventArgs> uninstallSuccessAction, bool addUninstallHandler)
-        public static NuGetPackageManager GetPackageManager(ChocolateyConfiguration configuration, ILogger nugetLogger, bool addUninstallHandler)
+        public static NuGetPackageManager GetPackageManager(ChocolateyConfiguration configuration, ILogger nugetLogger, Action<ChocolateyPackageOperationEventArgs> installSuccessAction, Action<ChocolateyPackageOperationEventArgs> uninstallSuccessAction, bool addUninstallHandler)
+        //public static NuGetPackageManager GetPackageManager(ChocolateyConfiguration configuration, ILogger nugetLogger, bool addUninstallHandler)
         {
             //IFileSystem nugetPackagesFileSystem = GetNuGetFileSystem(configuration, nugetLogger);
             //IPackagePathResolver pathResolver = GetPathResolver(configuration, nugetPackagesFileSystem);
@@ -219,35 +219,36 @@ namespace chocolatey.infrastructure.app.nuget
             var repositoryProvider = new ChocolateySourceRepositoryProvider(NugetCommon.GetRemoteRepositories(configuration, nugetLogger));
             var packageManager = new NuGetPackageManager(repositoryProvider, new NullSettings(), ApplicationParameters.PackagesLocation);
 
-            /*
+
             // GH-1548
             //note: is this a good time to capture a backup (for dependencies) / maybe grab remembered arguments here instead / and somehow get out of the endless loop!
             //NOTE DO NOT EVER use this method - packageManager.PackageInstalling += (s, e) => { };
-            var eventProvider = new PackageEventsProvider();
-            var eventSource = eventProvider.GetPackageEvents();
-            eventSource.PackageInstalled += (s, e) =>
+            packageManager.PackageInstalled += (s, e) =>
                 {
-                    var pkg = e.Identity;
+                    var pkg = e.Package;
                     "chocolatey".Log().Info(ChocolateyLoggers.Important, "{0}{1} v{2}{3}{4}{5}".format_with(
                         System.Environment.NewLine,
                         pkg.Id,
                         pkg.Version.to_string(),
                         configuration.Force ? " (forced)" : string.Empty,
-                        pkg.IsApproved ? " [Approved]" : string.Empty,
-                        pkg.PackageTestResultStatus == "Failing" && pkg.IsDownloadCacheAvailable ? " - Likely broken for FOSS users (due to download location changes)" : pkg.PackageTestResultStatus == "Failing" ? " - Possibly broken" : string.Empty
+                        string.Empty, string.Empty
+                        //pkg.IsApproved ? " [Approved]" : string.Empty,
+                        //pkg.PackageTestResultStatus == "Failing" && pkg.IsDownloadCacheAvailable ? " - Likely broken for FOSS users (due to download location changes)" : pkg.PackageTestResultStatus == "Failing" ? " - Possibly broken" : string.Empty
                         ));
 
                     if (installSuccessAction != null) installSuccessAction.Invoke(e);
                 };
-            */
 
-            /*
+
+
             if (addUninstallHandler)
             {
                 // NOTE DO NOT EVER use this method, or endless loop - packageManager.PackageUninstalling += (s, e) =>
 
                 packageManager.PackageUninstalled += (s, e) =>
                     {
+
+                        /*
                         IPackage pkg = packageManager.LocalRepository.FindPackage(e.Package.Id, e.Package.Version);
                         if (pkg != null)
                         {
@@ -273,10 +274,11 @@ namespace chocolatey.infrastructure.app.nuget
                         else
                         {
                             if (uninstallSuccessAction != null) uninstallSuccessAction.Invoke(e);
-                        }
+                        } */
+                        if (uninstallSuccessAction != null) uninstallSuccessAction.Invoke(e);
                     };
             }
-            */
+
             return packageManager;
 
         }
@@ -326,6 +328,33 @@ namespace chocolatey.infrastructure.app.nuget
         private static async Task<IEnumerable<ICredentialProvider>> GetCredentialProvidersAsync(ChocolateyConfiguration configuration)
         {
             return new List<ICredentialProvider>() { new ChocolateyNugetCredentialProvider(configuration) };
+        }
+
+        public static async Task GetPackageDependencies(PackageIdentity package,
+            NuGetFramework framework,
+            SourceCacheContext cacheContext,
+            ILogger logger,
+            IEnumerable<SourceRepository> sourceRepositories,
+            ISet<SourcePackageDependencyInfo> availablePackages)
+        {
+            if (availablePackages.Contains(package)) return;
+
+            foreach (var sourceRepository in sourceRepositories)
+            {
+                var dependencyInfoResource = await sourceRepository.GetResourceAsync<DependencyInfoResource>();
+                var dependencyInfo = await dependencyInfoResource.ResolvePackage(
+                    package, framework, cacheContext, logger, CancellationToken.None);
+
+                if (dependencyInfo == null) continue;
+
+                availablePackages.Add(dependencyInfo);
+                foreach (var dependency in dependencyInfo.Dependencies)
+                {
+                    await GetPackageDependencies(
+                        new PackageIdentity(dependency.Id, dependency.VersionRange.MinVersion),
+                        framework, cacheContext, logger, sourceRepositories, availablePackages);
+                }
+            }
         }
     }
 
