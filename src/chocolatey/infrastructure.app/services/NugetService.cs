@@ -329,10 +329,11 @@ namespace chocolatey.infrastructure.app.services
 
         public virtual void push_run(ChocolateyConfiguration config)
         {
-            string nupkgFilePath = validate_and_return_package_file(config, Constants.PackageExtension);
-            if (config.RegularOutput) this.Log().Info(() => "Attempting to push {0} to {1}".format_with(_fileSystem.get_file_name(nupkgFilePath), config.Sources));
+            string nupkgFilePath = validate_and_return_package_file(config, NuGetConstants.PackageExtension);
+            string nupkgFileName = _fileSystem.get_file_name(nupkgFilePath);
+            if (config.RegularOutput) this.Log().Info(() => "Attempting to push {0} to {1}".format_with(nupkgFileName, config.Sources));
 
-            NugetPush.push_package(config, _fileSystem.get_full_path(nupkgFilePath));
+            NugetPush.push_package(config, _fileSystem.get_full_path(nupkgFilePath), _nugetLogger, nupkgFileName);
 
 
             if (config.RegularOutput && (config.Sources.is_equal_to(ApplicationParameters.ChocolateyCommunityFeedPushSource) || config.Sources.is_equal_to(ApplicationParameters.ChocolateyCommunityFeedPushSourceOld)))
