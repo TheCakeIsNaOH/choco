@@ -74,7 +74,7 @@ namespace chocolatey.infrastructure.app.nuget
             return new ChocolateyLocalPackageRepository(pathResolver, nugetPackagesFileSystem) { Logger = nugetLogger, PackageSaveMode = PackageSaveModes.Nupkg | PackageSaveModes.Nuspec };
         }
 
-        public static IEnumerable<SourceRepository> GetRemoteRepository(ChocolateyConfiguration configuration, ILogger nugetLogger)
+        public static IEnumerable<SourceRepository> GetRemoteRepositories(ChocolateyConfiguration configuration, ILogger nugetLogger)
         {
 
             //TODO, fix
