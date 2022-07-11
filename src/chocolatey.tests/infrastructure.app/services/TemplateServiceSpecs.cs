@@ -38,12 +38,13 @@ namespace chocolatey.tests.infrastructure.app.services
         {
             protected TemplateService service;
             protected Mock<IFileSystem> fileSystem = new Mock<IFileSystem>();
+            protected Mock<ILogger> logger = new Mock<ILogger>();
 
             public override void Context()
             {
                 fileSystem.ResetCalls();
 
-                service = new TemplateService(fileSystem.Object);
+                service = new TemplateService(fileSystem.Object, logger.Object);
             }
         }
 
