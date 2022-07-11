@@ -22,16 +22,16 @@ namespace chocolatey.infrastructure.app.domain
 
     public sealed class ChocolateyPackageInformation
     {
-        public ChocolateyPackageInformation(IPackage package)
+        public ChocolateyPackageInformation(IPackageMetadata package)
         {
             Package = package;
         }
 
-        public IPackage Package { get; set; }
+        public IPackageMetadata Package { get; set; }
         public Registry RegistrySnapshot { get; set; }
         public PackageFiles FilesSnapshot { get; set; }
         public string Arguments { get; set; }
-        public SemanticVersion VersionOverride { get; set; }
+        public NuGetVersion VersionOverride { get; set; }
         public bool HasSilentUninstall { get; set; }
         public bool IsSideBySide { get; set; }
         public bool IsPinned { get; set; }
