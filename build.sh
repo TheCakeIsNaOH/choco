@@ -23,6 +23,9 @@ export CAKE_PATHS_TOOLS=$TOOLS_DIR
 export CAKE_PATHS_ADDINS=$ADDINS_DIR
 export CAKE_PATHS_MODULES=$MODULES_DIR
 
+#REMOVE ME, TEMP SET EXTRA nuget source:
+export NUGETDEVRESTORE_SOURCE="https://nuget.naoh.host/repository/nuget-public/index.json"
+
 # Define md5sum or md5 depending on Linux / macOS
 MD5_EXE=
 if [[ "$(uname -s)" == "Darwin" ]]; then
