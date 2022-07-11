@@ -193,7 +193,7 @@ namespace chocolatey.infrastructure.app.services
                                     ),
                                 package.DownloadCount <= 0 ? "n/a" : package.DownloadCount.to_string(),
                                 package.VersionDownloadCount <= 0 ? "n/a" : package.VersionDownloadCount.to_string(),
-                                package.PackageSourceUrl != null && !string.IsNullOrWhiteSpace(package.PackageSourceUrl.to_string()) ? package.PackageSourceUrl.to_string() : "n/a",
+                                packageLocalMetadata != null && packageLocalMetadata.PackageSourceUrl != null && !string.IsNullOrWhiteSpace(packageLocalMetadata.PackageSourceUrl.to_string()) ? packageLocalMetadata.PackageSourceUrl.to_string() : "n/a",
                                 string.IsNullOrWhiteSpace(package.PackageHash) ? string.Empty : "{0} Package Checksum: '{1}' ({2})".format_with(
                                         Environment.NewLine,
                                         package.PackageHash,
@@ -202,27 +202,36 @@ namespace chocolatey.infrastructure.app.services
                                 package.Tags.trim_safe().escape_curly_braces(),
                                 package.ProjectUrl != null ? package.ProjectUrl.to_string() : "n/a",
                                 package.LicenseUrl != null && !string.IsNullOrWhiteSpace(package.LicenseUrl.to_string()) ? package.LicenseUrl.to_string() : "n/a",
-                                package.ProjectSourceUrl != null && !string.IsNullOrWhiteSpace(package.ProjectSourceUrl.to_string()) ? "{0} Software Source: {1}".format_with(Environment.NewLine, package.ProjectSourceUrl.to_string()) : string.Empty,
-                                package.DocsUrl != null && !string.IsNullOrWhiteSpace(package.DocsUrl.to_string()) ? "{0} Documentation: {1}".format_with(Environment.NewLine, package.DocsUrl.to_string()) : string.Empty,
-                                package.MailingListUrl != null && !string.IsNullOrWhiteSpace(package.MailingListUrl.to_string()) ? "{0} Mailing List: {1}".format_with(Environment.NewLine, package.MailingListUrl.to_string()) : string.Empty,
-                                package.BugTrackerUrl != null && !string.IsNullOrWhiteSpace(package.BugTrackerUrl.to_string()) ? "{0} Issues: {1}".format_with(Environment.NewLine, package.BugTrackerUrl.to_string()) : string.Empty,
+                                packageLocalMetadata != null && packageLocalMetadata.ProjectSourceUrl != null && !string.IsNullOrWhiteSpace(packageLocalMetadata.ProjectSourceUrl.to_string()) ? "{0} Software Source: {1}".format_with(Environment.NewLine, packageLocalMetadata.ProjectSourceUrl.to_string()) : string.Empty,
+                                packageLocalMetadata != null && packageLocalMetadata.DocsUrl != null && !string.IsNullOrWhiteSpace(packageLocalMetadata.DocsUrl.to_string()) ? "{0} Documentation: {1}".format_with(Environment.NewLine, packageLocalMetadata.DocsUrl.to_string()) : string.Empty,
+                                packageLocalMetadata != null && packageLocalMetadata.MailingListUrl != null && !string.IsNullOrWhiteSpace(packageLocalMetadata.MailingListUrl.to_string()) ? "{0} Mailing List: {1}".format_with(Environment.NewLine, packageLocalMetadata.MailingListUrl.to_string()) : string.Empty,
+                                packageLocalMetadata != null && packageLocalMetadata.BugTrackerUrl != null && !string.IsNullOrWhiteSpace(packageLocalMetadata.BugTrackerUrl.to_string()) ? "{0} Issues: {1}".format_with(Environment.NewLine, packageLocalMetadata.BugTrackerUrl.to_string()) : string.Empty,
                                 package.Summary != null && !string.IsNullOrWhiteSpace(package.Summary.to_string()) ? "{0} Summary: {1}".format_with(Environment.NewLine, package.Summary.escape_curly_braces().to_string()) : string.Empty,
                                 package.Description.escape_curly_braces().Replace("\n    ", "\n").Replace("\n", "\n  "),
-                                package.ReleaseNotes != null && !string.IsNullOrWhiteSpace(package.ReleaseNotes.to_string()) ? "{0} Release Notes: {1}".format_with(Environment.NewLine, package.ReleaseNotes.escape_curly_braces().Replace("\n    ", "\n").Replace("\n", "\n  ")) : string.Empty
-                        ));
+                                packageLocalMetadata != null && packageLocalMetadata.ReleaseNotes != null && !string.IsNullOrWhiteSpace(packageLocalMetadata.ReleaseNotes.to_string()) ? "{0} Release Notes: {1}".format_with(Environment.NewLine, packageLocalMetadata.ReleaseNotes.escape_curly_braces().Replace("\n    ", "\n").Replace("\n", "\n  ")) : string.Empty
+                            ));
+
+
                     }
                     else
                     {
-                        this.Log().Info(logger, () => "{0}{1}".format_with(package.Id, config.ListCommand.IdOnly ? string.Empty : "|{0}".format_with(package.Version.to_string())));
+                        this.Log().Info(logger, () => "{0}{1}".format_with(package.Identity.Id, config.ListCommand.IdOnly ? string.Empty : "|{0}".format_with(package.Identity.Version.to_string())));
                     }
                 }
                 else
                 {
-                    this.Log().Debug(() => "{0}{1}".format_with(package.Id, config.ListCommand.IdOnly ? string.Empty : " {0}".format_with(package.Version.to_string())));
+                    this.Log().Debug(() => "{0}{1}".format_with(package.Identity.Id, config.ListCommand.IdOnly ? string.Empty : " {0}".format_with(package.Identity.Version.to_string())));
                 }
                 count++;
 
-                yield return new PackageResult(package, null, config.Sources);
+                if (packageLocalMetadata is null)
+                {
+                    yield return new PackageResult(package, null, config.Sources);
+                }
+                else
+                {
+                    yield return new PackageResult(packageLocalMetadata, package, null, config.Sources);
+                }
             }
 
             if (config.RegularOutput) this.Log().Debug(ChocolateyLoggers.Verbose, () => "--- End of List ---");

@@ -42,7 +42,7 @@ namespace chocolatey.infrastructure.app.nuget
             const bool noServiceEndpoint = true;
 
             //OK to use FirstOrDefault in this case as the command validates that there is only one source
-            SourceRepository sourceRepository = NugetCommon.GetRemoteRepository(config, nugetLogger).FirstOrDefault();
+            SourceRepository sourceRepository = NugetCommon.GetRemoteRepositories(config, nugetLogger).FirstOrDefault();
             PackageUpdateResource packageUpdateResource = sourceRepository.GetResource<PackageUpdateResource>();
             var nupkgFilePaths = new List<string>() { nupkgFilePath };
             UserAgent.SetUserAgentString(new UserAgentStringBuilder("{0}/{1} via NuGet Client".format_with(ApplicationParameters.UserAgent, config.Information.ChocolateyProductVersion)));
