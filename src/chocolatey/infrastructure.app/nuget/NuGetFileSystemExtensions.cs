@@ -22,7 +22,7 @@ namespace chocolatey.infrastructure.app.nuget
     using NuGet.Packaging;
 
     // ReSharper disable InconsistentNaming
-
+    /*
     public static class NuGetFileSystemExtensions
     {
         public static void AddFiles(this IFileSystem fileSystem, IEnumerable<IPackageFile> files, string rootDir, bool preserveFilePath)
@@ -38,15 +38,15 @@ namespace chocolatey.infrastructure.app.nuget
         {
             using (Stream stream = streamFactory())
             {
-                fileSystem.AddFile(path, stream);
+                //fileSystem.AddFile(path, stream);
             }
         }
 
         internal static void AddFileWithCheck(this IFileSystem fileSystem, string path, Action<Stream> write)
         {
-            fileSystem.AddFile(path, write);
+            //fileSystem.AddFile(path, write);
         }
     }
-
+    */
     // ReSharper restore InconsistentNaming
 }

@@ -177,20 +177,22 @@ Did you know Pro / Business automatically syncs with Programs and
 
             if (config.RegularOutput) this.Log().Debug(() => "Searching for package information");
 
-            var packages = new List<IPackage>();
+            var packages = new List<PackageResult>();
 
-            foreach (var package in perform_source_runner_function(config, r => r.list_run(config)))
+            foreach (PackageResult package in perform_source_runner_function(config, r => r.list_run(config)))
             {
                 if (config.SourceType == SourceType.normal)
                 {
+                    yield return package;
+
                     if (!config.ListCommand.IncludeRegistryPrograms)
                     {
                         yield return package;
                     }
 
-                    if (config.ListCommand.LocalOnly && config.ListCommand.IncludeRegistryPrograms && package.Package != null)
+                    if (config.ListCommand.LocalOnly && config.ListCommand.IncludeRegistryPrograms && package.PackageMetadata != null)
                     {
-                        packages.Add(package.Package);
+                        packages.Add(package);
                     }
                 }
             }
@@ -209,9 +211,9 @@ Did you know Pro / Business automatically syncs with Programs and
             randomly_notify_about_pro_business(config, PRO_BUSINESS_LIST_MESSAGE);
         }
 
-        private IEnumerable<PackageResult> report_registry_programs(ChocolateyConfiguration config, IEnumerable<IPackage> list)
+        private IEnumerable<PackageResult> report_registry_programs(ChocolateyConfiguration config, IEnumerable<PackageResult> list)
         {
-            var itemsToRemoveFromMachine = list.Select(package => _packageInfoService.get_package_information(package)).Where(p => p.RegistrySnapshot != null).ToList();
+            var itemsToRemoveFromMachine = list.Select(package => _packageInfoService.get_package_information(package.PackageMetadata)).Where(p => p.RegistrySnapshot != null).ToList();
 
             var count = 0;
             var machineInstalled = _registryService.get_installer_keys().RegistryKeys.Where(
@@ -506,7 +508,7 @@ package '{0}' - stopping further execution".format_with(packageResult.Name));
 
         protected virtual ChocolateyPackageInformation get_package_information(PackageResult packageResult, ChocolateyConfiguration config)
         {
-            var pkgInfo = _packageInfoService.get_package_information(packageResult.Package);
+            var pkgInfo = _packageInfoService.get_package_information(packageResult.PackageMetadata);
             if (config.AllowMultipleVersions)
             {
                 pkgInfo.IsSideBySide = true;
@@ -989,7 +991,7 @@ The recent package changes indicate a reboot is necessary.
         {
             if (!_fileSystem.directory_exists(packageResult.InstallLocation))
             {
-                packageResult.InstallLocation += ".{0}".format_with(packageResult.Package.Version.to_string());
+                packageResult.InstallLocation += ".{0}".format_with(packageResult.PackageMetadata.Version.to_string());
             }
 
             //These items only apply to windows systems.
@@ -1047,7 +1049,7 @@ package '{0}' - stopping further execution".format_with(packageResult.Name));
 
         private void uninstall_cleanup(ChocolateyConfiguration config, PackageResult packageResult)
         {
-            if (config.Features.RemovePackageInformationOnUninstall) _packageInfoService.remove_package_information(packageResult.Package);
+            if (config.Features.RemovePackageInformationOnUninstall) _packageInfoService.remove_package_information(packageResult.PackageMetadata);
 
             ensure_bad_package_path_is_clean(config, packageResult);
             remove_rollback_if_exists(packageResult);

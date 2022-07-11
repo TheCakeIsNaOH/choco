@@ -60,7 +60,7 @@ namespace chocolatey.infrastructure.app.services
             _config = config;
         }
 
-        public ChocolateyPackageInformation get_package_information(IPackage package)
+        public ChocolateyPackageInformation get_package_information(IPackageMetadata package)
         {
             var packageInformation = new ChocolateyPackageInformation(package);
             if (package == null)
@@ -150,7 +150,7 @@ A corrupt .registry file exists at {0}.
                 FaultTolerance.try_catch_with_logging_exception(
                 () =>
                     {
-                        packageInformation.VersionOverride = new SemanticVersion(_fileSystem.read_file(versionOverrideFile).trim_safe());
+                        packageInformation.VersionOverride = new NuGetVersion(_fileSystem.read_file(versionOverrideFile).trim_safe());
                     },
                     "Unable to read version override file",
                     throwError: false,
@@ -249,7 +249,7 @@ A corrupt .registry file exists at {0}.
             }
         }
 
-        public void remove_package_information(IPackage package)
+        public void remove_package_information(IPackageMetadata package)
         {
             var pkgStorePath = _fileSystem.combine_paths(ApplicationParameters.ChocolateyPackageInfoStoreLocation, "{0}.{1}".format_with(package.Id, package.Version.to_string()));
             if (_config.RegularOutput) this.Log().Info("Removing Package Information for {0}".format_with(pkgStorePath));

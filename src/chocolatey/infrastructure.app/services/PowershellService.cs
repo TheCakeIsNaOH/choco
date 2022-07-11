@@ -196,7 +196,8 @@ namespace chocolatey.infrastructure.app.services
             if (!string.IsNullOrEmpty(chocoPowerShellScript))
             {
                 var failure = false;
-                var package = packageResult.Package;
+
+                var package = packageResult.SearchMetadata;
                 prepare_powershell_environment(package, configuration, packageDirectory);
 
                 this.Log().Debug(ChocolateyLoggers.Important, "Contents of '{0}':".format_with(chocoPowerShellScript));
@@ -208,7 +209,7 @@ namespace chocolatey.infrastructure.app.services
 
                 if (!shouldRun)
                 {
-                    this.Log().Info(ChocolateyLoggers.Important, () => "The package {0} wants to run '{1}'.".format_with(package.Id, _fileSystem.get_file_name(chocoPowerShellScript)));
+                    this.Log().Info(ChocolateyLoggers.Important, () => "The package {0} wants to run '{1}'.".format_with(packageResult.Name, _fileSystem.get_file_name(chocoPowerShellScript)));
                     this.Log().Info(ChocolateyLoggers.Important, () => "Note: If you don't run this script, the installation will fail.");
                     this.Log().Info(ChocolateyLoggers.Important, () => @"Note: To confirm automatically next time, use '-y' or consider:");
                     this.Log().Info(ChocolateyLoggers.Important, () => @"choco feature enable -n allowGlobalConfirmation");
@@ -367,21 +368,21 @@ namespace chocolatey.infrastructure.app.services
             return result;
         }
 
-        public void prepare_powershell_environment(IPackage package, ChocolateyConfiguration configuration, string packageDirectory)
+        public void prepare_powershell_environment(IPackageSearchMetadata package, ChocolateyConfiguration configuration, string packageDirectory)
         {
             if (package == null) return;
 
             EnvironmentSettings.update_environment_variables();
             EnvironmentSettings.set_environment_variables(configuration);
 
-            Environment.SetEnvironmentVariable("chocolateyPackageName", package.Id);
-            Environment.SetEnvironmentVariable("packageName", package.Id);
+            Environment.SetEnvironmentVariable("chocolateyPackageName", package.Identity.Id);
+            Environment.SetEnvironmentVariable("packageName", package.Identity.Id);
             Environment.SetEnvironmentVariable("chocolateyPackageTitle", package.Title);
             Environment.SetEnvironmentVariable("packageTitle", package.Title);
-            Environment.SetEnvironmentVariable("chocolateyPackageVersion", package.Version.to_string());
-            Environment.SetEnvironmentVariable("packageVersion", package.Version.to_string());
-            Environment.SetEnvironmentVariable("chocolateyPackageVersionPrerelease", package.Version.SpecialVersion.to_string());
-            Environment.SetEnvironmentVariable("chocolateyPackageVersionPackageRelease", package.Version.PackageReleaseVersion.to_string());
+            Environment.SetEnvironmentVariable("chocolateyPackageVersion", package.Identity.Version.to_string());
+            Environment.SetEnvironmentVariable("packageVersion", package.Identity.Version.to_string());
+            Environment.SetEnvironmentVariable("chocolateyPackageVersionPrerelease", package.Identity.Version.Release.to_string());
+            Environment.SetEnvironmentVariable("chocolateyPackageVersionPackageRelease", package.Identity.Version.Version.to_string());
 
             Environment.SetEnvironmentVariable("chocolateyPackageFolder", packageDirectory);
             Environment.SetEnvironmentVariable("packageFolder", packageDirectory);
@@ -403,9 +404,9 @@ namespace chocolatey.infrastructure.app.services
             // we only want to pass the following args to packages that would apply.
             // like choco install git --params '' should pass those params to git.install,
             // but not another package unless the switch apply-install-arguments-to-dependencies is used
-            if (!PackageUtility.package_is_a_dependency(configuration, package.Id) || configuration.ApplyInstallArgumentsToDependencies)
+            if (!PackageUtility.package_is_a_dependency(configuration, package.Identity.Id) || configuration.ApplyInstallArgumentsToDependencies)
             {
-                this.Log().Debug(ChocolateyLoggers.Verbose, "Setting installer args for {0}".format_with(package.Id));
+                this.Log().Debug(ChocolateyLoggers.Verbose, "Setting installer args for {0}".format_with(package.Identity.Id));
                 Environment.SetEnvironmentVariable("installArguments", configuration.InstallArguments);
                 Environment.SetEnvironmentVariable("installerArguments", configuration.InstallArguments);
                 Environment.SetEnvironmentVariable("chocolateyInstallArguments", configuration.InstallArguments);
@@ -418,9 +419,9 @@ namespace chocolatey.infrastructure.app.services
 
             // we only want to pass package parameters to packages that would apply.
             // but not another package unless the switch apply-package-parameters-to-dependencies is used
-            if (!PackageUtility.package_is_a_dependency(configuration, package.Id) || configuration.ApplyPackageParametersToDependencies)
+            if (!PackageUtility.package_is_a_dependency(configuration, package.Identity.Id) || configuration.ApplyPackageParametersToDependencies)
             {
-                this.Log().Debug(ChocolateyLoggers.Verbose, "Setting package parameters for {0}".format_with(package.Id));
+                this.Log().Debug(ChocolateyLoggers.Verbose, "Setting package parameters for {0}".format_with(package.Identity.Id));
                 Environment.SetEnvironmentVariable("packageParameters", configuration.PackageParameters);
                 Environment.SetEnvironmentVariable("chocolateyPackageParameters", configuration.PackageParameters);
             }

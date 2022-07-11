@@ -85,7 +85,7 @@ namespace chocolatey.tests.infrastructure.app.services
                 NormalRunner.Setup(r => r.SourceType).Returns(SourceType.normal);
                 FeaturesRunner.Setup(r => r.SourceType).Returns(SourceType.windowsfeatures);
 
-                var package = new Mock<IPackage>();
+                var package = new Mock<IPackageMetadata>();
                 var expectedResult = new ConcurrentDictionary<string, PackageResult>();
                 expectedResult.TryAdd("test-feature", new PackageResult(package.Object, "windowsfeatures", null));
 

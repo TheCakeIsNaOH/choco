@@ -67,7 +67,7 @@ namespace chocolatey.infrastructure.app.services
         /// <returns>true if the chocolateyBeforeModify.ps1 was found, even if it has failures</returns>
         bool before_modify(ChocolateyConfiguration configuration, PackageResult packageResult);
 
-        void prepare_powershell_environment(IPackage package, ChocolateyConfiguration configuration, string packageDirectory);
+        void prepare_powershell_environment(IPackageSearchMetadata package, ChocolateyConfiguration configuration, string packageDirectory);
         PowerShellExecutionResults run_host(ChocolateyConfiguration config, string chocoPowerShellScript, Action<Pipeline> additionalActionsBeforeScript);
     }
 }
