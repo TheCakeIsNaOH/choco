@@ -25,6 +25,7 @@ namespace chocolatey.infrastructure.app.nuget
     using System.Threading;
     using System.Threading.Tasks;
     using configuration;
+    using Nito.AsyncEx;
     using NuGet.Common;
     using NuGet.Configuration;
     using NuGet.PackageManagement;
@@ -40,12 +41,12 @@ namespace chocolatey.infrastructure.app.nuget
     {
         public static IEnumerable<IPackageSearchMetadata> GetPackages(ChocolateyConfiguration configuration, ILogger nugetLogger)
         {
-            return execute_package_search(configuration, nugetLogger).GetAwaiter().GetResult();
+            return AsyncContext.Run(() => execute_package_search(configuration, nugetLogger));
         }
 
         public static int GetCount(ChocolateyConfiguration configuration, ILogger nugetLogger)
         {
-            return execute_package_search(configuration, nugetLogger).GetAwaiter().GetResult().Count();
+            return AsyncContext.Run(() => execute_package_search(configuration, nugetLogger)).Count();
         }
 
         private async static Task<IQueryable<IPackageSearchMetadata>> execute_package_search(ChocolateyConfiguration configuration, ILogger nugetLogger)
@@ -261,7 +262,7 @@ namespace chocolatey.infrastructure.app.nuget
             var versions = new HashSet<NuGetVersion>();
             foreach (var resource in findResources)
             {
-                versions.AddRange(resource.GetAllVersionsAsync(packageName, cacheContext, nugetLogger, CancellationToken.None).GetAwaiter().GetResult());
+                versions.AddRange(AsyncContext.Run(() => resource.GetAllVersionsAsync(packageName, cacheContext, nugetLogger, CancellationToken.None)));
             }
             //TODO, check if max always works
             return versions.Max();
@@ -286,7 +287,7 @@ namespace chocolatey.infrastructure.app.nuget
 
             foreach (var resource in resources)
             {
-                var metadata = resource.GetMetadataAsync(new PackageIdentity(packageName, version), cacheContext, nugetLogger, CancellationToken.None).GetAwaiter().GetResult();
+                var metadata = AsyncContext.Run(() => resource.GetMetadataAsync(new PackageIdentity(packageName, version), cacheContext, nugetLogger, CancellationToken.None));
                 if (metadata != null)
                 {
                     return metadata;

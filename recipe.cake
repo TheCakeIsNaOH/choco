@@ -164,12 +164,13 @@ BuildParameters.SetParameters(context: Context,
                             productName: "Chocolatey",
                             productDescription: "chocolatey is a product of Chocolatey Software, Inc. - All Rights Reserved.",
                             productCopyright: string.Format("Copyright © 2017 - {0} Chocolatey Software, Inc. Copyright © 2011 - 2017, RealDimensions Software, LLC - All Rights Reserved.", DateTime.Now.Year),
-                            shouldStrongNameSignDependentAssemblies: false,
+                            shouldStrongNameSignDependentAssemblies: true,
                             treatWarningsAsErrors: false,
                             getScriptsToSign: getScriptsToSign,
                             getFilesToSign: getFilesToSign,
                             getILMergeConfigs: getILMergeConfigs,
-                            preferDotNetGlobalToolUsage: !IsRunningOnWindows());
+                            preferDotNetGlobalToolUsage: !IsRunningOnWindows(),
+                            strongNameDependentAssembliesInputPath: string.Format("{0}{1}", ((FilePath)("./src")).FullPath, "\\packages\\Nito*"));
 
 ToolSettings.SetToolSettings(context: Context);
 

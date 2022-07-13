@@ -30,6 +30,7 @@ namespace chocolatey.infrastructure.app.services
     using domain;
     using guards;
     using logging;
+    using Nito.AsyncEx;
     using nuget;
     using platforms;
     using results;
@@ -584,7 +585,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                 try
                 {
                     var packagesWithDependencies = new HashSet<SourcePackageDependencyInfo>(PackageIdentityComparer.Default);
-                    NugetCommon.GetPackageDependencies(availablePackage.Identity, NuGetFramework.AnyFramework, sourceCacheContext, _nugetLogger, remoteRepositories, packagesWithDependencies).GetAwaiter().GetResult();
+                    AsyncContext.Run(() => NugetCommon.GetPackageDependencies(availablePackage.Identity, NuGetFramework.AnyFramework, sourceCacheContext, _nugetLogger, remoteRepositories, packagesWithDependencies));
                     //packagesWithDependencies.AddRange(allPackages.Select(p => new SourcePackageDependencyInfo(p.SearchMetadata.Identity, null, true, packageManager.PackagesFolderSourceRepository, null)));
                     var allpackagesDepedencyInfo = allPackages.Select(p => new SourcePackageDependencyInfo(p.SearchMetadata.Identity, p.PackageMetadata.DependencyGroups.SelectMany(x => x.Packages).ToList(), true, packageManager.PackagesFolderSourceRepository, null, null));
                     packagesWithDependencies.AddRange(allpackagesDepedencyInfo);
@@ -628,18 +629,18 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                         if (installedPath == null)
                         {
                             var downloadResource = packageToInstall.Source.GetResource<DownloadResource>();
-                            var downloadResult = downloadResource.GetDownloadResourceResultAsync(
+                            var downloadResult = AsyncContext.Run(() => downloadResource.GetDownloadResourceResultAsync(
                                 packageToInstall,
                                 new PackageDownloadContext(sourceCacheContext),
                                 config.CacheLocation,
-                                _nugetLogger, CancellationToken.None).GetAwaiter().GetResult();
+                                _nugetLogger, CancellationToken.None));
 
-                            var extractionResult = PackageExtractor.ExtractPackageAsync(
+                            var extractionResult = AsyncContext.Run(() => PackageExtractor.ExtractPackageAsync(
                                 downloadResult.PackageSource,
                                 downloadResult.PackageStream,
                                 packagePathResolver,
                                 extractionContext,
-                                CancellationToken.None).GetAwaiter().GetResult();
+                                CancellationToken.None));
 
                             this.Log().Debug("Extraction Result for {0}".format_with(packageToInstall.Id));
                             foreach (var message in extractionResult)
@@ -688,7 +689,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                     //var downloadContext = new PackageDownloadContext()
 
                     //TODO, investigate if primary/secondary sources should be used here? Package priority, etc?
-                    packageManager.InstallPackageAsync(
+                    AsyncContext.Run(() => packageManager.InstallPackageAsync(
                         nugetProject,
                         availablePackage.Identity,
                         resolutionContext,
@@ -696,7 +697,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                         remoteRepositories,
                         null,
                         CancellationToken.None
-                        ).GetAwaiter().GetResult();
+                        ));
 
                     remove_nuget_cache_for_package(availablePackage);*/
                     /*
@@ -1046,7 +1047,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                             //var downloadContext = new PackageDownloadContext()
 
                             //TODO, investigate if primary/secondary sources should be used here? Package priority, etc?
-                            packageManager.InstallPackageAsync(
+                            AsyncContext.Run(() => packageManager.InstallPackageAsync(
                                 nugetProject,
                                 availablePackage.Identity,
                                 resolutionContext,
@@ -1054,7 +1055,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                                 remoteRepositories,
                                 null,
                                 CancellationToken.None
-                            ).GetAwaiter().GetResult();
+                            ));
 
                             remove_nuget_cache_for_package(availablePackage);
                             */
@@ -1735,7 +1736,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                             //rename_legacy_package_version(config, packageVersion.PackageMetadata, pkgInfo);
                             //remove_rollback_directory_if_exists(packageName);
                             //backup_existing_version(config, packageVersion.PackageMetadata, pkgInfo);
-                            packageManager.UninstallPackageAsync(nugetProject, packageVersion.Name, uninstallContext, projectContext, CancellationToken.None).GetAwaiter().GetResult();
+                            AsyncContext.Run(() => packageManager.UninstallPackageAsync(nugetProject, packageVersion.Name, uninstallContext, projectContext, CancellationToken.None));
                             //ensure_nupkg_is_removed(packageVersion.PackageMetadata, pkgInfo);
                             //remove_installation_files(packageVersion.PackageMetadata, pkgInfo);
                             remove_cache_for_package(config, packageVersion.PackageMetadata);

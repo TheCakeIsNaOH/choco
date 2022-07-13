@@ -22,6 +22,7 @@ namespace chocolatey.infrastructure.app.nuget
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Nito.AsyncEx;
     using NuGet.Common;
     using NuGet.Configuration;
     using NuGet.Protocol;
@@ -49,7 +50,7 @@ namespace chocolatey.infrastructure.app.nuget
 
             try
             {
-                packageUpdateResource.Push(
+                AsyncContext.Run(() => packageUpdateResource.Push(
                     nupkgFilePaths,
                     "",
                     Convert.ToInt32(timeout.TotalSeconds),
@@ -59,7 +60,7 @@ namespace chocolatey.infrastructure.app.nuget
                     noServiceEndpoint,
                     true,
                     null,
-                    nugetLogger).GetAwaiter().GetResult();
+                    nugetLogger));
             }
             catch (InvalidOperationException ex)
             {
