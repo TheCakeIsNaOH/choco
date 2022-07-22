@@ -525,17 +525,12 @@ folder.");
                     continue;
                 }
 
-                //TODO - fix me, this is another horrifically inefficient use of the API
-                var latestPackageVersion = NugetList.find_package_version(packageName, _nugetLogger, sourceCacheContext, NugetCommon.GetRepositoryResource<FindPackageByIdResource>(remoteRepositories).ToList());
-                IPackageSearchMetadata availablePackage;
-                if (latestPackageVersion != null)
+                if (latestPackageVersion is null && version != null)
                 {
-                    availablePackage = NugetList.find_package(packageName, config, _nugetLogger, sourceCacheContext, NugetCommon.GetRepositoryResource<PackageMetadataResource>(remoteRepositories).ToList(), latestPackageVersion);
+                    latestPackageVersion = version;
                 }
-                else
-                {
-                    availablePackage = null;
-                }
+
+                var availablePackage = NugetList.find_package(packageName, config, _nugetLogger, sourceCacheContext, NugetCommon.GetRepositoryResource<PackageMetadataResource>(remoteRepositories).ToList(), latestPackageVersion);
 
                 if (availablePackage == null)
                 {
@@ -895,17 +890,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                     config.Prerelease = true;
                 }
 
-                //TODO - fix me, this is another horrifically inefficient use of the API
-                var latestPackageVersion = NugetList.find_package_version(packageName, _nugetLogger, sourceCacheContext, NugetCommon.GetRepositoryResource<FindPackageByIdResource>(remoteRepositories).ToList());
-                IPackageSearchMetadata availablePackage;
-                if (latestPackageVersion != null)
-                {
-                    availablePackage = NugetList.find_package(packageName, config, _nugetLogger,sourceCacheContext, NugetCommon.GetRepositoryResource<PackageMetadataResource>(remoteRepositories).ToList(), latestPackageVersion);
-                }
-                else
-                {
-                    availablePackage = null;
-                }
+                var availablePackage = NugetList.find_package(packageName, config, _nugetLogger, sourceCacheContext, NugetCommon.GetRepositoryResource<PackageMetadataResource>(remoteRepositories).ToList());
 
                 config.Prerelease = originalPrerelease;
 
@@ -1168,17 +1153,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                     config.Prerelease = true;
                 }
 
-                //TODO - fix me, this is another horrifically inefficient use of the API
-                var latestPackageVersion = NugetList.find_package_version(packageName, _nugetLogger, sourceCacheContext, NugetCommon.GetRepositoryResource<FindPackageByIdResource>(remoteRepositories).ToList());
-                IPackageSearchMetadata latestPackage;
-                if (latestPackageVersion != null)
-                {
-                    latestPackage = NugetList.find_package(packageName, config, _nugetLogger, sourceCacheContext,NugetCommon.GetRepositoryResource<PackageMetadataResource>(remoteRepositories).ToList(), latestPackageVersion);
-                }
-                else
-                {
-                    latestPackage = null;
-                }
+                var latestPackage = NugetList.find_package(packageName, config, _nugetLogger, sourceCacheContext, NugetCommon.GetRepositoryResource<PackageMetadataResource>(remoteRepositories).ToList());
 
                 if (latestPackage == null)
                 {

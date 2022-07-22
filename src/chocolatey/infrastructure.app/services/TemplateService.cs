@@ -267,20 +267,12 @@ namespace chocolatey.infrastructure.app.services
         {
             var packageRepositories = NugetCommon.GetRemoteRepositories(configuration, _nugetLogger);
             var sourceCacheContext = new ChocolateySourceCacheContext(configuration);
-            var pkgFindVersion = NugetList.find_package_version(
-                "{0}.template".format_with(configuration.TemplateCommand.Name),
-                _nugetLogger,
-                sourceCacheContext,
-                NugetCommon.GetRepositoryResource<FindPackageByIdResource>(packageRepositories)
-                );
             var pkg = NugetList.find_package(
                     "{0}.template".format_with(configuration.TemplateCommand.Name),
                     configuration,
                     _nugetLogger,
                     sourceCacheContext,
-                    NugetCommon.GetRepositoryResource<PackageMetadataResource>(packageRepositories),
-                    pkgFindVersion is null? NuGetVersion.Parse("0.0.0") : pkgFindVersion
-                );
+                    NugetCommon.GetRepositoryResource<PackageMetadataResource>(packageRepositories));
 
             var templateInstalledViaPackage = (pkg != null);
 

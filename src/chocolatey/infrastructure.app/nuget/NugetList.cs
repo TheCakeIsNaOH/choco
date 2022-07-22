@@ -140,6 +140,14 @@ namespace chocolatey.infrastructure.app.nuget
             {
                 if (configuration.AllVersions)
                 {
+                    foreach (var repositoryResources in packageRepositoriesResources)
+                    {
+                        results.AddRange(await repositoryResources.packageMetadataResource.GetMetadataAsync(
+                            searchTermLower, configuration.Prerelease, includeUnlisted: false, cacheContext, nugetLogger, CancellationToken.None));
+                    }
+
+
+                    /*
                     var versions = new SortedSet<NuGetVersion>();
                     foreach (var repositoryResources in packageRepositoriesResources)
                     {
@@ -152,16 +160,19 @@ namespace chocolatey.infrastructure.app.nuget
                     {
                         results.Add(find_package(searchTermLower, configuration, nugetLogger, cacheContext, packageRepositoriesResources.Select(x => x.packageMetadataResource), packageVersion));
                     }
-
-                    /*
-                    // convert from a search to getting packages by id.
-                    // search based on lower case id - similar to PackageRepositoryExtensions.FindPackagesByIdCore()
-                    results = packageRepository.GetPackages().Where(p => p.Identity.Id.ToLower() == searchTermLower)
-                        .AsEnumerable()
-                        .Where(p => configuration.Prerelease || p.IsReleaseVersion())
-                        .AsQueryable();
                     */
-                }
+
+
+
+                        /*
+                        // convert from a search to getting packages by id.
+                        // search based on lower case id - similar to PackageRepositoryExtensions.FindPackagesByIdCore()
+                        results = packageRepository.GetPackages().Where(p => p.Identity.Id.ToLower() == searchTermLower)
+                            .AsEnumerable()
+                            .Where(p => configuration.Prerelease || p.IsReleaseVersion())
+                            .AsQueryable();
+                        */
+                    }
                 else
                 {
                     if (version == null)
@@ -256,17 +267,6 @@ namespace chocolatey.infrastructure.app.nuget
         }
 
 
-        public static NuGetVersion find_package_version(string packageName, ILogger nugetLogger, ChocolateySourceCacheContext cacheContext, IEnumerable<FindPackageByIdResource> findResources)
-        {
-            var versions = new HashSet<NuGetVersion>();
-            foreach (var resource in findResources)
-            {
-                versions.AddRange(resource.GetAllVersionsAsync(packageName, cacheContext, nugetLogger, CancellationToken.None).GetAwaiter().GetResult());
-            }
-            //TODO, check if max always works
-            return versions.Max();
-        }
-
         /// <summary>
         ///   Searches for packages that are available based on name and other options
         /// </summary>
@@ -277,11 +277,15 @@ namespace chocolatey.infrastructure.app.nuget
         /// <param name="version">Version to search for</param>
         /// <param name="cacheContext">Settings for cacheing of results from sources</param>
         /// <returns>One result or nothing</returns>
-        public static IPackageSearchMetadata find_package(string packageName, ChocolateyConfiguration config, ILogger nugetLogger, ChocolateySourceCacheContext cacheContext, IEnumerable<PackageMetadataResource> resources, NuGetVersion version)
+        public static IPackageSearchMetadata find_package(string packageName, ChocolateyConfiguration config, ILogger nugetLogger, ChocolateySourceCacheContext cacheContext, IEnumerable<PackageMetadataResource> resources, NuGetVersion version = null)
         {
-            if (version == null)
+            if (version is null)
             {
-                throw new ArgumentNullException("{0} can't be null, TODO to fix".format_with(nameof(version)));
+                foreach (var resource in resources)
+                {
+                    var metadataList = resource.GetMetadataAsync(packageName, config.Prerelease, includeUnlisted: false, cacheContext, nugetLogger, CancellationToken.None).GetAwaiter().GetResult();
+                    return metadataList.OrderByDescending(p => p.Identity.Version).FirstOrDefault();
+                }
             }
 
             foreach (var resource in resources)
