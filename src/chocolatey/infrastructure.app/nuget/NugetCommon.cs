@@ -28,8 +28,10 @@ namespace chocolatey.infrastructure.app.nuget
     using System.Threading;
     using System.Threading.Tasks;
     using adapters;
+    using Alphaleonis.Win32.Filesystem;
     using infrastructure.configuration;
     using configuration;
+    using domain;
     using filesystem;
     using logging;
     using NuGet;
@@ -43,6 +45,8 @@ namespace chocolatey.infrastructure.app.nuget
     using NuGet.ProjectManagement;
     using NuGet.Protocol;
     using NuGet.Protocol.Core.Types;
+    using NuGet.Versioning;
+    using results;
     using Console = adapters.Console;
     using Environment = adapters.Environment;
 
@@ -74,6 +78,12 @@ namespace chocolatey.infrastructure.app.nuget
             return new ChocolateyPackagePathResolver(ApplicationParameters.PackagesLocation, nugetPackagesFileSystem, configuration.AllowMultipleVersions);
         }
 
+
+        public static SourceRepository GetLocalRepository()
+        {
+            var nugetSource = new PackageSource(ApplicationParameters.PackagesLocation);
+            return Repository.Factory.GetCoreV3(nugetSource);
+        }
 
         /*
         public static IPackageRepository GetLocalRepository(IPackagePathResolver pathResolver, IFileSystem nugetPackagesFileSystem, ILogger nugetLogger)
@@ -330,18 +340,84 @@ namespace chocolatey.infrastructure.app.nuget
             return new List<ICredentialProvider>() { new ChocolateyNugetCredentialProvider(configuration) };
         }
 
+        public static void GetLocalPackageDependencies(PackageIdentity package,
+            NuGetFramework framework,
+            IEnumerable<PackageResult> allLocalPackages,
+            ISet<SourcePackageDependencyInfo> dependencyInfos
+        )
+        {
+            if (dependencyInfos.Contains(package)) return;
+
+            var metadata = allLocalPackages
+                .FirstOrDefault(p => p.PackageMetadata.Id.Equals(package.Id, StringComparison.OrdinalIgnoreCase) && p.PackageMetadata.Version.Equals(package.Version))
+                .PackageMetadata;
+
+            var group = NuGetFrameworkUtility.GetNearest<PackageDependencyGroup>(metadata.DependencyGroups, framework);
+            var dependencies = group?.Packages ?? Enumerable.Empty<PackageDependency>();
+
+            var result = new SourcePackageDependencyInfo(
+                package,
+                dependencies,
+                true,
+                null,
+                null,
+                null);
+
+            dependencyInfos.Add(result);
+
+            foreach (var dependency in dependencies)
+            {
+                GetLocalPackageDependencies(dependency.Id, dependency.VersionRange, framework, allLocalPackages, dependencyInfos);
+            }
+        }
+
+        public static void GetLocalPackageDependencies(string packageId,
+            VersionRange versionRange,
+            NuGetFramework framework,
+            IEnumerable<PackageResult> allLocalPackages,
+            ISet<SourcePackageDependencyInfo> dependencyInfos
+        )
+        {
+            var versionsMetadata = allLocalPackages
+                .Where(p => p.PackageMetadata.Id.Equals(packageId, StringComparison.OrdinalIgnoreCase) && versionRange.Satisfies(p.PackageMetadata.Version))
+                .Select(p => p.PackageMetadata);
+
+            foreach (var metadata in versionsMetadata)
+            {
+                var group = NuGetFrameworkUtility.GetNearest<PackageDependencyGroup>(metadata.DependencyGroups, framework);
+                var dependencies = group?.Packages ?? Enumerable.Empty<PackageDependency>();
+
+                var result = new SourcePackageDependencyInfo(
+                    metadata.Id,
+                    metadata.Version,
+                    dependencies,
+                    true,
+                    null,
+                    null,
+                    null);
+
+                if (dependencyInfos.Contains(result)) return;
+                dependencyInfos.Add(result);
+
+                foreach (var dependency in dependencies)
+                {
+                    GetLocalPackageDependencies(dependency.Id, dependency.VersionRange, framework, allLocalPackages, dependencyInfos);
+                }
+            }
+        }
+
         public static async Task GetPackageDependencies(PackageIdentity package,
             NuGetFramework framework,
             SourceCacheContext cacheContext,
             ILogger logger,
-            IEnumerable<SourceRepository> sourceRepositories,
-            ISet<SourcePackageDependencyInfo> availablePackages)
+            IEnumerable<DependencyInfoResource> dependencyInfoResources,
+            ISet<SourcePackageDependencyInfo> availablePackages,
+            ISet<PackageDependency> dependencyCache)
         {
             if (availablePackages.Contains(package)) return;
 
-            foreach (var sourceRepository in sourceRepositories)
+            foreach (var dependencyInfoResource in dependencyInfoResources)
             {
-                var dependencyInfoResource = await sourceRepository.GetResourceAsync<DependencyInfoResource>();
                 var dependencyInfo = await dependencyInfoResource.ResolvePackage(
                     package, framework, cacheContext, logger, CancellationToken.None);
 
@@ -350,12 +426,44 @@ namespace chocolatey.infrastructure.app.nuget
                 availablePackages.Add(dependencyInfo);
                 foreach (var dependency in dependencyInfo.Dependencies)
                 {
+                    if (dependencyCache.Contains(dependency)) continue;
+                    dependencyCache.Add(dependency);
                     await GetPackageDependencies(
-                        new PackageIdentity(dependency.Id, dependency.VersionRange.MinVersion),
-                        framework, cacheContext, logger, sourceRepositories, availablePackages);
+                        dependency.Id, framework, cacheContext, logger, dependencyInfoResources, availablePackages, dependencyCache);
                 }
             }
         }
+
+        public static async Task GetPackageDependencies(string packageId,
+            NuGetFramework framework,
+            SourceCacheContext cacheContext,
+            ILogger logger,
+            IEnumerable<DependencyInfoResource> dependencyInfoResources,
+            ISet<SourcePackageDependencyInfo> availablePackages,
+            ISet<PackageDependency> dependencyCache)
+        {
+            //if (availablePackages.Contains(packageID)) return;
+
+            foreach (var dependencyInfoResource in dependencyInfoResources)
+            {
+                var dependencyInfos = await dependencyInfoResource.ResolvePackages(
+                    packageId, framework, cacheContext, logger, CancellationToken.None);
+
+                if (!dependencyInfos.Any()) continue;
+
+                availablePackages.AddRange(dependencyInfos);
+                foreach (var dependency in dependencyInfos.SelectMany(p => p.Dependencies))
+                {
+                    if (dependencyCache.Contains(dependency)) continue;
+                    dependencyCache.Add(dependency);
+
+                    // Recursion is fun, kids
+                    await GetPackageDependencies(
+                        dependency.Id, framework, cacheContext, logger, dependencyInfoResources, availablePackages, dependencyCache);
+                }
+            }
+        }
+
     }
 
     // ReSharper restore InconsistentNaming
