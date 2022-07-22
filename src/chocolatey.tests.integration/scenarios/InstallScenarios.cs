@@ -886,7 +886,6 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("Force install with file locked leaves inconsistent state - GH-114")]
             public void should_delete_the_rollback()
             {
                 var packageDir = Path.Combine(Scenario.get_top_level(), "lib-bkp", Configuration.PackageNames);
@@ -907,7 +906,6 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("Force install with file locked leaves inconsistent state - GH-114")]
             public void should_not_have_a_successful_package_result()
             {
                 packageResult.Success.ShouldBeFalse();
@@ -920,7 +918,6 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("Force install with file locked leaves inconsistent state - GH-114")]
             public void should_not_have_warning_package_result()
             {
                 packageResult.Warning.ShouldBeFalse();
@@ -1278,9 +1275,9 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            public void should_have_a_version_of_one_dot_zero()
+            public void should_have_a_version_of_one_dot_zero_dot_zero()
             {
-                packageResult.Version.ShouldEqual("1.0");
+                packageResult.Version.ShouldEqual("1.0.0");
             }
         }
 
@@ -2824,17 +2821,15 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("NuGet does not deal with version conflicts - GH-116")]
             public void should_not_install_the_conflicting_package()
             {
                 foreach (var packageResult in Results)
                 {
-                    Directory.Exists(packageResult.Value.InstallLocation).ShouldBeTrue();
+                    Directory.Exists(packageResult.Value.InstallLocation).ShouldBeFalse();
                 }
             }
 
             [Fact]
-            [Pending("NuGet does not deal with version conflicts - GH-116")]
             public void should_not_install_the_conflicting_package_in_the_lib_directory()
             {
                 var packageDir = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames);
@@ -2843,7 +2838,6 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("NuGet does not deal with version conflicts - GH-116")]
             public void should_not_upgrade_the_minimum_version_dependency()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "isdependency", "isdependency.nupkg");
@@ -2854,7 +2848,6 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("NuGet does not deal with version conflicts - GH-116")]
             public void should_not_upgrade_the_exact_version_dependency()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "isexactversiondependency", "isexactversiondependency.nupkg");
@@ -2865,20 +2858,18 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("NuGet does not deal with version conflicts - GH-116")]
             public void should_contain_a_message_that_it_was_unable_to_install_any_packages()
             {
                 bool expectedMessage = false;
                 foreach (var message in MockLogger.MessagesFor(LogLevel.Warn).or_empty_list_if_null())
                 {
-                    if (message.Contains("installed 0/3")) expectedMessage = true;
+                    if (message.Contains("installed 0/")) expectedMessage = true;
                 }
 
                 expectedMessage.ShouldBeTrue();
             }
 
             [Fact]
-            [Pending("NuGet does not deal with version conflicts - GH-116")]
             public void should_not_have_a_successful_package_result()
             {
                 foreach (var packageResult in Results)
@@ -2888,7 +2879,6 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("NuGet does not deal with version conflicts - GH-116")]
             public void should_not_have_inconclusive_package_result()
             {
                 foreach (var packageResult in Results)
@@ -2898,7 +2888,6 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("NuGet does not deal with version conflicts - GH-116")]
             public void should_not_have_warning_package_result()
             {
                 foreach (var packageResult in Results)
@@ -2908,7 +2897,6 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("NuGet does not deal with version conflicts - GH-116")]
             public void should_have_an_error_package_result()
             {
                 bool errorFound = false;
@@ -2954,7 +2942,6 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("NuGet does not deal with version conflicts - GH-116")]
             public void should_not_install_the_conflicting_package_in_the_lib_directory()
             {
                 var packageDir = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames);
@@ -2963,31 +2950,28 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("NuGet does not deal with version conflicts - GH-116")]
-            public void should_not_upgrade_the_exact_version_dependency()
+            public void should_not_downgrade_the_exact_version_dependency()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "isexactversiondependency", "isexactversiondependency.nupkg");
                 using (var packageReader = new PackageArchiveReader(packageFile))
                 {
-                    packageReader.NuspecReader.GetVersion().Version.to_string().ShouldEqual("1.0.0.0");
+                    packageReader.NuspecReader.GetVersion().Version.to_string().ShouldEqual("2.0.0.0");
                 }
             }
 
             [Fact]
-            [Pending("NuGet does not deal with version conflicts - GH-116")]
             public void should_contain_a_message_that_it_was_unable_to_install_any_packages()
             {
                 bool expectedMessage = false;
                 foreach (var message in MockLogger.MessagesFor(LogLevel.Warn).or_empty_list_if_null())
                 {
-                    if (message.Contains("installed 0/3")) expectedMessage = true;
+                    if (message.Contains("installed 0/")) expectedMessage = true;
                 }
 
                 expectedMessage.ShouldBeTrue();
             }
 
             [Fact]
-            [Pending("NuGet does not deal with version conflicts - GH-116")]
             public void should_not_have_a_successful_package_result()
             {
                 foreach (var packageResult in Results)
@@ -2997,7 +2981,6 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("NuGet does not deal with version conflicts - GH-116")]
             public void should_not_have_inconclusive_package_result()
             {
                 foreach (var packageResult in Results)
@@ -3007,7 +2990,6 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("NuGet does not deal with version conflicts - GH-116")]
             public void should_not_have_warning_package_result()
             {
                 foreach (var packageResult in Results)
@@ -3017,7 +2999,6 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("NuGet does not deal with version conflicts - GH-116")]
             public void should_have_an_error_package_result()
             {
                 bool errorFound = false;
@@ -3061,7 +3042,6 @@ namespace chocolatey.tests.integration.scenarios
              */
 
             [Fact]
-            [Pending("NuGet does not handle version conflicts with highestversion dependency resolution - GH-507")]
             public void should_install_where_install_location_reports()
             {
                 foreach (var packageResult in Results)
@@ -3071,7 +3051,6 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("NuGet does not handle version conflicts with highestversion dependency resolution - GH-507")]
             public void should_install_a_package_in_the_lib_directory()
             {
                 var packageDir = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames);
@@ -3080,7 +3059,6 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("NuGet does not handle version conflicts with highestversion dependency resolution - GH-507")]
             public void should_install_the_dependency_in_the_lib_directory()
             {
                 var packageDir = Path.Combine(Scenario.get_top_level(), "lib", "childdependencywithlooserversiondependency");
@@ -3089,7 +3067,6 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("NuGet does not handle version conflicts with highestversion dependency resolution - GH-507")]
             public void should_install_the_expected_version_of_the_dependency()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "childdependencywithlooserversiondependency", "childdependencywithlooserversiondependency.nupkg");
@@ -3100,7 +3077,6 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("NuGet does not handle version conflicts with highestversion dependency resolution - GH-507")]
             public void should_install_the_expected_version_of_the_constrained_dependency()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "isexactversiondependency", "isexactversiondependency.nupkg");
@@ -3111,7 +3087,6 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("NuGet does not handle version conflicts with highestversion dependency resolution - GH-507")]
             public void should_contain_a_message_that_everything_installed_successfully()
             {
                 bool expectedMessage = false;
@@ -3124,7 +3099,6 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("NuGet does not handle version conflicts with highestversion dependency resolution - GH-507")]
             public void should_have_a_successful_package_result()
             {
                 foreach (var packageResult in Results)
@@ -3134,7 +3108,6 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("NuGet does not handle version conflicts with highestversion dependency resolution - GH-507")]
             public void should_not_have_inconclusive_package_result()
             {
                 foreach (var packageResult in Results)
@@ -3144,7 +3117,6 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("NuGet does not handle version conflicts with highestversion dependency resolution - GH-507")]
             public void should_not_have_warning_package_result()
             {
                 foreach (var packageResult in Results)
