@@ -18,6 +18,7 @@ namespace chocolatey.infrastructure.app.services
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Management.Automation;
@@ -172,6 +173,9 @@ namespace chocolatey.infrastructure.app.services
         public bool run_action(ChocolateyConfiguration configuration, PackageResult packageResult, CommandNameType command)
         {
             var installerRun = false;
+
+            Debug.Assert(packageResult.PackageMetadata != null, "Package Metadata is null");
+            Debug.Assert(packageResult.SearchMetadata != null, "SearchMetadata is null");
 
             var packageDirectory = packageResult.InstallLocation;
             if (packageDirectory.is_equal_to(ApplicationParameters.InstallLocation) || packageDirectory.is_equal_to(ApplicationParameters.PackagesLocation))
