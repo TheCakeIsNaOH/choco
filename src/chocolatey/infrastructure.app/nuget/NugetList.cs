@@ -250,7 +250,7 @@ namespace chocolatey.infrastructure.app.nuget
 
             results = configuration.ListCommand.OrderByPopularity ?
                  results.OrderByDescending(p => p.DownloadCount).ThenBy(p => p.Identity.Id).ToHashSet()
-                 : results;
+                 : results.OrderBy(p => p.Identity.Id).ThenByDescending(p => p.Identity.Version).ToHashSet();
 
             return results.AsQueryable();
         }

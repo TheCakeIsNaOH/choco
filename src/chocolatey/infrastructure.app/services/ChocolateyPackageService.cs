@@ -183,8 +183,6 @@ Did you know Pro / Business automatically syncs with Programs and
             {
                 if (config.SourceType == SourceType.normal)
                 {
-                    yield return package;
-
                     if (!config.ListCommand.IncludeRegistryPrograms)
                     {
                         yield return package;
