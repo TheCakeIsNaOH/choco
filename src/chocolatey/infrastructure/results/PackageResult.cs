@@ -21,6 +21,7 @@ namespace chocolatey.infrastructure.results
     using System.Linq;
     using app.domain;
     using NuGet.Packaging;
+    using NuGet.Packaging.Core;
     using NuGet.Protocol.Core.Types;
     using NuGet.Protocol;
     using NuGet.Versioning;
@@ -122,6 +123,11 @@ namespace chocolatey.infrastructure.results
             Version = version;
             InstallLocation = installLocation;
             Source = source;
+        }
+
+        public PackageIdentity Identity
+        {
+            get { return new PackageIdentity(Name, NuGetVersion.Parse(Version));  }
         }
     }
 }
