@@ -61,13 +61,23 @@ namespace chocolatey.tests
             get { return NUnitSetup.MockLogger; }
         }
 
+        Exception testFixtureSetupException = null;
+
         [TestFixtureSetUp]
         public void Setup()
         {
-            if (MockLogger != null) MockLogger.reset();
-            //Log.InitializeWith(MockLogger);
-            Context();
-            Because();
+            try
+            {
+                if (MockLogger != null) MockLogger.reset();
+                //Log.InitializeWith(MockLogger);
+                Context();
+                Because();
+
+            }
+            catch (Exception ex)
+            {
+                testFixtureSetupException = ex;
+            }
         }
 
         public abstract void Context();
@@ -77,6 +87,13 @@ namespace chocolatey.tests
         [SetUp]
         public void EachSpecSetup()
         {
+            if (testFixtureSetupException != null)
+            {
+                string msg = string.Format("There was a failure during test fixture setup, resulting in a {1} exception. {0}Exception Message: {2}{0}Stack Trace:{3}",
+                    Environment.NewLine, testFixtureSetupException.GetType(), testFixtureSetupException.Message, testFixtureSetupException.StackTrace);
+                Assert.Fail(msg);
+            }
+
             BeforeEachSpec();
         }
 
