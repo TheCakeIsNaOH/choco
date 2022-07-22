@@ -802,7 +802,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
             var allPackages = get_all_installed_packages(config);
             var remoteRepositories = NugetCommon.GetRemoteRepositories(config, _nugetLogger);
             var packageManager = NugetCommon.GetPackageManager(config, _nugetLogger, null, null, addUninstallHandler: false);
-
+            var pathResolver = NugetCommon.GetPathResolver(config, _fileSystem);
 
             /*
             var localRepository = packageManager.LocalRepository as ChocolateyLocalPackageRepository;
@@ -881,7 +881,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                 if (version != null && version < installedPackage.PackageMetadata.Version && !config.AllowMultipleVersions && !config.AllowDowngrade)
                 {
                     string logMessage = "A newer version of {0} (v{1}) is already installed.{2} Use --allow-downgrade or --force to attempt to upgrade to older versions, or use side by side to allow multiple versions.".format_with(installedPackage.PackageMetadata.Id, installedPackage.Version, Environment.NewLine);
-                    var nullResult = packageInstalls.GetOrAdd(packageName, new PackageResult(installedPackage.PackageMetadata, _fileSystem.combine_paths(ApplicationParameters.PackagesLocation, installedPackage.PackageMetadata.Id)));
+                    var nullResult = packageInstalls.GetOrAdd(packageName, new PackageResult(installedPackage.PackageMetadata, pathResolver.GetInstallPath(installedPackage.PackageMetadata.Id, installedPackage.PackageMetadata.Version)));
                     nullResult.Messages.Add(new ResultMessage(ResultType.Error, logMessage));
                     this.Log().Error(ChocolateyLoggers.Important, logMessage);
                     continue;
@@ -944,7 +944,6 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                     //todo: #103 get smarter about realizing multiple versions have been installed before and allowing that
                 }
 
-                var packageResult = packageInstalls.GetOrAdd(packageName, new PackageResult(availablePackage, _fileSystem.combine_paths(ApplicationParameters.PackagesLocation, availablePackage.Identity.Id)));
 
                 if (installedPackage.PackageMetadata.Version > availablePackage.Identity.Version && (!config.AllowDowngrade || (config.AllowDowngrade && version == null)))
                 {
@@ -1131,6 +1130,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
               _nugetLogger,
               null, null,
               addUninstallHandler: false);
+            var pathResolver = NugetCommon.GetPathResolver(config, _fileSystem);
 
             var outdatedPackages = new ConcurrentDictionary<string, PackageResult>();
 
@@ -1155,7 +1155,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                 if (isPinned && config.OutdatedCommand.IgnorePinned)
                 {
                     string pinnedLogMessage = "{0} is pinned. Skipping pinned package.".format_with(packageName);
-                    var pinnedPackageResult = outdatedPackages.GetOrAdd(packageName, new PackageResult(installedPackage.PackageMetadata, _fileSystem.combine_paths(ApplicationParameters.PackagesLocation, installedPackage.Name)));
+                    var pinnedPackageResult = outdatedPackages.GetOrAdd(packageName, new PackageResult(installedPackage.PackageMetadata, pathResolver.GetInstallPath(installedPackage.PackageMetadata.Id, installedPackage.PackageMetadata.Version)));
                     pinnedPackageResult.Messages.Add(new ResultMessage(ResultType.Debug, pinnedLogMessage));
                     pinnedPackageResult.Messages.Add(new ResultMessage(ResultType.Inconclusive, pinnedLogMessage));
 
@@ -1185,7 +1185,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                     if (config.Features.IgnoreUnfoundPackagesOnUpgradeOutdated) continue;
 
                     string unfoundLogMessage = "{0} was not found with the source(s) listed.{1} Source(s): \"{2}\"".format_with(packageName, Environment.NewLine, config.Sources);
-                    var unfoundResult = outdatedPackages.GetOrAdd(packageName, new PackageResult(installedPackage.PackageMetadata, _fileSystem.combine_paths(ApplicationParameters.PackagesLocation, installedPackage.Name)));
+                    var unfoundResult = outdatedPackages.GetOrAdd(packageName, new PackageResult(installedPackage.PackageMetadata, pathResolver.GetInstallPath(installedPackage.PackageMetadata.Id, installedPackage.PackageMetadata.Version)));
                     unfoundResult.Messages.Add(new ResultMessage(ResultType.Warn, unfoundLogMessage));
                     unfoundResult.Messages.Add(new ResultMessage(ResultType.Inconclusive, unfoundLogMessage));
 
@@ -1195,7 +1195,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
 
                 if (latestPackage.Identity.Version <= installedPackage.PackageMetadata.Version) continue;
 
-                var packageResult = outdatedPackages.GetOrAdd(packageName, new PackageResult(latestPackage, _fileSystem.combine_paths(ApplicationParameters.PackagesLocation, latestPackage.Identity.Id)));
+                var packageResult = outdatedPackages.GetOrAdd(packageName, new PackageResult(latestPackage, pathResolver.GetInstallPath(latestPackage.Identity)));
 
                 string logMessage = "You have {0} v{1} installed. Version {2} is available based on your source(s).{3} Source(s): \"{4}\"".format_with(installedPackage.Name, installedPackage.Version, latestPackage.Identity.Version, Environment.NewLine, config.Sources);
                 packageResult.Messages.Add(new ResultMessage(ResultType.Note, logMessage));
@@ -1567,6 +1567,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
 
 
             var allPackages = get_all_installed_packages(config);
+            var pathResolver = NugetCommon.GetPathResolver(config, _fileSystem);
 
             // if we are uninstalling a package and not forcing dependencies,
             // look to see if the user is missing the actual package they meant
@@ -1771,7 +1772,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                         {
                             var logMessage = "{0} not uninstalled. An error occurred during uninstall:{1} {2}".format_with(packageName, Environment.NewLine, ex.Message);
                             this.Log().Error(ChocolateyLoggers.Important, logMessage);
-                            var result = packageUninstalls.GetOrAdd(packageVersion.Name.to_lower() + "." + packageVersion.Version.to_string(), new PackageResult(packageVersion.PackageMetadata, _fileSystem.combine_paths(ApplicationParameters.PackagesLocation, packageVersion.Name)));
+                            var result = packageUninstalls.GetOrAdd(packageVersion.Name.to_lower() + "." + packageVersion.Version.to_string(), new PackageResult(packageVersion.PackageMetadata, pathResolver.GetInstallPath(packageVersion.PackageMetadata.Id, packageVersion.PackageMetadata.Version)));
                             result.Messages.Add(new ResultMessage(ResultType.Error, logMessage));
                             if (result.ExitCode == 0) result.ExitCode = 1;
                             if (config.Features.StopOnFirstPackageFailure)
@@ -1784,7 +1785,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                     else
                     {
                         // continue action won't be found b/c we are not actually uninstalling (this is noop)
-                        var result = packageUninstalls.GetOrAdd(packageVersion.Name.to_lower() + "." + packageVersion.Version.to_string(), new PackageResult(packageVersion.PackageMetadata, _fileSystem.combine_paths(ApplicationParameters.PackagesLocation, packageVersion.Name)));
+                        var result = packageUninstalls.GetOrAdd(packageVersion.Name.to_lower() + "." + packageVersion.Version.to_string(), new PackageResult(packageVersion.PackageMetadata, pathResolver.GetInstallPath(packageVersion.PackageMetadata.Id, packageVersion.PackageMetadata.Version)));
                         if (continueAction != null) continueAction.Invoke(result);
                     }
                 }

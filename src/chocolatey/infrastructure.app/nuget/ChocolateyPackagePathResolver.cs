@@ -42,11 +42,23 @@ namespace chocolatey.infrastructure.app.nuget
 
         public override string GetInstallPath(PackageIdentity packageIdentity)
         {
-            var packageVersionPath = Path.Combine(RootDirectory, GetPackageDirectory(packageIdentity,useVersionInPath:true));
-            if (_filesystem.directory_exists(packageVersionPath)) return packageVersionPath;
+            if (UseSideBySidePaths)
+            {
+                return Path.Combine(RootDirectory, GetPackageDirectory(packageIdentity, useVersionInPath: true));
+            }
+            else
+            {
+                var packageVersionPath = Path.Combine(RootDirectory, GetPackageDirectory(packageIdentity, useVersionInPath: true));
+                if (_filesystem.directory_exists(packageVersionPath)) return packageVersionPath;
 
 
-            return Path.Combine(RootDirectory, GetPackageDirectory(packageIdentity, false));
+                return Path.Combine(RootDirectory, GetPackageDirectory(packageIdentity, false));
+            }
+        }
+
+        public string GetInstallPath(string id, NuGetVersion version)
+        {
+            return GetInstallPath(new PackageIdentity(id, version));
         }
 
         public override string GetPackageDirectoryName(PackageIdentity packageIdentity)
