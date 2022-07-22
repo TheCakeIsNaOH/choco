@@ -110,9 +110,49 @@ namespace chocolatey.infrastructure.app.domain
                     FrameworkReferenceGroups = reader.GetFrameworkRefGroups();
                 }
             }
+            else if (filesystem.get_file_extension(packagePath) == NuGetConstants.ManifestExtension)
+            {
+                var reader = new NuspecReader(packagePath);
+
+                ProjectSourceUrl = GetUriSafe(reader.GetProjectSourceUrl());
+                PackageSourceUrl = GetUriSafe(reader.GetPackageSourceUrl());
+                DocsUrl = GetUriSafe(reader.GetDocsUrl());
+                WikiUrl = GetUriSafe(reader.GetWikiUrl());
+                MailingListUrl = GetUriSafe(reader.GetMailingListUrl());
+                BugTrackerUrl = GetUriSafe(reader.GetBugTrackerUrl());
+                Replaces = reader.GetReplaces().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                Provides = reader.GetProvides().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                Conflicts = reader.GetConflicts().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                SoftwareDisplayName = reader.GetSoftwareDisplayName();
+                SoftwareDisplayVersion = reader.GetSoftwareDisplayVersion();
+                Id = reader.GetId();
+                Version = reader.GetVersion();
+                Title = reader.GetTitle();
+                Authors = reader.GetAuthors().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                Owners = reader.GetOwners().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                IconUrl = GetUriSafe(reader.GetIconUrl());
+                LicenseUrl = GetUriSafe(reader.GetLicenseUrl());
+                ProjectUrl = GetUriSafe(reader.GetProjectUrl());
+                RequireLicenseAcceptance = reader.GetRequireLicenseAcceptance();
+                DevelopmentDependency = reader.GetDevelopmentDependency();
+                Description = reader.GetDescription();
+                Summary = reader.GetSummary();
+                ReleaseNotes = reader.GetReleaseNotes();
+                Language = reader.GetLanguage();
+                Tags = reader.GetTags();
+                Serviceable = reader.IsServiceable();
+                Copyright = reader.GetCopyright();
+                Icon = reader.GetIcon();
+                Readme = reader.GetReadme();
+                DependencyGroups = reader.GetDependencyGroups();
+                PackageTypes = reader.GetPackageTypes();
+                Repository = reader.GetRepositoryMetadata();
+                LicenseMetadata = reader.GetLicenseMetadata();
+                FrameworkReferenceGroups = reader.GetFrameworkRefGroups();
+            }
             else
             {
-                throw new ArgumentException("Package Path not a .nupkg");
+                throw new ArgumentException("Package Path not a .nupkg or .nuspec");
             }
         }
 
