@@ -463,26 +463,8 @@ folder.");
                 config.Sources = _fileSystem.get_directory_name(_fileSystem.get_full_path(config.Sources));
             }
 
-            /*
-            var packageManager = NugetCommon.GetPackageManager(
-                config, _nugetLogger,
-                installSuccessAction: (e) =>
-                    {
-                        var pkg = e.Package;
-
-                        var packageResult = packageInstalls.GetOrAdd(pkg.Id.to_lower(), new PackageResult(pkg, e.InstallPath));
-                        packageResult.InstallLocation = e.InstallPath;
-                        packageResult.Messages.Add(new ResultMessage(ResultType.Debug, ApplicationParameters.Messages.ContinueChocolateyAction));
-
-                        if (continueAction != null) continueAction.Invoke(packageResult);
-                    },
-                uninstallSuccessAction: null,
-                addUninstallHandler: true);
-            */
-
             var sourceCacheContext = new ChocolateySourceCacheContext(config);
             var remoteRepositories = NugetCommon.GetRemoteRepositories(config, _nugetLogger);
-            //var packageManager = NugetCommon.GetPackageManager(config, _nugetLogger, null, null, addUninstallHandler: false);
 
             var localRepositorySource = NugetCommon.GetLocalRepository();
             var pathResolver = new ChocolateyPackagePathResolver(ApplicationParameters.PackagesLocation, _fileSystem, config.AllowMultipleVersions);
@@ -601,7 +583,6 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                 var dependencyResolver = new PackageResolver();
 
                 var targetIdsToInstall = packagesToInstall.Select(p => p.Identity.Id);
-                //var allPackagesIdentities = allLocalPackages.Select(p => p.SearchMetadata.Identity).Where(p => !targetIdsToInstall.Contains(p.Id)).ToList();
                 var allPackagesIdentities = allLocalPackages.Select(p => p.SearchMetadata.Identity).ToList();
                 var allPackagesReferences = allPackagesIdentities.Select(p => new PackageReference(p, NuGetFramework.AnyFramework));
 
@@ -623,7 +604,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
 
                     if (config.ForceDependencies)
                     {
-                        //Log warning here about dependencies being removed and not being reinstalled?
+                        //TODO Log warning here about dependencies being removed and not being reinstalled?
                         foreach (var packageToUninstall in packagesToUninstall.Where(p => !resolvedPackages.Contains(p.Identity)))
                         {
                             try
@@ -695,19 +676,10 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                     }
                     catch (Exception ex)
                     {
-                        this.Log().Warn("Need to add specific handling for exeption type {0}".format_with(nameof(ex)));
+                        this.Log().Warn("Need to add specific handling for exception type {0}".format_with(nameof(ex)));
                         this.Log().Warn(ex.Message);
                     }
                 }
-
-                foreach (var pkg in resolvedPackages)
-                {
-                    this.Log().Warn("Package to install here: {0}".format_with(pkg));
-                }
-
-                var chocolateyNugetSettings = new ChocolateyNuGetSettings(config);
-                var clientPolicyContext = ClientPolicyContext.GetClientPolicy(chocolateyNugetSettings, _nugetLogger);
-                var extractionContext = new PackageExtractionContext(PackageSaveMode.Defaultv3, XmlDocFileSaveMode.None, clientPolicyContext, _nugetLogger);
 
                 foreach (SourcePackageDependencyInfo packageDependencyInfo in resolvedPackages)
                 {
@@ -779,24 +751,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                                 projectContext,
                                 CancellationToken.None).GetAwaiter().GetResult();
 
-                            /*
-                            extractionResult = PackageExtractor.ExtractPackageAsync(
-                                downloadResult.PackageSource,
-                                downloadResult.PackageStream,
-                                pathResolver,
-                                extractionContext,
-                                CancellationToken.None).GetAwaiter().GetResult();
-                            */
-
                         }
-
-                        /*
-                        this.Log().Debug("Extraction Result for {0}".format_with(packageDependencyInfo.Id));
-                        foreach (var message in extractionResult)
-                        {
-                            this.Log().Debug("   {0}".format_with(message));
-                        }
-                        */
 
                         var manifestPath = nugetProject.GetInstalledManifestFilePath(packageDependencyInfo);
                         var packageMetadata = new ChocolateyPackageMetadata(manifestPath, _fileSystem);
@@ -808,7 +763,6 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                             packageMetadata.Id,
                             packageMetadata.Version.to_string(),
                             config.Force ? " (forced)" : string.Empty,
-                            string.Empty, string.Empty,
                             packageRemoteMetadata.IsApproved ? " [Approved]" : string.Empty,
                             packageRemoteMetadata.PackageTestResultStatus == "Failing" && packageRemoteMetadata.IsDownloadCacheAvailable ? " - Likely broken for FOSS users (due to download location changes)" : packageRemoteMetadata.PackageTestResultStatus == "Failing" ? " - Possibly broken" : string.Empty
                         ));
