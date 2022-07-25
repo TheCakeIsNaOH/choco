@@ -126,7 +126,7 @@ Did you know Pro / Business automatically syncs with Programs and
 
         public virtual void ensure_source_app_installed(ChocolateyConfiguration config)
         {
-            perform_source_runner_action(config, r => r.ensure_source_app_installed(config, (packageResult) => handle_package_result(packageResult, config, CommandNameType.install)));
+            perform_source_runner_action(config, r => r.ensure_source_app_installed(config, (packageResult, configuration) => handle_package_result(packageResult, configuration, CommandNameType.install)));
         }
 
         public virtual int count_run(ChocolateyConfiguration config)
@@ -291,10 +291,10 @@ Did you know Pro / Business automatically syncs with Programs and
             // each package can specify its own configuration values
             foreach (var packageConfig in set_config_from_package_names_and_packages_config(config, new ConcurrentDictionary<string, PackageResult>()).or_empty_list_if_null())
             {
-                Action<PackageResult> action = null;
+                Action<PackageResult, ChocolateyConfiguration> action = null;
                 if (packageConfig.SourceType == SourceType.normal)
                 {
-                    action = (pkg) => _powershellService.install_noop(pkg);
+                    action = (pkg,configuration) => _powershellService.install_noop(pkg);
                 }
 
                 perform_source_runner_action(packageConfig, r => r.install_noop(packageConfig, action));
@@ -594,10 +594,10 @@ package '{0}' - stopping further execution".format_with(packageResult.Name));
             {
                 foreach (var packageConfig in set_config_from_package_names_and_packages_config(config, packageInstalls).or_empty_list_if_null())
                 {
-                    Action<PackageResult> action = null;
+                    Action<PackageResult, ChocolateyConfiguration> action = null;
                     if (packageConfig.SourceType == SourceType.normal)
                     {
-                        action = (packageResult) => handle_package_result(packageResult, packageConfig, CommandNameType.install);
+                        action = (packageResult, configuration) => handle_package_result(packageResult, configuration, CommandNameType.install);
                     }
 
                     var results = perform_source_runner_function(packageConfig, r => r.install_run(packageConfig, action));
@@ -749,10 +749,10 @@ Would have determined packages that are out of date based on what is
 
         public void upgrade_noop(ChocolateyConfiguration config)
         {
-            Action<PackageResult> action = null;
+            Action<PackageResult, ChocolateyConfiguration> action = null;
             if (config.SourceType == SourceType.normal)
             {
-                action = (pkg) => _powershellService.install_noop(pkg);
+                action = (pkg, configuration) => _powershellService.install_noop(pkg);
             }
 
             var noopUpgrades = perform_source_runner_function(config, r => r.upgrade_noop(config, action));
@@ -788,15 +788,15 @@ Would have determined packages that are out of date based on what is
 
             try
             {
-                Action<PackageResult> action = null;
+                Action<PackageResult, ChocolateyConfiguration> action = null;
                 if (config.SourceType == SourceType.normal)
                 {
-                    action = (packageResult) => handle_package_result(packageResult, config, CommandNameType.upgrade);
+                    action = (packageResult, configuration) => handle_package_result(packageResult, configuration, CommandNameType.upgrade);
                 }
 
                 get_environment_before(config, allowLogging: true);
 
-                var beforeUpgradeAction = new Action<PackageResult>(packageResult => before_package_modify(packageResult, config));
+                var beforeUpgradeAction = new Action<PackageResult, ChocolateyConfiguration>((packageResult, configuration) => before_package_modify(packageResult, configuration));
                 var results = perform_source_runner_function(config, r => r.upgrade_run(config, action, beforeUpgradeAction));
 
                 foreach (var result in results)
@@ -832,10 +832,10 @@ Would have determined packages that are out of date based on what is
 
         public void uninstall_noop(ChocolateyConfiguration config)
         {
-            Action<PackageResult> action = null;
+            Action<PackageResult, ChocolateyConfiguration> action = null;
             if (config.SourceType == SourceType.normal)
             {
-                action = (pkg) =>
+                action = (pkg, configuration) =>
                 {
                     _powershellService.before_modify_noop(pkg);
                     _powershellService.uninstall_noop(pkg);
@@ -860,14 +860,14 @@ Would have determined packages that are out of date based on what is
 
             try
             {
-                Action<PackageResult> action = null;
+                Action<PackageResult, ChocolateyConfiguration> action = null;
                 if (config.SourceType == SourceType.normal)
                 {
-                    action = (packageResult) => handle_package_uninstall(packageResult, config);
+                    action = handle_package_uninstall;
                 }
 
                 var environmentBefore = get_environment_before(config);
-                var beforeUninstallAction = new Action<PackageResult>(packageResult => before_package_modify(packageResult, config));
+                var beforeUninstallAction = new Action<PackageResult, ChocolateyConfiguration>(before_package_modify);
                 var results = perform_source_runner_function(config, r => r.uninstall_run(config, action, beforeUninstallAction));
 
                 foreach (var result in results)

@@ -29,7 +29,7 @@ namespace chocolatey.infrastructure.app.nuget
     public sealed class ChocolateyPackagePathResolver : PackagePathResolver
     {
         public string RootDirectory { get; set; }
-        public bool UseSideBySidePaths { get; set; }
+        public new bool UseSideBySidePaths { get; set; }
         private IFileSystem _filesystem;
 
         public ChocolateyPackagePathResolver(string rootDirectory, IFileSystem filesystem, bool useSideBySidePaths)

@@ -89,7 +89,7 @@ namespace chocolatey.infrastructure.app.services
             get { return SourceType.normal; }
         }
 
-        public void ensure_source_app_installed(ChocolateyConfiguration config, Action<PackageResult> ensureAction)
+        public void ensure_source_app_installed(ChocolateyConfiguration config, Action<PackageResult, ChocolateyConfiguration> ensureAction)
         {
             // nothing to do. Nuget.Core is already part of Chocolatey
         }
@@ -392,7 +392,7 @@ folder.");
             }
         }
 
-        public void install_noop(ChocolateyConfiguration config, Action<PackageResult> continueAction)
+        public void install_noop(ChocolateyConfiguration config, Action<PackageResult, ChocolateyConfiguration> continueAction)
         {
             //todo: #2576 noop should see if packages are already installed and adjust message, amiright?!
 
@@ -414,7 +414,7 @@ folder.");
             ApplicationParameters.PackagesLocation = installLocation;
         }
 
-        public virtual ConcurrentDictionary<string, PackageResult> install_run(ChocolateyConfiguration config, Action<PackageResult> continueAction)
+        public virtual ConcurrentDictionary<string, PackageResult> install_run(ChocolateyConfiguration config, Action<PackageResult, ChocolateyConfiguration> continueAction)
         {
             _fileSystem.create_directory_if_not_exists(ApplicationParameters.PackagesLocation);
             var packageResultsToReturn = new ConcurrentDictionary<string, PackageResult>(StringComparer.InvariantCultureIgnoreCase);
@@ -423,6 +423,13 @@ folder.");
 
             NuGetVersion version = !string.IsNullOrWhiteSpace(config.Version) ? NuGetVersion.Parse(config.Version) : null;
             if (config.Force) config.AllowDowngrade = true;
+
+            var sourceCacheContext = new ChocolateySourceCacheContext(config);
+            var remoteRepositories = NugetCommon.GetRemoteRepositories(config, _nugetLogger);
+            var localRepositorySource = NugetCommon.GetLocalRepository();
+            var pathResolver = NugetCommon.GetPathResolver(config, _fileSystem);
+            var nugetProject = new FolderNuGetProject(ApplicationParameters.PackagesLocation, pathResolver, NuGetFramework.AnyFramework);
+            var projectContext = new ChocolateyNuGetProjectContext(config, _nugetLogger);
 
             IList<string> packageNames = config.PackageNames.Split(new[] { ApplicationParameters.PackageNamesSeparator }, StringSplitOptions.RemoveEmptyEntries).or_empty_list_if_null().ToList();
             if (packageNames.Count == 1)
@@ -462,14 +469,6 @@ folder.");
             {
                 config.Sources = _fileSystem.get_directory_name(_fileSystem.get_full_path(config.Sources));
             }
-
-            var sourceCacheContext = new ChocolateySourceCacheContext(config);
-            var remoteRepositories = NugetCommon.GetRemoteRepositories(config, _nugetLogger);
-
-            var localRepositorySource = NugetCommon.GetLocalRepository();
-            var pathResolver = new ChocolateyPackagePathResolver(ApplicationParameters.PackagesLocation, _fileSystem, config.AllowMultipleVersions);
-            var nugetProject = new FolderNuGetProject(ApplicationParameters.PackagesLocation, pathResolver, NuGetFramework.AnyFramework);
-            var projectContext = new ChocolateyNuGetProjectContext(config, _nugetLogger);
 
             var originalConfig = config.deep_copy();
 
@@ -723,7 +722,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                             this.Log().Warn(logMessage);
                             forcedResult.Messages.Add(new ResultMessage(ResultType.Inconclusive, logMessage));
                             forcedResult.Messages.Add(new ResultMessage(ResultType.Error, logMessage));
-                            if (continueAction != null) continueAction.Invoke(forcedResult);
+                            if (continueAction != null) continueAction.Invoke(forcedResult, config);
 
                             continue;
                         }
@@ -772,7 +771,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                         packageResult.InstallLocation = installedPath;
                         packageResult.Messages.Add(new ResultMessage(ResultType.Debug, ApplicationParameters.Messages.ContinueChocolateyAction));
 
-                        if (continueAction != null) continueAction.Invoke(packageResult);
+                        if (continueAction != null) continueAction.Invoke(packageResult, config);
 
                     }
                     catch (Exception ex)
@@ -790,7 +789,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                         var errorResult = packageResultsToReturn.GetOrAdd(packageDependencyInfo.Id, new PackageResult(packageDependencyInfo.Id, version.to_string(), null));
                         errorResult.Messages.Add(new ResultMessage(ResultType.Error, logMessage));
                         if (errorResult.ExitCode == 0) errorResult.ExitCode = 1;
-                        if (continueAction != null) continueAction.Invoke(errorResult);
+                        if (continueAction != null) continueAction.Invoke(errorResult, config);
                     }
                 }
             }
@@ -822,18 +821,18 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                 logWarningInsteadOfError: true);
         }
 
-        public ConcurrentDictionary<string, PackageResult> upgrade_noop(ChocolateyConfiguration config, Action<PackageResult> continueAction)
+        public ConcurrentDictionary<string, PackageResult> upgrade_noop(ChocolateyConfiguration config, Action<PackageResult, ChocolateyConfiguration> continueAction)
         {
             config.Force = false;
             return upgrade_run(config, continueAction, performAction: false);
         }
 
-        public ConcurrentDictionary<string, PackageResult> upgrade_run(ChocolateyConfiguration config, Action<PackageResult> continueAction, Action<PackageResult> beforeUpgradeAction = null)
+        public ConcurrentDictionary<string, PackageResult> upgrade_run(ChocolateyConfiguration config, Action<PackageResult, ChocolateyConfiguration> continueAction, Action<PackageResult, ChocolateyConfiguration> beforeUpgradeAction = null)
         {
             return upgrade_run(config, continueAction, performAction: true, beforeUpgradeAction: beforeUpgradeAction);
         }
 
-        public virtual ConcurrentDictionary<string, PackageResult> upgrade_run(ChocolateyConfiguration config, Action<PackageResult> continueAction, bool performAction, Action<PackageResult> beforeUpgradeAction = null)
+        public virtual ConcurrentDictionary<string, PackageResult> upgrade_run(ChocolateyConfiguration config, Action<PackageResult, ChocolateyConfiguration> continueAction, bool performAction, Action<PackageResult, ChocolateyConfiguration> beforeUpgradeAction = null)
         {
             _fileSystem.create_directory_if_not_exists(ApplicationParameters.PackagesLocation);
             var packageInstalls = new ConcurrentDictionary<string, PackageResult>(StringComparer.InvariantCultureIgnoreCase);
@@ -1163,7 +1162,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                             this.Log().Error(ChocolateyLoggers.Important, logMessage);
                             packageResult.Messages.Add(new ResultMessage(ResultType.Error, logMessage));
                             if (packageResult.ExitCode == 0) packageResult.ExitCode = 1;
-                            if (continueAction != null) continueAction.Invoke(packageResult);
+                            if (continueAction != null) continueAction.Invoke(packageResult, config);
                         }
                     }
                 }
@@ -1528,7 +1527,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                 "Unable to removed cached NuGet package file");
         }
 
-        public void uninstall_noop(ChocolateyConfiguration config, Action<PackageResult> continueAction)
+        public void uninstall_noop(ChocolateyConfiguration config, Action<PackageResult, ChocolateyConfiguration> continueAction)
         {
             var results = uninstall_run(config, continueAction, performAction: false);
             foreach (var packageResult in results.or_empty_list_if_null())
@@ -1538,12 +1537,12 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
             }
         }
 
-        public ConcurrentDictionary<string, PackageResult> uninstall_run(ChocolateyConfiguration config, Action<PackageResult> continueAction, Action<PackageResult> beforeUninstallAction = null)
+        public ConcurrentDictionary<string, PackageResult> uninstall_run(ChocolateyConfiguration config, Action<PackageResult, ChocolateyConfiguration> continueAction, Action<PackageResult, ChocolateyConfiguration> beforeUninstallAction = null)
         {
             return uninstall_run(config, continueAction, performAction: true, beforeUninstallAction: beforeUninstallAction);
         }
 
-        public virtual ConcurrentDictionary<string, PackageResult> uninstall_run(ChocolateyConfiguration config, Action<PackageResult> continueAction, bool performAction, Action<PackageResult> beforeUninstallAction = null)
+        public virtual ConcurrentDictionary<string, PackageResult> uninstall_run(ChocolateyConfiguration config, Action<PackageResult, ChocolateyConfiguration> continueAction, bool performAction, Action<PackageResult, ChocolateyConfiguration> beforeUninstallAction = null)
         {
             var packageUninstalls = new ConcurrentDictionary<string, PackageResult>(StringComparer.InvariantCultureIgnoreCase);
 
@@ -1774,7 +1773,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                                 // guessing this is not added so that it doesn't fail the action if an error is recorded?
                                 //var currentPackageResult = packageUninstalls.GetOrAdd(packageName, new PackageResult(packageVersion, get_install_directory(config, packageVersion)));
                                 var currentPackageResult = new PackageResult(packageVersion.PackageMetadata, get_install_directory(config, packageVersion.PackageMetadata));
-                                beforeUninstallAction(currentPackageResult);
+                                beforeUninstallAction(currentPackageResult, config);
                             }
 
                             //ensure_package_files_have_compatible_attributes(config, packageVersion.PackageMetadata, pkgInfo);
@@ -1828,7 +1827,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                     {
                         // continue action won't be found b/c we are not actually uninstalling (this is noop)
                         var result = packageUninstalls.GetOrAdd(packageVersion.Name.to_lower() + "." + packageVersion.Version.to_string(), new PackageResult(packageVersion.PackageMetadata, pathResolver.GetInstallPath(packageVersion.PackageMetadata.Id, packageVersion.PackageMetadata.Version)));
-                        if (continueAction != null) continueAction.Invoke(result);
+                        if (continueAction != null) continueAction.Invoke(result, config);
                     }
                 }
             }
