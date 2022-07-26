@@ -464,17 +464,17 @@ namespace chocolatey.infrastructure.app.nuget
             }
         }
 
-        public static async Task GetPackageDependers(string packageId,
-            ISet<SourcePackageDependencyInfo> dependerPackages,
+        public static async Task GetPackageParents(string packageId,
+            ISet<SourcePackageDependencyInfo> parentPackages,
             IEnumerable<SourcePackageDependencyInfo> locallyInstalledPackages)
         {
-            foreach (var package in locallyInstalledPackages.Where(p => !dependerPackages.Contains(p)))
+            foreach (var package in locallyInstalledPackages.Where(p => !parentPackages.Contains(p)))
             {
-                if (dependerPackages.Contains(package)) continue;
+                if (parentPackages.Contains(package)) continue;
                 if (package.Dependencies.Any(p => p.Id.Equals(packageId, StringComparison.OrdinalIgnoreCase)))
                 {
-                    dependerPackages.Add(package);
-                    await GetPackageDependers(package.Id, dependerPackages, locallyInstalledPackages);
+                    parentPackages.Add(package);
+                    await GetPackageParents(package.Id, parentPackages, locallyInstalledPackages);
                 }
             }
         }

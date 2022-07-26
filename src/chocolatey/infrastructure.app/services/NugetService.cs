@@ -639,7 +639,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                             {
                                 // If forcing dependencies, then dependencies already added to packages to remove
                                 // If allow multiple is added, then new version of dependency will be added side by side
-                                // If neither, then package needs to be removed so it can be upgraded to the new version required by the depender
+                                // If neither, then package needs to be removed so it can be upgraded to the new version required by the parent
 
                                 packagesToUninstall.AddRange(allLocalPackages.Where(p => resolvedPackages.Select(x => x.Id).Contains(p.Name) && !packageNames.Contains(p.Name)));
                             }
@@ -1092,11 +1092,11 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                                     null));
                         sourcePackageDependencyInfos.AddRange(localPackagesDependencyInfos);
 
-                        var dependerInfos = new HashSet<SourcePackageDependencyInfo>(PackageIdentityComparer.Default);
-                        NugetCommon.GetPackageDependers(availablePackage.Identity.Id, dependerInfos, localPackagesDependencyInfos).GetAwaiter().GetResult();
-                        foreach (var dependerPackage in dependerInfos)
+                        var parentInfos = new HashSet<SourcePackageDependencyInfo>(PackageIdentityComparer.Default);
+                        NugetCommon.GetPackageParents(availablePackage.Identity.Id, parentInfos, localPackagesDependencyInfos).GetAwaiter().GetResult();
+                        foreach (var parentPackage in parentInfos)
                         {
-                            foreach (var packageVersion in NugetList.find_all_package_versions(dependerPackage.Id, config, _nugetLogger, sourceCacheContext, NugetCommon.GetRepositoryResource<PackageMetadataResource>(remoteRepositories).ToList()))
+                            foreach (var packageVersion in NugetList.find_all_package_versions(parentPackage.Id, config, _nugetLogger, sourceCacheContext, NugetCommon.GetRepositoryResource<PackageMetadataResource>(remoteRepositories).ToList()))
                             {
                                 NugetCommon.GetPackageDependencies(packageVersion.Identity, NuGetFramework.AnyFramework, sourceCacheContext, _nugetLogger, dependencyResources, sourcePackageDependencyInfos, sourceDependencyCache).GetAwaiter().GetResult();
                             }
@@ -1167,7 +1167,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                                     {
                                         // If forcing dependencies, then dependencies already added to packages to remove
                                         // If allow multiple is added, then new version of dependency will be added side by side
-                                        // If neither, then package needs to be removed so it can be upgraded to the new version required by the depender
+                                        // If neither, then package needs to be removed so it can be upgraded to the new version required by the parent
 
                                         packagesToUninstall.AddRange(allLocalPackages.Where(p => resolvedPackages.Select(x => x.Id).Contains(p.Name, StringComparer.OrdinalIgnoreCase)));
                                     }
