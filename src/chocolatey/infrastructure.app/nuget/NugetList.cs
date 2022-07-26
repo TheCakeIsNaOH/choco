@@ -20,6 +20,7 @@ namespace chocolatey.infrastructure.app.nuget
     using System.Collections;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.IO.Packaging;
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading;
@@ -266,6 +267,15 @@ namespace chocolatey.infrastructure.app.nuget
             return results.AsQueryable();
         }
 
+        public static ISet<IPackageSearchMetadata> find_all_package_versions(string packageName, ChocolateyConfiguration config, ILogger nugetLogger, ChocolateySourceCacheContext cacheContext, IEnumerable<PackageMetadataResource> resources)
+        {
+            var metadataList = new HashSet<IPackageSearchMetadata>();
+            foreach (var resource in resources)
+            {
+                metadataList.AddRange(resource.GetMetadataAsync(packageName, config.Prerelease, includeUnlisted: false, cacheContext, nugetLogger, CancellationToken.None).GetAwaiter().GetResult());
+            }
+            return metadataList;
+        }
 
         /// <summary>
         ///   Searches for packages that are available based on name and other options
@@ -281,11 +291,12 @@ namespace chocolatey.infrastructure.app.nuget
         {
             if (version is null)
             {
+                var metadataList = new HashSet<IPackageSearchMetadata>();
                 foreach (var resource in resources)
                 {
-                    var metadataList = resource.GetMetadataAsync(packageName, config.Prerelease, includeUnlisted: false, cacheContext, nugetLogger, CancellationToken.None).GetAwaiter().GetResult();
-                    return metadataList.OrderByDescending(p => p.Identity.Version).FirstOrDefault();
+                    metadataList.AddRange(resource.GetMetadataAsync(packageName, config.Prerelease, includeUnlisted: false, cacheContext, nugetLogger, CancellationToken.None).GetAwaiter().GetResult());
                 }
+                return metadataList.OrderByDescending(p => p.Identity.Version).FirstOrDefault();
             }
 
             foreach (var resource in resources)

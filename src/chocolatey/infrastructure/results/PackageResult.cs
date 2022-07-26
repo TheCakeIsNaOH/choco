@@ -50,6 +50,14 @@ namespace chocolatey.infrastructure.results
         public string SourceUri { get; set; }
         public int ExitCode { get; set; }
 
+        public void ResetMetadata(IPackageMetadata metadata, IPackageSearchMetadata search)
+        {
+            PackageMetadata = metadata;
+            SearchMetadata = search;
+            Name = metadata.Id.to_lower();
+            Version = metadata.Version.to_string();
+        }
+
         public PackageResult(IPackageMetadata packageMetadata, string installLocation, string source = null) : this(packageMetadata.Id.to_lower(), packageMetadata.Version.to_string(), installLocation)
         {
             PackageMetadata = packageMetadata;

@@ -464,6 +464,21 @@ namespace chocolatey.infrastructure.app.nuget
             }
         }
 
+        public static async Task GetPackageDependers(string packageId,
+            ISet<SourcePackageDependencyInfo> dependerPackages,
+            IEnumerable<SourcePackageDependencyInfo> locallyInstalledPackages)
+        {
+            foreach (var package in locallyInstalledPackages.Where(p => !dependerPackages.Contains(p)))
+            {
+                if (dependerPackages.Contains(package)) continue;
+                if (package.Dependencies.Any(p => p.Id.Equals(packageId, StringComparison.OrdinalIgnoreCase)))
+                {
+                    dependerPackages.Add(package);
+                    await GetPackageDependers(package.Id, dependerPackages, locallyInstalledPackages);
+                }
+            }
+        }
+
     }
 
     // ReSharper restore InconsistentNaming

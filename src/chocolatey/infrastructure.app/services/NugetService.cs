@@ -734,7 +734,6 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                         //TODO, do sanity check here.
 
                         var downloadResource = packageDependencyInfo.Source.GetResource<DownloadResource>();
-                        IEnumerable<string> extractionResult;
 
                         using (var downloadResult = downloadResource.GetDownloadResourceResultAsync(
                                    packageDependencyInfo,
@@ -752,12 +751,14 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
 
                         }
 
+                        remove_nuget_cache_for_package(availablePackage);
+
                         var manifestPath = nugetProject.GetInstalledManifestFilePath(packageDependencyInfo);
                         var packageMetadata = new ChocolateyPackageMetadata(manifestPath, _fileSystem);
 
                         var installedPath = nugetProject.GetInstalledPath(packageDependencyInfo);
 
-                        "chocolatey".Log().Info(ChocolateyLoggers.Important, "{0}{1} v{2}{3}{4}{5}".format_with(
+                        this.Log().Info(ChocolateyLoggers.Important, "{0}{1} v{2}{3}{4}{5}".format_with(
                             System.Environment.NewLine,
                             packageMetadata.Id,
                             packageMetadata.Version.to_string(),
@@ -835,43 +836,16 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
         public virtual ConcurrentDictionary<string, PackageResult> upgrade_run(ChocolateyConfiguration config, Action<PackageResult, ChocolateyConfiguration> continueAction, bool performAction, Action<PackageResult, ChocolateyConfiguration> beforeUpgradeAction = null)
         {
             _fileSystem.create_directory_if_not_exists(ApplicationParameters.PackagesLocation);
-            var packageInstalls = new ConcurrentDictionary<string, PackageResult>(StringComparer.InvariantCultureIgnoreCase);
+            var packageResultsToReturn = new ConcurrentDictionary<string, PackageResult>(StringComparer.InvariantCultureIgnoreCase);
 
             NuGetVersion version = !string.IsNullOrWhiteSpace(config.Version) ? NuGetVersion.Parse(config.Version) : null;
 
             if (config.Force) config.AllowDowngrade = true;
 
-            /*
-            var packageManager = NugetCommon.GetPackageManager(
-                config,
-                _nugetLogger,
-                _packageDownloader,
-                installSuccessAction: (e) =>
-                    {
-                        var pkg = e.Package;
-                        var packageResult = packageInstalls.GetOrAdd(pkg.Id.to_lower(), new PackageResult(pkg, e.InstallPath));
-                        packageResult.InstallLocation = e.InstallPath;
-                        packageResult.Messages.Add(new ResultMessage(ResultType.Debug, ApplicationParameters.Messages.ContinueChocolateyAction));
-
-                        if (continueAction != null) continueAction.Invoke(packageResult);
-                    },
-                uninstallSuccessAction: null,
-                addUninstallHandler: false);
-            */
-
             var sourceCacheContext = new ChocolateySourceCacheContext(config);
-            var allPackages = get_all_installed_packages(config);
             var remoteRepositories = NugetCommon.GetRemoteRepositories(config, _nugetLogger);
-            var packageManager = NugetCommon.GetPackageManager(config, _nugetLogger, null, null, addUninstallHandler: false);
-            var pathResolver = NugetCommon.GetPathResolver(config, _fileSystem);
-
-            /*
-            var localRepository = packageManager.LocalRepository as ChocolateyLocalPackageRepository;
-
-            if (localRepository != null)
-            {
-                localRepository.IgnoreVersionedDirectories = !config.AllowMultipleVersions;
-            }*/
+            var localRepositorySource = NugetCommon.GetLocalRepository();
+            var projectContext = new ChocolateyNuGetProjectContext(config, _nugetLogger);
 
             var configIgnoreDependencies = config.IgnoreDependencies;
             set_package_names_if_all_is_specified(config, () => { config.IgnoreDependencies = true; });
@@ -884,14 +858,21 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                 // reset config each time through
                 config = originalConfig.deep_copy();
 
-                var installedPackage = allPackages.FirstOrDefault(p => p.Name.Equals(packageName));
+                var allLocalPackages = get_all_installed_packages(config);
+                var installedPackage = allLocalPackages.FirstOrDefault(p => p.Name.Equals(packageName));
+                var packagesToInstall = new List<IPackageSearchMetadata>();
+                var packagesToUninstall = new HashSet<PackageResult>();
+                var sourcePackageDependencyInfos = new HashSet<SourcePackageDependencyInfo>(PackageIdentityComparer.Default);
+                var localPackageToRemoveDependencyInfos = new HashSet<SourcePackageDependencyInfo>(PackageIdentityComparer.Default);
+                var dependencyResources = NugetCommon.GetRepositoryResource<DependencyInfoResource>(remoteRepositories).ToList();
+                var sourceDependencyCache = new HashSet<PackageDependency>();
 
                 if (installedPackage == null)
                 {
                     if (config.UpgradeCommand.FailOnNotInstalled)
                     {
                         string failLogMessage = "{0} is not installed. Cannot upgrade a non-existent package.".format_with(packageName);
-                        var result = packageInstalls.GetOrAdd(packageName, new PackageResult(packageName, null, null));
+                        var result = packageResultsToReturn.GetOrAdd(packageName, new PackageResult(packageName, null, null));
                         result.Messages.Add(new ResultMessage(ResultType.Error, failLogMessage));
                         if (config.RegularOutput) this.Log().Error(ChocolateyLoggers.Important, failLogMessage);
 
@@ -901,7 +882,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                     if (config.Features.SkipPackageUpgradesWhenNotInstalled)
                     {
                         string warnLogMessage = "{0} is not installed and skip non-installed option selected. Skipping...".format_with(packageName);
-                        var result = packageInstalls.GetOrAdd(packageName, new PackageResult(packageName, null, null));
+                        var result = packageResultsToReturn.GetOrAdd(packageName, new PackageResult(packageName, null, null));
                         result.Messages.Add(new ResultMessage(ResultType.Warn, warnLogMessage));
                         if (config.RegularOutput) this.Log().Warn(ChocolateyLoggers.Important, warnLogMessage);
 
@@ -923,7 +904,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                         var installResults = install_run(config, continueAction);
                         foreach (var result in installResults)
                         {
-                            packageInstalls.GetOrAdd(result.Key, result.Value);
+                            packageResultsToReturn.GetOrAdd(result.Key, result.Value);
                         }
                     }
 
@@ -939,10 +920,15 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                     continue;
                 }
 
+                //Needs to be set here to ensure that the path resolver has the side by side option set correctly.
+                set_package_config_for_upgrade(config, pkgInfo);
+                var pathResolver = NugetCommon.GetPathResolver(config, _fileSystem);
+                var nugetProject = new FolderNuGetProject(ApplicationParameters.PackagesLocation, pathResolver, NuGetFramework.AnyFramework);
+
                 if (version != null && version < installedPackage.PackageMetadata.Version && !config.AllowMultipleVersions && !config.AllowDowngrade)
                 {
                     string logMessage = "A newer version of {0} (v{1}) is already installed.{2} Use --allow-downgrade or --force to attempt to upgrade to older versions, or use side by side to allow multiple versions.".format_with(installedPackage.PackageMetadata.Id, installedPackage.Version, Environment.NewLine);
-                    var nullResult = packageInstalls.GetOrAdd(packageName, new PackageResult(installedPackage.PackageMetadata, pathResolver.GetInstallPath(installedPackage.PackageMetadata.Id, installedPackage.PackageMetadata.Version)));
+                    var nullResult = packageResultsToReturn.GetOrAdd(packageName, new PackageResult(installedPackage.PackageMetadata, pathResolver.GetInstallPath(installedPackage.PackageMetadata.Id, installedPackage.PackageMetadata.Version)));
                     nullResult.Messages.Add(new ResultMessage(ResultType.Error, logMessage));
                     this.Log().Error(ChocolateyLoggers.Important, logMessage);
                     continue;
@@ -950,13 +936,13 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
 
                 // if we have a prerelease installed, we want to have it upgrade based on newer prereleases
                 var originalPrerelease = config.Prerelease;
-                if (!string.IsNullOrWhiteSpace(installedPackage.PackageMetadata.Version.Release) && !config.UpgradeCommand.ExcludePrerelease)
+                if (installedPackage.PackageMetadata.Version.IsPrerelease && !config.UpgradeCommand.ExcludePrerelease)
                 {
                     // this is a prerelease - opt in for newer prereleases.
                     config.Prerelease = true;
                 }
 
-                var availablePackage = NugetList.find_package(packageName, config, _nugetLogger, sourceCacheContext, NugetCommon.GetRepositoryResource<PackageMetadataResource>(remoteRepositories).ToList());
+                var availablePackage = NugetList.find_package(packageName, config, _nugetLogger, sourceCacheContext, NugetCommon.GetRepositoryResource<PackageMetadataResource>(remoteRepositories).ToList(), version);
 
                 config.Prerelease = originalPrerelease;
 
@@ -965,7 +951,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                     if (config.Features.IgnoreUnfoundPackagesOnUpgradeOutdated) continue;
 
                     string logMessage = "{0} was not found with the source(s) listed.{1} If you specified a particular version and are receiving this message, it is possible that the package name exists but the version does not.{1} Version: \"{2}\"; Source(s): \"{3}\"".format_with(packageName, Environment.NewLine, config.Version, config.Sources);
-                    var unfoundResult = packageInstalls.GetOrAdd(packageName, new PackageResult(packageName, version.to_string(), null));
+                    var unfoundResult = packageResultsToReturn.GetOrAdd(packageName, new PackageResult(packageName, version.to_string(), null));
 
                     if (config.UpgradeCommand.FailOnUnfound)
                     {
@@ -995,7 +981,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                     //todo: #103 get smarter about realizing multiple versions have been installed before and allowing that
                 }
 
-                var packageResult = packageInstalls.GetOrAdd(packageName, new PackageResult(availablePackage, pathResolver.GetInstallPath(availablePackage.Identity)));
+                var packageResult = packageResultsToReturn.GetOrAdd(packageName, new PackageResult(availablePackage, pathResolver.GetInstallPath(availablePackage.Identity)));
                 if (installedPackage.PackageMetadata.Version > availablePackage.Identity.Version && (!config.AllowDowngrade || (config.AllowDowngrade && version == null)))
                 {
                     string logMessage = "{0} v{1} is newer than the most recent.{2} You must be smarter than the average bear...".format_with(installedPackage.PackageMetadata.Id, installedPackage.Version, Environment.NewLine);
@@ -1073,103 +1059,276 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                         continue;
                     }
 
-                    set_package_config_for_upgrade(config, pkgInfo);
-
                     if (performAction)
                     {
-                        try
+
+                        NugetCommon.GetPackageDependencies(availablePackage.Identity, NuGetFramework.AnyFramework, sourceCacheContext, _nugetLogger, dependencyResources, sourcePackageDependencyInfos, sourceDependencyCache).GetAwaiter().GetResult();
+
+
+                        packagesToUninstall.Add(installedPackage);
+
+                        if (config.ForceDependencies && installedPackage != null)
                         {
+                            NugetCommon.GetLocalPackageDependencies(installedPackage.Identity, NuGetFramework.AnyFramework, allLocalPackages, localPackageToRemoveDependencyInfos);
 
-
-
-
-
-
-
-                            /*
-                            //TODO, check if path resolver works, perhaps implement a custom nugetproject type, check if framework type is correct.
-                            var nugetProject = new FolderNuGetProject(ApplicationParameters.PackagesLocation, new ChocolateyPackagePathResolver(ApplicationParameters.PackagesLocation, _fileSystem, true), NuGetFramework.AnyFramework);
-
-                            //TODO, validate this, add as options?
-                            var resolutionContext = new ResolutionContext(DependencyBehavior.Highest, config.Prerelease, includeUnlisted: false, VersionConstraints.None);
-
-                            var projectContext = new ChocolateyNuGetProjectContext(config, _nugetLogger);
-
-                            //TODO - investigate if this should be set to download/cache at specific place. And look at all cache context's, perhaps override?
-                            //var downloadContext = new PackageDownloadContext()
-
-                            //TODO, investigate if primary/secondary sources should be used here? Package priority, etc?
-                            packageManager.InstallPackageAsync(
-                                nugetProject,
-                                availablePackage.Identity,
-                                resolutionContext,
-                                projectContext,
-                                remoteRepositories,
-                                null,
-                                CancellationToken.None
-                            ).GetAwaiter().GetResult();
-
-                            remove_nuget_cache_for_package(availablePackage);
-                            */
-
-                            /*
-                            using (packageManager.SourceRepository.StartOperation(
-                                RepositoryOperationNames.Update,
-                                packageName,
-                                version == null ? null : version.ToString()))
+                            foreach (var dependencyInfo in localPackageToRemoveDependencyInfos)
                             {
-                                if (beforeUpgradeAction != null)
+                                packagesToUninstall.Add(allLocalPackages.FirstOrDefault(p => p.Identity.Equals(dependencyInfo)));
+                            }
+                        }
+
+
+                        packagesToInstall.Add(availablePackage);
+
+                        var localPackagesDependencyInfos = allLocalPackages
+                            .Where(p => !p.Name.Equals(availablePackage.Identity.Id, StringComparison.OrdinalIgnoreCase))
+                            .Select(
+                                p => new SourcePackageDependencyInfo(
+                                    p.SearchMetadata.Identity,
+                                    p.PackageMetadata.DependencyGroups.SelectMany(x => x.Packages).ToList(),
+                                    true,
+                                    localRepositorySource,
+                                    null,
+                                    null));
+                        sourcePackageDependencyInfos.AddRange(localPackagesDependencyInfos);
+
+                        var dependerInfos = new HashSet<SourcePackageDependencyInfo>(PackageIdentityComparer.Default);
+                        NugetCommon.GetPackageDependers(availablePackage.Identity.Id, dependerInfos, localPackagesDependencyInfos).GetAwaiter().GetResult();
+                        foreach (var dependerPackage in dependerInfos)
+                        {
+                            foreach (var packageVersion in NugetList.find_all_package_versions(dependerPackage.Id, config, _nugetLogger, sourceCacheContext, NugetCommon.GetRepositoryResource<PackageMetadataResource>(remoteRepositories).ToList()))
+                            {
+                                NugetCommon.GetPackageDependencies(packageVersion.Identity, NuGetFramework.AnyFramework, sourceCacheContext, _nugetLogger, dependencyResources, sourcePackageDependencyInfos, sourceDependencyCache).GetAwaiter().GetResult();
+                            }
+                        }
+
+                        sourcePackageDependencyInfos.RemoveWhere(p => p.Id.Equals(availablePackage.Identity.Id, StringComparison.OrdinalIgnoreCase) && !p.Version.Equals(availablePackage.Identity.Version));
+
+                        var dependencyResolver = new PackageResolver();
+
+                        var targetIdsToInstall = packagesToInstall.Select(p => p.Identity.Id);
+                        var allPackagesIdentities = allLocalPackages.Where(x => !targetIdsToInstall.Contains(x.Identity.Id, StringComparer.OrdinalIgnoreCase)).Select(p => p.SearchMetadata.Identity).ToList();
+                        //var allPackagesIdentities = allLocalPackages.Select(p => p.SearchMetadata.Identity).ToList();
+                        var allPackagesReferences = allPackagesIdentities.Select(p => new PackageReference(p, NuGetFramework.AnyFramework));
+
+                        var resolverContext = new PackageResolverContext(
+                            dependencyBehavior: DependencyBehavior.Highest,
+                            targetIds: targetIdsToInstall,
+                            requiredPackageIds: allPackagesIdentities.Select(p => p.Id),
+                            packagesConfig: allPackagesReferences,
+                            preferredVersions: allPackagesIdentities,
+                            availablePackages: sourcePackageDependencyInfos,
+                            packageSources: remoteRepositories.Select(s => s.PackageSource),
+                            log: _nugetLogger
+                        );
+
+                        IEnumerable<SourcePackageDependencyInfo> resolvedPackages = new List<SourcePackageDependencyInfo>();
+                        if (config.IgnoreDependencies)
+                        {
+                            resolvedPackages = packagesToInstall.Select(p => sourcePackageDependencyInfos.Single(x => p.Identity.Equals(new PackageIdentity(x.Id, x.Version))));
+
+
+                            if (config.ForceDependencies)
+                            {
+                                //TODO Log warning here about dependencies being removed and not being reinstalled?
+                                foreach (var packageToUninstall in packagesToUninstall.Where(p => !resolvedPackages.Contains(p.Identity)))
                                 {
-                                    var currentPackageResult = new PackageResult(installedPackage.PackageMetadata, get_install_directory(config, installedPackage.PackageMetadata));
-                                    beforeUpgradeAction(currentPackageResult);
+                                    try
+                                    {
+                                        nugetProject.DeletePackage(packageToUninstall.Identity, projectContext, CancellationToken.None).GetAwaiter().GetResult();
+                                        remove_cache_for_package(config, packageToUninstall.PackageMetadata);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        var forcedResult = packageResultsToReturn.GetOrAdd(packageToUninstall.Identity.Id, packageToUninstall);
+                                        forcedResult.Messages.Add(new ResultMessage(ResultType.Note, "Removing old version"));
+                                        string logMessage = "{0}:{1} {2}".format_with("Unable to remove existing package", Environment.NewLine, ex.Message);
+                                        this.Log().Warn(logMessage);
+                                        forcedResult.Messages.Add(new ResultMessage(ResultType.Inconclusive, logMessage));
+                                    }
                                 }
+                            }
+
+                        }
+                        else
+                        {
+                            try
+                            {
+                                resolvedPackages = dependencyResolver.Resolve(resolverContext, CancellationToken.None)
+                                    .Select(p => sourcePackageDependencyInfos.Single(x => PackageIdentityComparer.Default.Equals(x, p)));
+
+
+                                if (!config.ForceDependencies)
+                                {
+                                    var identitiesToUninstall = packagesToUninstall.Select(x => x.Identity);
+                                    resolvedPackages = resolvedPackages.Where(p => !(localPackagesDependencyInfos.Contains(p) && !identitiesToUninstall.Contains(p)));
+
+                                    if (!config.AllowMultipleVersions)
+                                    {
+                                        // If forcing dependencies, then dependencies already added to packages to remove
+                                        // If allow multiple is added, then new version of dependency will be added side by side
+                                        // If neither, then package needs to be removed so it can be upgraded to the new version required by the depender
+
+                                        packagesToUninstall.AddRange(allLocalPackages.Where(p => resolvedPackages.Select(x => x.Id).Contains(p.Name, StringComparer.OrdinalIgnoreCase)));
+                                    }
+                                }
+                            }
+                            catch (NuGetResolverConstraintException ex)
+                            {
+                                this.Log().Warn(ex.Message);
+
+                                string constraintPattern = @"constraint: (?<packageId>\w+)\s\(";
+                                var invalidDependencyMatch = Regex.Match(ex.Message, constraintPattern, RegexOptions.IgnoreCase);
+                                var invalidDependencyName = invalidDependencyMatch.Groups["packageId"].Success ? invalidDependencyMatch.Groups["packageId"].Value : string.Empty;
+
+                                if (!invalidDependencyMatch.Groups["packageId"].Success)
+                                {
+                                    string resolvePattern = @"Unable to resolve dependency \'(?<packageId>\w+)\'";
+                                    var resolveDependencyMatch = Regex.Match(ex.Message, resolvePattern, RegexOptions.IgnoreCase);
+                                    invalidDependencyName = resolveDependencyMatch.Groups["packageId"].Success ? resolveDependencyMatch.Groups["packageId"].Value : string.Empty;
+
+                                    if (!resolveDependencyMatch.Success)
+                                    {
+                                        this.Log().Warn("Unable to match dependency resolution message, add another type");
+                                    }
+                                }
+
+                                foreach (var pkgMetadata in packagesToInstall)
+                                {
+                                    var logMessage = "Unable to resolve dependency '{0}'".format_with(invalidDependencyName);
+                                    this.Log().Error(ChocolateyLoggers.Important, logMessage);
+                                    var errorResult = packageResultsToReturn.GetOrAdd(pkgMetadata.Identity.Id, new PackageResult(pkgMetadata, pathResolver.GetInstallPath(pkgMetadata.Identity)));
+                                    errorResult.Messages.Add(new ResultMessage(ResultType.Error, logMessage));
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                this.Log().Warn("Need to add specific handling for exception type {0}".format_with(nameof(ex)));
+                                this.Log().Warn(ex.Message);
+                            }
+                        }
+
+                        foreach (SourcePackageDependencyInfo packageDependencyInfo in resolvedPackages)
+                        {
+                            var packageRemoteMetadata = packagesToInstall.FirstOrDefault(p => p.Identity.Equals(packageDependencyInfo));
+
+                            if (packageRemoteMetadata is null)
+                            {
+                                packageRemoteMetadata = packageDependencyInfo
+                                    .Source
+                                    .GetResource<PackageMetadataResource>()
+                                    .GetMetadataAsync(packageDependencyInfo, sourceCacheContext, _nugetLogger, CancellationToken.None)
+                                    .GetAwaiter().GetResult();
+
+                                var resource = packageDependencyInfo.Source.GetResource<PackageMetadataResource>();
+                            }
+
+                            if (beforeUpgradeAction != null)
+                            {
+                                var currentPackageResult = new PackageResult(installedPackage.PackageMetadata, packageRemoteMetadata, get_install_directory(config, installedPackage.PackageMetadata));
+
+                                beforeUpgradeAction(currentPackageResult, config);
+                            }
+
+                            try
+                            {
 
                                 remove_rollback_directory_if_exists(packageName);
                                 ensure_package_files_have_compatible_attributes(config, installedPackage.PackageMetadata, pkgInfo);
                                 rename_legacy_package_version(config, installedPackage.PackageMetadata, pkgInfo);
                                 backup_existing_version(config, installedPackage.PackageMetadata, pkgInfo);
                                 remove_shim_directors(config, installedPackage.PackageMetadata, pkgInfo);
-                                if (config.Force && (installedPackage.PackageMetadata.Version == availablePackage.Identity.Version))
-                                {
-                                    FaultTolerance.try_catch_with_logging_exception(
-                                        () =>
-                                        {
-                                            _fileSystem.delete_directory_if_exists(_fileSystem.combine_paths(ApplicationParameters.PackagesLocation, installedPackage.PackageMetadata.Id), recursive: true);
-                                            remove_cache_for_package(config, installedPackage.PackageMetadata);
-                                        },
-                                        "Error during force upgrade");
-                                    packageManager.InstallPackage(availablePackage, config.IgnoreDependencies, config.Prerelease);
-                                }
-                                else
-                                {
-                                    packageManager.UpdatePackage(availablePackage, updateDependencies: !config.IgnoreDependencies, allowPrereleaseVersions: config.Prerelease);
-                                }
-                                remove_nuget_cache_for_package(availablePackage);
-                            }
-                            */
-                        }
-                        catch (Exception ex)
-                        {
-                            var message = ex.Message;
-                            var webException = ex as System.Net.WebException;
-                            if (webException != null)
-                            {
-                                var response = webException.Response as HttpWebResponse;
-                                if (response != null && !string.IsNullOrWhiteSpace(response.StatusDescription)) message += " {0}".format_with(response.StatusDescription);
-                            }
 
-                            var logMessage = "{0} not upgraded. An error occurred during installation:{1} {2}".format_with(packageName, Environment.NewLine, message);
-                            this.Log().Error(ChocolateyLoggers.Important, logMessage);
-                            packageResult.Messages.Add(new ResultMessage(ResultType.Error, logMessage));
-                            if (packageResult.ExitCode == 0) packageResult.ExitCode = 1;
-                            if (continueAction != null) continueAction.Invoke(packageResult, config);
+                                var packageToUninstall = packagesToUninstall.FirstOrDefault(p => p.PackageMetadata.Id.Equals(packageDependencyInfo.Id, StringComparison.OrdinalIgnoreCase));
+                                if (packageToUninstall != null)
+                                {
+                                    packageToUninstall.InstallLocation = pathResolver.GetInstallPath(packageToUninstall.Identity);
+                                    try
+                                    {
+                                        // This deletes satellite files and stuff
+                                        //But it does not throw or return false if it fails to delete something...
+                                        var ableToDelete = nugetProject.DeletePackage(packageToUninstall.Identity, projectContext, CancellationToken.None).GetAwaiter().GetResult();
+                                        //So removing directly manually so as to throw if needed.
+                                        _fileSystem.delete_directory_if_exists(packageToUninstall.InstallLocation, true, true, true);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        var forcedResult = packageResultsToReturn.GetOrAdd(packageToUninstall.Name, packageToUninstall);
+                                        forcedResult.Messages.Add(new ResultMessage(ResultType.Note, "Backing up and removing old version"));
+                                        string logMessage = "{0}:{1} {2}".format_with("Unable to remove existing package prior to upgrade", Environment.NewLine, ex.Message);
+                                        this.Log().Warn(logMessage);
+                                        forcedResult.Messages.Add(new ResultMessage(ResultType.Inconclusive, logMessage));
+                                        forcedResult.Messages.Add(new ResultMessage(ResultType.Error, logMessage));
+                                        if (continueAction != null) continueAction.Invoke(forcedResult, config);
+
+                                        continue;
+                                    }
+                                }
+
+                                var downloadResource = packageDependencyInfo.Source.GetResource<DownloadResource>();
+
+                                using (var downloadResult = downloadResource.GetDownloadResourceResultAsync(
+                                           packageDependencyInfo,
+                                           new PackageDownloadContext(sourceCacheContext),
+                                           config.CacheLocation,
+                                           _nugetLogger, CancellationToken.None).GetAwaiter().GetResult())
+                                {
+                                    //TODO, do check on downloadResult
+
+                                    nugetProject.InstallPackageAsync(
+                                        packageDependencyInfo,
+                                        downloadResult,
+                                        projectContext,
+                                        CancellationToken.None).GetAwaiter().GetResult();
+
+                                }
+
+                                var manifestPath = nugetProject.GetInstalledManifestFilePath(packageDependencyInfo);
+                                var packageMetadata = new ChocolateyPackageMetadata(manifestPath, _fileSystem);
+
+                                var installedPath = nugetProject.GetInstalledPath(packageDependencyInfo);
+
+                                remove_nuget_cache_for_package(availablePackage);
+
+                                this.Log().Info(ChocolateyLoggers.Important, "{0}{1} v{2}{3}{4}{5}".format_with(
+                                    System.Environment.NewLine,
+                                    packageMetadata.Id,
+                                    packageMetadata.Version.to_string(),
+                                    config.Force ? " (forced)" : string.Empty,
+                                    packageRemoteMetadata.IsApproved ? " [Approved]" : string.Empty,
+                                    packageRemoteMetadata.PackageTestResultStatus == "Failing" && packageRemoteMetadata.IsDownloadCacheAvailable ? " - Likely broken for FOSS users (due to download location changes)" : packageRemoteMetadata.PackageTestResultStatus == "Failing" ? " - Possibly broken" : string.Empty
+                                ));
+
+                                var upgradePackageResult = packageResultsToReturn.GetOrAdd(packageDependencyInfo.Id.to_lower(), new PackageResult(packageMetadata, packageRemoteMetadata, installedPath));
+                                upgradePackageResult.ResetMetadata(packageMetadata, packageRemoteMetadata);
+                                upgradePackageResult.InstallLocation = installedPath;
+                                upgradePackageResult.Messages.Add(new ResultMessage(ResultType.Debug, ApplicationParameters.Messages.ContinueChocolateyAction));
+
+                                if (continueAction != null) continueAction.Invoke(upgradePackageResult, config);
+                            }
+                            catch (Exception ex)
+                            {
+                                var message = ex.Message;
+                                var webException = ex as System.Net.WebException;
+                                if (webException != null)
+                                {
+                                    var response = webException.Response as HttpWebResponse;
+                                    if (response != null && !string.IsNullOrWhiteSpace(response.StatusDescription)) message += " {0}".format_with(response.StatusDescription);
+                                }
+
+                                var logMessage = "{0} not upgraded. An error occurred during installation:{1} {2}".format_with(packageName, Environment.NewLine, message);
+                                this.Log().Error(ChocolateyLoggers.Important, logMessage);
+                                var errorResult = packageResultsToReturn.GetOrAdd(packageDependencyInfo.Id, new PackageResult(packageDependencyInfo.Id, version.to_string(), null));
+                                errorResult.Messages.Add(new ResultMessage(ResultType.Error, logMessage));
+                                if (errorResult.ExitCode == 0) errorResult.ExitCode = 1;
+                                if (continueAction != null) continueAction.Invoke(errorResult, config);
+                            }
                         }
                     }
                 }
             }
 
-
-            return packageInstalls;
+            return packageResultsToReturn;
         }
 
         public virtual ConcurrentDictionary<string, PackageResult> get_outdated(ChocolateyConfiguration config)
@@ -1548,6 +1707,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
 
             NuGetVersion version = config.Version != null ? NuGetVersion.Parse(config.Version) : null;
 
+            /*
             //var packageManager = NugetCommon.GetPackageManager(config, _nugetLogger, null, null, true);
 
             var packageManager = NugetCommon.GetPackageManager(config, _nugetLogger,
@@ -1566,7 +1726,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                 {
                     var pkg = e.Package;
 
-                    /*
+
                     // this section fires twice sometimes, like for older packages in a sxs install...
                     var packageResult = packageUninstalls.GetOrAdd(pkg.Id.to_lower() + "." + pkg.Version.to_string(), new PackageResult(pkg, e.InstallPath));
                     packageResult.InstallLocation = e.InstallPath;
@@ -1588,9 +1748,9 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                         this.Log().Warn("Loop detected. Attempting to break out. Check for issues with {0}".format_with(pkg.Id));
                         return;
                     }
-                    */
 
-                    /*
+
+
                     // is this the latest version, have you passed --sxs, or is this a side-by-side install? This is the only way you get through to the continue action.
                     var latestVersion = packageManager.LocalRepository.FindPackage(e.Package.Id);
                     var pkgInfo = _packageInfoService.get_package_information(e.Package);
@@ -1603,11 +1763,11 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                     {
                         //todo: #2578 allow cleaning of pkgstore files
                     }
-                    */
+
                 };
+*/
 
-
-            var allPackages = get_all_installed_packages(config);
+            var allLocalPackages = get_all_installed_packages(config);
             var pathResolver = NugetCommon.GetPathResolver(config, _fileSystem);
 
             // if we are uninstalling a package and not forcing dependencies,
@@ -1616,7 +1776,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
             if (!config.ForceDependencies)
             {
                 // if you find an install of an .install / .portable / .commandline, allow adding it to the list
-                var installedPackages = allPackages.Select(p => p.Name).ToList().@join(ApplicationParameters.PackageNamesSeparator);
+                var installedPackages = allLocalPackages.Select(p => p.Name).ToList().@join(ApplicationParameters.PackageNamesSeparator);
                 foreach (var packageName in config.PackageNames.Split(new[] { ApplicationParameters.PackageNamesSeparator }, StringSplitOptions.RemoveEmptyEntries).or_empty_list_if_null())
                 {
                     var installerExists = installedPackages.contains("{0}.install".format_with(packageName));
@@ -1679,15 +1839,16 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                 // reset config each time through
                 config = originalConfig.deep_copy();
 
+
                 IList<PackageResult> installedPackageVersions = new List<PackageResult>();
                 if (string.IsNullOrWhiteSpace(config.Version))
                 {
-                    installedPackageVersions = allPackages.Where(p => p.Name.Equals(packageName, StringComparison.OrdinalIgnoreCase)).OrderBy((p) => p.Version).ToList();
+                    installedPackageVersions = allLocalPackages.Where(p => p.Name.Equals(packageName, StringComparison.OrdinalIgnoreCase)).OrderBy((p) => p.Version).ToList();
                 }
                 else
                 {
                     var nugetVersion = NuGetVersion.Parse(config.Version);
-                    installedPackageVersions = allPackages.Where(p => p.Name.Equals(packageName, StringComparison.OrdinalIgnoreCase) && p.PackageMetadata.Version.Equals(nugetVersion)).ToList();
+                    installedPackageVersions = allLocalPackages.Where(p => p.Name.Equals(packageName, StringComparison.OrdinalIgnoreCase) && p.PackageMetadata.Version.Equals(nugetVersion)).ToList();
                 }
 
                 if (installedPackageVersions.Count == 0)
@@ -1780,7 +1941,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                             //rename_legacy_package_version(config, packageVersion.PackageMetadata, pkgInfo);
                             //remove_rollback_directory_if_exists(packageName);
                             //backup_existing_version(config, packageVersion.PackageMetadata, pkgInfo);
-                            packageManager.UninstallPackageAsync(nugetProject, packageVersion.Name, uninstallContext, projectContext, CancellationToken.None).GetAwaiter().GetResult();
+                            //packageManager.UninstallPackageAsync(nugetProject, packageVersion.Name, uninstallContext, projectContext, CancellationToken.None).GetAwaiter().GetResult();
                             //ensure_nupkg_is_removed(packageVersion.PackageMetadata, pkgInfo);
                             //remove_installation_files(packageVersion.PackageMetadata, pkgInfo);
                             remove_cache_for_package(config, packageVersion.PackageMetadata);

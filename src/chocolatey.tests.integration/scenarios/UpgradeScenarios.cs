@@ -2425,7 +2425,7 @@ namespace chocolatey.tests.integration.scenarios
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "isdependency", "isdependency.nupkg");
                 using (var packageReader = new PackageArchiveReader(packageFile))
                 {
-                    packageReader.NuspecReader.GetVersion().Version.to_string().ShouldEqual("1.0.0.0");
+                    packageReader.NuspecReader.GetVersion().Version.to_string().ShouldEqual("1.1.0.0");
                 }
             }
 
@@ -3164,7 +3164,7 @@ namespace chocolatey.tests.integration.scenarios
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "upgradepackage", "upgradepackage" +  NuGetConstants.PackageExtension);
                 using (var packageReader = new PackageArchiveReader(packageFile))
                 {
-                    packageReader.NuspecReader.GetVersion().OriginalVersion.to_string().ShouldEqual("1.0.0.0");
+                    packageReader.NuspecReader.GetVersion().OriginalVersion.ShouldEqual("1.1.1-beta2");
                 }
             }
 
