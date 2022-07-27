@@ -2132,7 +2132,7 @@ namespace chocolatey.tests.integration.scenarios
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "isdependency", "isdependency.nupkg");
                 using (var packageReader = new PackageArchiveReader(packageFile))
                 {
-                    packageReader.NuspecReader.GetVersion().Version.to_string().ShouldEqual("2.0.0.0");
+                    packageReader.NuspecReader.GetVersion().Version.to_string().ShouldEqual("2.1.0.0");
                 }
             }
 
@@ -2664,12 +2664,12 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            public void should_upgrade_the_parent_package_to_lowest_version_that_meets_new_dependency_version()
+            public void should_upgrade_the_parent_package_to_highest_version_that_meets_new_dependency_version()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "hasdependency", "hasdependency.nupkg");
                 using (var packageReader = new PackageArchiveReader(packageFile))
                 {
-                    packageReader.NuspecReader.GetVersion().Version.to_string().ShouldEqual("1.0.1.0");
+                    packageReader.NuspecReader.GetVersion().Version.to_string().ShouldEqual("2.1.0.0");
                 }
             }
 
@@ -2679,7 +2679,7 @@ namespace chocolatey.tests.integration.scenarios
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "isexactversiondependency", "isexactversiondependency.nupkg");
                 using (var packageReader = new PackageArchiveReader(packageFile))
                 {
-                    packageReader.NuspecReader.GetVersion().Version.to_string().ShouldEqual("1.0.1.0");
+                    packageReader.NuspecReader.GetVersion().Version.to_string().ShouldEqual("2.0.0.0");
                 }
             }
 
@@ -2774,12 +2774,12 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            public void should_upgrade_the_parent_package_to_lowest_version_that_meets_new_dependency_version()
+            public void should_upgrade_the_parent_package_to_highest_version_that_meets_new_dependency_version()
             {
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "hasdependency", "hasdependency.nupkg");
                 using (var packageReader = new PackageArchiveReader(packageFile))
                 {
-                    packageReader.NuspecReader.GetVersion().Version.to_string().ShouldEqual("2.0.1.0");
+                    packageReader.NuspecReader.GetVersion().Version.to_string().ShouldEqual("2.1.0.0");
                 }
             }
 
@@ -2791,7 +2791,7 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("Legacy packages are left when implicit - GH-117")]
+            //[Pending("Legacy packages are left when implicit - GH-117")]
             public void should_remove_the_legacy_folder_version_of_the_parent_package()
             {
                 var packageDir = Path.Combine(Scenario.get_top_level(), "lib", "hasdependency.1.0.0");
@@ -2804,7 +2804,7 @@ namespace chocolatey.tests.integration.scenarios
                 var packageFile = Path.Combine(Scenario.get_top_level(), "lib", "isexactversiondependency", "isexactversiondependency.nupkg");
                 using (var packageReader = new PackageArchiveReader(packageFile))
                 {
-                    packageReader.NuspecReader.GetVersion().Version.to_string().ShouldEqual("1.0.1.0");
+                    packageReader.NuspecReader.GetVersion().Version.to_string().ShouldEqual("2.0.0.0");
                 }
             }
 
@@ -2816,7 +2816,7 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
-            [Pending("Legacy packages are left when implicit - GH-117")]
+            //[Pending("Legacy packages are left when implicit - GH-117")]
             public void should_remove_the_legacy_folder_version_of_the_exact_version_package()
             {
                 var packageDir = Path.Combine(Scenario.get_top_level(), "lib", "isexactversiondependency.1.0.0");
