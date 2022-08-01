@@ -86,6 +86,16 @@ namespace chocolatey.infrastructure.app.nuget
             }
             return fileNameBase + NuGetConstants.PackageExtension;
         }
+
+        public override string GetManifestFileName(PackageIdentity packageIdentity)
+        {
+            string fileNameBase = packageIdentity.Id;
+            if (UseSideBySidePaths)
+            {
+                fileNameBase += "." + packageIdentity.Version.to_string();
+            }
+            return fileNameBase + NuGetConstants.ManifestExtension;
+        }
     }
 
     // ReSharper restore InconsistentNaming
