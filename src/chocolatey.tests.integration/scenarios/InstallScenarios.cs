@@ -1410,6 +1410,50 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
+            public void should_put_version_in_nupkg_filename()
+            {
+                var packageFile = Path.Combine(
+                    Scenario.get_top_level(), "lib",
+                    (Configuration.PackageNames + ".1.0.0"),
+                    (Configuration.PackageNames + ".1.0.0" + NuGetConstants.PackageExtension));
+
+                File.Exists(packageFile).ShouldBeTrue();
+            }
+
+            [Fact]
+            public void should_put_version_in_nuspec_filename()
+            {
+                var packageFile = Path.Combine(
+                    Scenario.get_top_level(), "lib",
+                    (Configuration.PackageNames + ".1.0.0"),
+                    (Configuration.PackageNames + ".1.0.0" + NuGetConstants.ManifestExtension));
+
+                File.Exists(packageFile).ShouldBeTrue();
+            }
+
+            [Fact]
+            public void should_not_have_nupkg_without_version_in_filename()
+            {
+                var packageFile = Path.Combine(
+                    Scenario.get_top_level(), "lib",
+                    (Configuration.PackageNames + ".1.0.0"),
+                    (Configuration.PackageNames + NuGetConstants.PackageExtension));
+
+                File.Exists(packageFile).ShouldBeFalse();
+            }
+
+            [Fact]
+            public void should_not_have_nuspec_without_version_in_filename()
+            {
+                var packageFile = Path.Combine(
+                    Scenario.get_top_level(), "lib",
+                    (Configuration.PackageNames + ".1.0.0"),
+                    (Configuration.PackageNames + NuGetConstants.ManifestExtension));
+
+                File.Exists(packageFile).ShouldBeFalse();
+            }
+
+            [Fact]
             public void should_contain_a_warning_message_that_it_installed_successfully()
             {
                 bool installedSuccessfully = false;
@@ -1482,6 +1526,50 @@ namespace chocolatey.tests.integration.scenarios
                 var packageDir = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames) + ".1.0.0";
 
                 Directory.Exists(packageDir).ShouldBeTrue();
+            }
+
+            [Fact]
+            public void should_put_version_in_nupkg_filename()
+            {
+                var packageFile = Path.Combine(
+                    Scenario.get_top_level(), "lib",
+                    (Configuration.PackageNames + ".1.0.0"),
+                    (Configuration.PackageNames + ".1.0.0" + NuGetConstants.PackageExtension));
+
+                File.Exists(packageFile).ShouldBeTrue();
+            }
+
+            [Fact]
+            public void should_put_version_in_nuspec_filename()
+            {
+                var packageFile = Path.Combine(
+                    Scenario.get_top_level(), "lib",
+                    (Configuration.PackageNames + ".1.0.0"),
+                    (Configuration.PackageNames + ".1.0.0" + NuGetConstants.ManifestExtension));
+
+                File.Exists(packageFile).ShouldBeTrue();
+            }
+
+            [Fact]
+            public void should_not_have_nupkg_without_version_in_filename()
+            {
+                var packageFile = Path.Combine(
+                    Scenario.get_top_level(), "lib",
+                    (Configuration.PackageNames + ".1.0.0"),
+                    (Configuration.PackageNames + NuGetConstants.PackageExtension));
+
+                File.Exists(packageFile).ShouldBeFalse();
+            }
+
+            [Fact]
+            public void should_not_have_nuspec_without_version_in_filename()
+            {
+                var packageFile = Path.Combine(
+                    Scenario.get_top_level(), "lib",
+                    (Configuration.PackageNames + ".1.0.0"),
+                    (Configuration.PackageNames + NuGetConstants.ManifestExtension));
+
+                File.Exists(packageFile).ShouldBeFalse();
             }
 
             [Fact]
@@ -1558,6 +1646,50 @@ namespace chocolatey.tests.integration.scenarios
                 var packageDir = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames);
 
                 Directory.Exists(packageDir).ShouldBeTrue();
+            }
+
+            [Fact]
+            public void should_not_put_version_in_nupkg_filename()
+            {
+                var packageFile = Path.Combine(
+                    Scenario.get_top_level(), "lib",
+                    (Configuration.PackageNames + ".1.0.0"),
+                    (Configuration.PackageNames + NuGetConstants.PackageExtension));
+
+                File.Exists(packageFile).ShouldBeTrue();
+            }
+
+            [Fact]
+            public void should_not_put_version_in_nuspec_filename()
+            {
+                var packageFile = Path.Combine(
+                    Scenario.get_top_level(), "lib",
+                    (Configuration.PackageNames + ".1.0.0"),
+                    (Configuration.PackageNames + NuGetConstants.ManifestExtension));
+
+                File.Exists(packageFile).ShouldBeTrue();
+            }
+
+            [Fact]
+            public void should_not_have_nupkg_with_version_in_filename()
+            {
+                var packageFile = Path.Combine(
+                    Scenario.get_top_level(), "lib",
+                    (Configuration.PackageNames + ".1.0.0"),
+                    (Configuration.PackageNames + ".1.0.0" + NuGetConstants.PackageExtension));
+
+                File.Exists(packageFile).ShouldBeFalse();
+            }
+
+            [Fact]
+            public void should_not_have_nuspec_with_version_in_filename()
+            {
+                var packageFile = Path.Combine(
+                    Scenario.get_top_level(), "lib",
+                    (Configuration.PackageNames + ".1.0.0"),
+                    (Configuration.PackageNames + ".1.0.0" + NuGetConstants.ManifestExtension));
+
+                File.Exists(packageFile).ShouldBeFalse();
             }
 
             [Fact]
