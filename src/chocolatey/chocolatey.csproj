@@ -178,9 +178,7 @@
     <Compile Include="infrastructure.app\commands\ChocolateyHelpCommand.cs" />
     <Compile Include="infrastructure.app\nuget\ChocolateyNuGetProjectContext.cs" />
     <Compile Include="infrastructure.app\nuget\ChocolateyNuGetSettings.cs" />
-    <Compile Include="infrastructure.app\nuget\ChocolateyPackageSourceProvider.cs" />
     <Compile Include="infrastructure.app\nuget\ChocolateySourceCacheContext.cs" />
-    <Compile Include="infrastructure.app\nuget\ChocolateySourceRepositoryProvider.cs" />
     <Compile Include="infrastructure\cryptography\DefaultEncryptionUtility.cs" />
     <Compile Include="infrastructure\adapters\IEncryptionUtility.cs" />
     <Compile Include="infrastructure.app\validations\GlobalConfigurationValidation.cs" />

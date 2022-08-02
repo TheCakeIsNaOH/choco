@@ -209,6 +209,7 @@ namespace chocolatey.infrastructure.app.nuget
         }
         */
 
+        /*
         // keep this here for the licensed edition for now
         public static NuGetPackageManager GetPackageManager(ChocolateyConfiguration configuration, ILogger nugetLogger, Action<ChocolateyPackageOperationEventArgs> installSuccessAction, Action<ChocolateyPackageOperationEventArgs> uninstallSuccessAction, bool addUninstallHandler)
         //public static NuGetPackageManager GetPackageManager(ChocolateyConfiguration configuration, ILogger nugetLogger, bool addUninstallHandler)
@@ -216,17 +217,17 @@ namespace chocolatey.infrastructure.app.nuget
             //IFileSystem nugetPackagesFileSystem = GetNuGetFileSystem(configuration, nugetLogger);
             //IPackagePathResolver pathResolver = GetPathResolver(configuration, nugetPackagesFileSystem);
 
-            /*
+
             var packageManager = new NuGetPackageManager(GetRemoteRepositories(configuration, nugetLogger, packageDownloader), pathResolver, nugetPackagesFileSystem, GetLocalRepository(pathResolver, nugetPackagesFileSystem, nugetLogger))
                 {
                     DependencyVersion = DependencyVersion.Highest,
                     Logger = nugetLogger,
                 };
-            */
 
-            //TODO - see if wee need to implement ISettings to set something instead of nullsettings
-            //TODO - properly implement everything for ChocolateySourceRepositoryProvider
-            var repositoryProvider = new ChocolateySourceRepositoryProvider(NugetCommon.GetRemoteRepositories(configuration, nugetLogger));
+
+        //TODO - see if wee need to implement ISettings to set something instead of nullsettings
+        //TODO - properly implement everything for ChocolateySourceRepositoryProvider
+        var repositoryProvider = new ChocolateySourceRepositoryProvider(NugetCommon.GetRemoteRepositories(configuration, nugetLogger));
             var packageManager = new NuGetPackageManager(repositoryProvider, new NullSettings(), ApplicationParameters.PackagesLocation);
 
 
@@ -258,7 +259,7 @@ namespace chocolatey.infrastructure.app.nuget
                 packageManager.PackageUninstalled += (s, e) =>
                     {
 
-                        /*
+
                         IPackage pkg = packageManager.LocalRepository.FindPackage(e.Package.Id, e.Package.Version);
                         if (pkg != null)
                         {
@@ -284,7 +285,7 @@ namespace chocolatey.infrastructure.app.nuget
                         else
                         {
                             if (uninstallSuccessAction != null) uninstallSuccessAction.Invoke(e);
-                        } */
+                        }
                         if (uninstallSuccessAction != null) uninstallSuccessAction.Invoke(e);
                     };
             }
@@ -292,6 +293,7 @@ namespace chocolatey.infrastructure.app.nuget
             return packageManager;
 
         }
+        */
 
         public static IEnumerable<T> GetRepositoryResource<T>(IEnumerable<SourceRepository> packageRepositories) where T : class, INuGetResource
         {

@@ -1341,11 +1341,6 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
         {
 
             var remoteRepositories = NugetCommon.GetRemoteRepositories(config, _nugetLogger);
-            var packageManager = NugetCommon.GetPackageManager(
-              config,
-              _nugetLogger,
-              null, null,
-              addUninstallHandler: false);
             var pathResolver = NugetCommon.GetPathResolver(config, _fileSystem);
 
             var outdatedPackages = new ConcurrentDictionary<string, PackageResult>();
