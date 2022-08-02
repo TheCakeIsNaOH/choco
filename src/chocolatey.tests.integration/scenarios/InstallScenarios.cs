@@ -1615,6 +1615,128 @@ namespace chocolatey.tests.integration.scenarios
             }
         }
 
+        public class when_installing_an_older_version_side_by_side_with_a_newer_version : ScenariosBase
+        {
+            private PackageResult packageResult;
+
+            public override void Context()
+            {
+                base.Context();
+                Configuration.PackageNames = Configuration.Input = "isdependency";
+                Scenario.add_packages_to_source_location(Configuration, Configuration.Input + "*" + NuGetConstants.PackageExtension);
+                Scenario.install_package(Configuration, "isdependency", "2.0.0");
+                Configuration.AllowMultipleVersions = true;
+                Configuration.Version = "1.1.0";
+            }
+
+            public override void Because()
+            {
+                Results = Service.install_run(Configuration);
+                packageResult = Results.FirstOrDefault().Value;
+            }
+
+            [Fact]
+            public void should_install_where_install_location_reports()
+            {
+                Directory.Exists(packageResult.InstallLocation).ShouldBeTrue();
+            }
+
+            [Fact]
+            public void should_install_a_package_in_the_lib_directory()
+            {
+                var packageDir = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames) + ".1.1.0";
+
+                Directory.Exists(packageDir).ShouldBeTrue();
+            }
+
+            [Fact]
+            public void should_put_version_in_nupkg_filename()
+            {
+                var packageFile = Path.Combine(
+                    Scenario.get_top_level(), "lib",
+                    (Configuration.PackageNames + ".1.1.0"),
+                    (Configuration.PackageNames + ".1.1.0" + NuGetConstants.PackageExtension));
+
+                File.Exists(packageFile).ShouldBeTrue();
+            }
+
+            [Fact]
+            public void should_put_version_in_nuspec_filename()
+            {
+                var packageFile = Path.Combine(
+                    Scenario.get_top_level(), "lib",
+                    (Configuration.PackageNames + ".1.1.0"),
+                    (Configuration.PackageNames + ".1.1.0" + NuGetConstants.ManifestExtension));
+
+                File.Exists(packageFile).ShouldBeTrue();
+            }
+
+            [Fact]
+            public void should_not_have_nupkg_without_version_in_filename()
+            {
+                var packageFile = Path.Combine(
+                    Scenario.get_top_level(), "lib",
+                    (Configuration.PackageNames + ".1.1.0"),
+                    (Configuration.PackageNames + NuGetConstants.PackageExtension));
+
+                File.Exists(packageFile).ShouldBeFalse();
+            }
+
+            [Fact]
+            public void should_not_have_nuspec_without_version_in_filename()
+            {
+                var packageFile = Path.Combine(
+                    Scenario.get_top_level(), "lib",
+                    (Configuration.PackageNames + ".1.1.0"),
+                    (Configuration.PackageNames + NuGetConstants.ManifestExtension));
+
+                File.Exists(packageFile).ShouldBeFalse();
+            }
+
+            [Fact]
+            public void should_contain_a_warning_message_that_it_installed_successfully()
+            {
+                bool installedSuccessfully = false;
+                foreach (var message in MockLogger.MessagesFor(LogLevel.Warn).or_empty_list_if_null())
+                {
+                    if (message.Contains("1/1")) installedSuccessfully = true;
+                }
+
+                installedSuccessfully.ShouldBeTrue();
+            }
+
+            [Fact]
+            public void should_have_a_successful_package_result()
+            {
+                packageResult.Success.ShouldBeTrue();
+            }
+
+            [Fact]
+            public void should_not_have_inconclusive_package_result()
+            {
+                packageResult.Inconclusive.ShouldBeFalse();
+            }
+
+            [Fact]
+            public void should_not_have_warning_package_result()
+            {
+                packageResult.Warning.ShouldBeFalse();
+            }
+
+            [Fact]
+            public void config_should_match_package_result_name()
+            {
+                packageResult.Name.ShouldEqual(Configuration.PackageNames);
+            }
+
+            [Fact]
+            public void should_have_a_version_of_one_dot_one_dot_zero()
+            {
+                packageResult.Version.ShouldEqual("1.1.0");
+            }
+        }
+
+
         public class when_switching_a_side_by_side_package_to_a_normal_package : ScenariosBase
         {
             private PackageResult packageResult;

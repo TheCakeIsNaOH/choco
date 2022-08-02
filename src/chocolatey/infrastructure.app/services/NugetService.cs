@@ -574,21 +574,23 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                 }
 
                 packagesToInstall.Add(availablePackage);
+                var targetIdsToInstall = packagesToInstall.Select(p => p.Identity.Id);
 
-                var localPackagesDependencyInfos = allLocalPackages.Select(
-                    p => new SourcePackageDependencyInfo(
-                        p.SearchMetadata.Identity,
-                        p.PackageMetadata.DependencyGroups.SelectMany(x => x.Packages).ToList(),
-                        true,
-                        localRepositorySource,
-                        null,
-                        null));
+                var localPackagesDependencyInfos = allLocalPackages
+                    .Where(p => !targetIdsToInstall.Contains(p.Name, StringComparer.OrdinalIgnoreCase))
+                    .Select(
+                        p => new SourcePackageDependencyInfo(
+                            p.SearchMetadata.Identity,
+                            p.PackageMetadata.DependencyGroups.SelectMany(x => x.Packages).ToList(),
+                            true,
+                            localRepositorySource,
+                            null,
+                            null));
                 sourcePackageDependencyInfos.AddRange(localPackagesDependencyInfos);
 
                 var dependencyResolver = new PackageResolver();
 
-                var targetIdsToInstall = packagesToInstall.Select(p => p.Identity.Id);
-                var allPackagesIdentities = allLocalPackages.Select(p => p.SearchMetadata.Identity).ToList();
+                var allPackagesIdentities = allLocalPackages.Select(p => p.SearchMetadata.Identity).Where(p => !targetIdsToInstall.Contains(p.Id, StringComparer.OrdinalIgnoreCase)).ToList();
                 var allPackagesReferences = allPackagesIdentities.Select(p => new PackageReference(p, NuGetFramework.AnyFramework));
 
                 var resolverContext = new PackageResolverContext(
