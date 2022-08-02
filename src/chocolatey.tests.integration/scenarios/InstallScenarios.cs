@@ -1649,11 +1649,19 @@ namespace chocolatey.tests.integration.scenarios
             }
 
             [Fact]
+            public void should_remove_version_directory_in_the_lib_directory()
+            {
+                var packageDir = Path.Combine(Scenario.get_top_level(), "lib", Configuration.PackageNames + ".1.0.0");
+
+                Directory.Exists(packageDir).ShouldBeFalse();
+            }
+
+            [Fact]
             public void should_not_put_version_in_nupkg_filename()
             {
                 var packageFile = Path.Combine(
                     Scenario.get_top_level(), "lib",
-                    (Configuration.PackageNames + ".1.0.0"),
+                    Configuration.PackageNames,
                     (Configuration.PackageNames + NuGetConstants.PackageExtension));
 
                 File.Exists(packageFile).ShouldBeTrue();
@@ -1664,7 +1672,7 @@ namespace chocolatey.tests.integration.scenarios
             {
                 var packageFile = Path.Combine(
                     Scenario.get_top_level(), "lib",
-                    (Configuration.PackageNames + ".1.0.0"),
+                    Configuration.PackageNames,
                     (Configuration.PackageNames + NuGetConstants.ManifestExtension));
 
                 File.Exists(packageFile).ShouldBeTrue();
@@ -1675,7 +1683,7 @@ namespace chocolatey.tests.integration.scenarios
             {
                 var packageFile = Path.Combine(
                     Scenario.get_top_level(), "lib",
-                    (Configuration.PackageNames + ".1.0.0"),
+                    Configuration.PackageNames,
                     (Configuration.PackageNames + ".1.0.0" + NuGetConstants.PackageExtension));
 
                 File.Exists(packageFile).ShouldBeFalse();
@@ -1686,7 +1694,7 @@ namespace chocolatey.tests.integration.scenarios
             {
                 var packageFile = Path.Combine(
                     Scenario.get_top_level(), "lib",
-                    (Configuration.PackageNames + ".1.0.0"),
+                    Configuration.PackageNames,
                     (Configuration.PackageNames + ".1.0.0" + NuGetConstants.ManifestExtension));
 
                 File.Exists(packageFile).ShouldBeFalse();
