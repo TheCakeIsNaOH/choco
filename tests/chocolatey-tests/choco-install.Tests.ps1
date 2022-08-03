@@ -1372,7 +1372,7 @@ Describe "choco install" -Tag Chocolatey, InstallCommand {
 
         It "should identify a circular dependency" {
             $result1.Lines | Should -Contain "Circular dependency detected 'circulardependency1 0.0.1 => circulardependency2 0.0.1 => circulardependency1 0.0.1'."
-            $result2.Lines | Should -Contain "Circular dependency detected 'circulardependency2 0.0.1 => circulardependency1 0.0.1 => circulardependency2 0.0.1'."
+            $result2.Lines | Should -Contain "Circular dependency detected 'circulardependency1 0.0.1 => circulardependency2 0.0.1 => circulardependency1 0.0.1'."
         }
     }
 }
