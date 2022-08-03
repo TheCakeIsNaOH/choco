@@ -352,7 +352,7 @@ Describe "choco install" -Tag Chocolatey, InstallCommand {
         }
 
         # This behaviour was fixed in 0.10.16
-        It "Should not have been able to delete the rollback" -Skip:(-not (Test-ChocolateyVersionEqualOrHigherThan "0.10.16-beta")) {
+        It "Should not have been able to delete the rollback" -Tag NaOHBroken -Skip:(-not (Test-ChocolateyVersionEqualOrHigherThan "0.10.16-beta")) {
             "$env:ChocolateyInstall\lib-bkp\$PackageUnderTest" | Should -Exist
         }
 
@@ -383,7 +383,7 @@ Describe "choco install" -Tag Chocolatey, InstallCommand {
             $LockedFile.Close()
         }
 
-        It "Exits with Success (0)" -Tag FossOnly {
+        It "Exits with Success (0)" -Tag NaOHBroken {
             $Output.ExitCode | Should -Be 0
         }
 
@@ -401,7 +401,7 @@ Describe "choco install" -Tag Chocolatey, InstallCommand {
             $XML.package.metadata.version | Should -Be "1.0.0"
         }
 
-        It "Should not have been able to delete the rollback" -Tag FossOnly {
+        It "Should not have been able to delete the rollback" -Tag NaOHBroken {
             "$env:ChocolateyInstall\lib-bkp\$PackageUnderTest" | Should -Exist
         }
 
@@ -589,7 +589,7 @@ Describe "choco install" -Tag Chocolatey, InstallCommand {
             "$env:ChocolateyInstall\lib\$($PackageUnderTest).1.0.0" | Should -Exist
         }
 
-        It "Removed the previous version of the package from the lib directory" {
+        It "Removed the previous version of the package from the lib directory" -Tag NaOHBroken {
             "$env:ChocolateyInstall\lib\$($PackageUnderTest)" | Should -Not -Exist
         }
 
