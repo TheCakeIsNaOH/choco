@@ -40,9 +40,9 @@ namespace chocolatey.infrastructure.app.commands
         private readonly IChocolateyPackageService _packageService;
 
         public ChocolateyExportCommand(
-            INugetService nugetService, 
-            IFileSystem fileSystem, 
-            IChocolateyPackageInformationService packageInfoService, 
+            INugetService nugetService,
+            IFileSystem fileSystem,
+            IChocolateyPackageInformationService packageInfoService,
             IChocolateyPackageService packageService)
         {
             _nugetService = nugetService;
@@ -155,16 +155,6 @@ If you find other exit codes that we have not yet documented, please
             var settings = new XmlWriterSettings { Indent = true, Encoding = new UTF8Encoding(false) };
             var originalConfiguration = configuration.deep_copy();
 
-            if (configuration.ExportCommand.IncludeRememberedPackageArguments)
-            {
-                // The -o argument from the export command options set interferes with the -o argument from the install command options set.
-                ConfigurationOptions.OptionSet.Remove("o");
-
-                // Add the options set from the install command.
-                var installCommand = new ChocolateyInstallCommand(_packageService);
-                installCommand.configure_argument_parser(ConfigurationOptions.OptionSet, configuration);
-            }
-
             FaultTolerance.try_catch_with_logging_exception(
                 () =>
                 {
@@ -187,6 +177,11 @@ If you find other exit codes that we have not yet documented, please
 
                                 if (configuration.ExportCommand.IncludeRememberedPackageArguments)
                                 {
+                                    // Add the options set from the install command.
+                                    ConfigurationOptions.OptionSet.Clear();
+                                    var installCommand = new ChocolateyInstallCommand(_packageService);
+                                    installCommand.configure_argument_parser(ConfigurationOptions.OptionSet, configuration);
+
                                     var pkgInfo = _packageInfoService.get_package_information(packageResult.Package);
                                     configuration.Features.UseRememberedArgumentsForUpgrades = true;
                                     _nugetService.set_package_config_for_upgrade(configuration, pkgInfo);
