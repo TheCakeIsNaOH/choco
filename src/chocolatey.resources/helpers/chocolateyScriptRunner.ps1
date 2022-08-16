@@ -1,16 +1,20 @@
 ﻿param(
-  [alias("ia","installArgs")][string] $installArguments = '',
-  [alias("o","override","overrideArguments","notSilent")]
-  [switch] $overrideArgs = $false,
-  [alias("x86")][switch] $forceX86 = $false,
-  [alias("params","parameters","pkgParams")][string]$packageParameters = '',
-  [string]$packageScript
+    [alias("ia", "installArgs")][string] $installArguments = '',
+    [alias("o", "override", "overrideArguments", "notSilent")]
+    [switch] $overrideArgs = $false,
+    [alias("x86")][switch] $forceX86 = $false,
+    [alias("params", "parameters", "pkgParams")][string]$packageParameters = '',
+    [string]$packageScript
 )
 
 $global:DebugPreference = "SilentlyContinue"
-if ($env:ChocolateyEnvironmentDebug -eq 'true') { $global:DebugPreference = "Continue"; }
+if ($env:ChocolateyEnvironmentDebug -eq 'true') {
+    $global:DebugPreference = "Continue";
+}
 $global:VerbosePreference = "SilentlyContinue"
-if ($env:ChocolateyEnvironmentVerbose -eq 'true') { $global:VerbosePreference = "Continue"; $verbosity = $true }
+if ($env:ChocolateyEnvironmentVerbose -eq 'true') {
+    $global:VerbosePreference = "Continue"; $verbosity = $true
+}
 
 Write-Debug '---------------------------Script Execution---------------------------'
 Write-Debug "Running 'ChocolateyScriptRunner' for $($env:packageName) v$($env:packageVersion) with packageScript `'$packageScript`', packageFolder:`'$($env:packageFolder)`', installArguments: `'$installArguments`', packageParameters: `'$packageParameters`',"
@@ -31,8 +35,8 @@ $packageName = $env:packageName
 $packageVersion = $env:packageVersion
 $packageFolder = $env:packageFolder
 
-$helpersPath = (Split-Path -parent $MyInvocation.MyCommand.Definition);
-$nugetChocolateyPath = (Split-Path -parent $helpersPath)
+$helpersPath = (Split-Path -Parent $MyInvocation.MyCommand.Definition);
+$nugetChocolateyPath = (Split-Path -Parent $helpersPath)
 $nugetPath = $nugetChocolateyPath
 $nugetExePath = Join-Path $nuGetPath 'bin'
 $nugetLibPath = Join-Path $nuGetPath 'lib'
@@ -51,24 +55,24 @@ $scriptSuccess = $?
 $lastExecutableExitCode = $LASTEXITCODE
 
 if ($lastExecutableExitCode -ne $null -and $lastExecutableExitCode -ne '') {
-  Write-Debug "The last executable that ran had an exit code of '$lastExecutableExitCode'."
+    Write-Debug "The last executable that ran had an exit code of '$lastExecutableExitCode'."
 }
 
 if (-not $scriptSuccess) {
- Write-Debug "The script exited with a failure."
+    Write-Debug "The script exited with a failure."
 }
 
 $exitCode = 0
 if ($exitCode -eq 0 -and -not $scriptSuccess) {
-  $exitCode = 1
+    $exitCode = 1
 }
 
 if ($env:ChocolateyExitCode -ne $null -and $env:ChocolateyExitCode -ne '') {
- $exitCode = $env:ChocolateyExitCode
+    $exitCode = $env:ChocolateyExitCode
 }
 
 if ($exitCode -ne $null -and $exitCode -ne '' -and $exitCode -ne 0) {
-  Set-PowerShellExitCode $exitCode
+    Set-PowerShellExitCode $exitCode
 }
 
 Write-Debug '----------------------------------------------------------------------'

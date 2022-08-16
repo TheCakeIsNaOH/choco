@@ -5,7 +5,6 @@ Describe "choco <_>" -ForEach @(
     "templates"
 ) -Tag Chocolatey, TemplateCommand {
     BeforeDiscovery {
-
     }
 
     BeforeAll {

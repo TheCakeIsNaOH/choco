@@ -1,4 +1,4 @@
-#Requires -Module @{ ModuleName = 'pester'; ModuleVersion = '5.3.1' }
+﻿#Requires -Module @{ ModuleName = 'pester'; ModuleVersion = '5.3.1' }
 #Requires -RunAsAdministrator
 <#
     .SYNOPSIS
@@ -98,7 +98,6 @@ try {
     }
 
     Invoke-Pester -Configuration $PesterConfiguration
-
 }
 finally {
     # For some reason we need to import this again... I'm not 100% sure on why...

@@ -1,4 +1,5 @@
-﻿Import-Module helpers/common-helpers
+﻿#[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseCorrectCasing", "")]
+Import-Module helpers/common-helpers
 
 Describe "choco deprecated shims" -Skip:(-not (Test-ChocolateyVersionEqualOrHigherThan "1.0.0")) -Tag Chocolatey, DeprecatedShims {
     BeforeAll {
@@ -22,7 +23,7 @@ Describe "choco deprecated shims" -Skip:(-not (Test-ChocolateyVersionEqualOrHigh
         )
     }
 
-    Context 'help for command <Command> mentions that <Deprecation> is deprecated' -Foreach $DeprecatedShims {
+    Context 'help for command <Command> mentions that <Deprecation> is deprecated' -ForEach $DeprecatedShims {
         BeforeAll {
             # -? needs to be wrapped in quotes or PowerShell consumes it on us.
             $Output = Invoke-Choco $Command "-?"
