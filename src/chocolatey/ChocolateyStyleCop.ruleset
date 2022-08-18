@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="Chocolatey Common StyleCop Ruleset" Description="Shared rules for stylecop across projects" ToolsVersion="10.0">
+  <IncludeAll Action="Warning" />
+  <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
+    <Rule Id="SX1101" Action="Warning" /> <!-- Warn on usage of this. for local calls -->
+    <Rule Id="SA1101" Action="None" /> <!-- Don't require this. for local calls -->
+    <Rule Id="SA1633" Action="None" /> <!-- Disable check of file license header, as not all projects are using XML based headers -->
+  </Rules>
+</RuleSet>

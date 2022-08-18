@@ -6,6 +6,14 @@ root = true
 [*]
 end_of_line = CRLF
 
+[*.cs]
+indent_style = space
+indent_size = 4
+
+# CS1591: Missing XML comment for publicly visible type or member
+# This is taken care of via SA1600 instead of via the built in rule.
+dotnet_diagnostic.CS1591.severity = none
+
 [*.ps1]
 indent_style = space
 indent_size = 4

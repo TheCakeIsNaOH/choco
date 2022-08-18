@@ -359,9 +359,11 @@
     <EmbeddedResource Include="infrastructure.app\configuration\chocolatey.config">
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <None Include="ChocolateyStyleCop.ruleset" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <AdditionalFiles Include="stylecop.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\docs\logo\chocolatey.ico">
@@ -386,6 +388,10 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="infrastructure\logging\log4net.mono.nocolor.config.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
