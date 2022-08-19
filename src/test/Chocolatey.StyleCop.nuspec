@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>Chocolatey.StyleCop</id>
+    <version>0.0.1</version>
+    <authors>Chocolatey, TheCakeIsNaOH</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">Apache-2.0</license>
+    <!-- <icon>icon.png</icon> -->
+    <!-- <projectUrl>http://project_url_here_or_delete_this_line/</projectUrl>-->
+    <description>Chocolatey Common StyleCop rules</description>
+    <releaseNotes>TODO</releaseNotes>
+    <copyright>2022</copyright>
+    <tags>TODO</tags>
+    <dependencies>
+        <dependency id="StyleCop.Analyzers" version="1.1.118" />
+    </dependencies>
+  </metadata>
+  <files>
+        <file src="stylecop.json" />
+        <file src="ChocolateyStyleCop.ruleset" />
+        <file src="ChocolateyStyleCop.props" target="build" />
+    </files>
+</package>
