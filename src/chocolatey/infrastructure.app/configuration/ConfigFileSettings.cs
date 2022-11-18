@@ -67,13 +67,7 @@ namespace chocolatey.infrastructure.app.configuration
 
         public override int GetHashCode()
         {
-            return HashCode
-                .Of(CacheLocation)
-                .And(CommandExecutionTimeoutSeconds)
-                .AndEach(ConfigSettings)
-                .AndEach(Sources)
-                .AndEach(Features)
-                .AndEach(ApiKeys);
+            return HashCode.Combine(CacheLocation, CommandExecutionTimeoutSeconds, ConfigSettings, Sources, Features, ApiKeys);
         }
     }
 }
