@@ -72,7 +72,7 @@ namespace chocolatey.infrastructure.commandline
             if (_isDisposing) return;
 
             _isDisposing = true;
-            _responseThread.Abort();
+            //_responseThread.Abort();
             _backgroundResponseReset.Close();
             _backgroundResponseReset.Dispose();
             _foregroundResponseReset.Close();
