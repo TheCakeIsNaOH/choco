@@ -1,4 +1,5 @@
 #load nuget:?package=Chocolatey.Cake.Recipe&version=0.24.0
+#tool nuget:?package=WiX&version=3.11.2
 
 ///////////////////////////////////////////////////////////////////////////////
 // TOOLS
@@ -8,80 +9,6 @@
 // SCRIPT
 ///////////////////////////////////////////////////////////////////////////////
 
-Func<List<ILMergeConfig>> getILMergeConfigs = () =>
-{
-    var mergeConfigs = new List<ILMergeConfig>();
-
-    var targetPlatform = "v4,C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8";
-    var assembliesToILMerge = GetFiles(BuildParameters.Paths.Directories.PublishedApplications + "/choco/*.{exe|dll}")
-                            - GetFiles(BuildParameters.Paths.Directories.PublishedApplications + "/choco/choco.exe")
-                            - GetFiles(BuildParameters.Paths.Directories.PublishedApplications + "/choco/System.Management.Automation.dll");
-
-    Information("The following assemblies have been selected to be ILMerged for choco.exe...");
-    foreach (var assemblyToILMerge in assembliesToILMerge)
-    {
-        Information(assemblyToILMerge.FullPath);
-    }
-
-    mergeConfigs.Add(new ILMergeConfig() {
-        KeyFile = BuildParameters.StrongNameKeyPath,
-        LogFile = BuildParameters.Paths.Directories.Build + "/ilmerge-chocoexe.log",
-        TargetPlatform = targetPlatform,
-        Target = "exe",
-        Internalize = BuildParameters.RootDirectoryPath + "/src/chocolatey.console/ilmerge.internalize.ignore.txt",
-        Output = BuildParameters.Paths.Directories.PublishedApplications + "/choco_merged/choco.exe",
-        PrimaryAssemblyName = BuildParameters.Paths.Directories.PublishedApplications + "/choco/choco.exe",
-        AssemblyPaths = assembliesToILMerge });
-
-    assembliesToILMerge = GetFiles(BuildParameters.Paths.Directories.PublishedLibraries + "/chocolatey/*.{exe|dll}")
-                            - GetFiles(BuildParameters.Paths.Directories.PublishedLibraries + "/chocolatey/choco.exe")
-                            - GetFiles(BuildParameters.Paths.Directories.PublishedLibraries + "/chocolatey/chocolatey.dll")
-                            - GetFiles(BuildParameters.Paths.Directories.PublishedLibraries + "/chocolatey/log4net.dll")
-                            - GetFiles(BuildParameters.Paths.Directories.PublishedLibraries + "/chocolatey/System.Management.Automation.dll");
-
-    Information("The following assemblies have been selected to be ILMerged for chocolatey.dll...");
-    foreach (var assemblyToILMerge in assembliesToILMerge)
-    {
-        Information(assemblyToILMerge.FullPath);
-    }
-
-    mergeConfigs.Add(new ILMergeConfig() {
-        KeyFile = BuildParameters.StrongNameKeyPath,
-        LogFile = BuildParameters.Paths.Directories.Build + "/ilmerge-chocolateydll.log",
-        TargetPlatform = targetPlatform,
-        Target = "dll",
-        Internalize = BuildParameters.RootDirectoryPath + "/src/chocolatey/ilmerge.internalize.ignore.dll.txt",
-        Output = BuildParameters.Paths.Directories.PublishedLibraries + "/chocolatey_merged/chocolatey.dll",
-        PrimaryAssemblyName = BuildParameters.Paths.Directories.PublishedLibraries + "/chocolatey/chocolatey.dll",
-        AssemblyPaths = assembliesToILMerge });
-
-    if (DirectoryExists(BuildParameters.Paths.Directories.PublishedApplications + "/choco-no7zip/"))
-    {
-        var no7zAssembliesToILMerge = GetFiles(BuildParameters.Paths.Directories.PublishedApplications + "/choco-no7zip/*.{exe|dll}")
-                                - GetFiles(BuildParameters.Paths.Directories.PublishedApplications + "/choco-no7zip/choco.exe")
-                                - GetFiles(BuildParameters.Paths.Directories.PublishedApplications + "/choco-no7zip/System.Management.Automation.dll")
-                                - GetFiles(BuildParameters.Paths.Directories.PublishedApplications + "/choco-no7zip/chocolatey.tests*.dll")
-                                - GetFiles(BuildParameters.Paths.Directories.PublishedApplications + "/choco-no7zip/{Moq|nunit|Should|testcentric}*.dll");
-
-        Information("The following assemblies have been selected to be ILMerged for choco.exe No7zip Version...");
-        foreach (var assemblyToILMerge in no7zAssembliesToILMerge)
-        {
-            Information(assemblyToILMerge.FullPath);
-        }
-
-        mergeConfigs.Add(new ILMergeConfig() {
-            KeyFile = BuildParameters.StrongNameKeyPath,
-            LogFile = BuildParameters.Paths.Directories.Build + "/ilmerge-chocono7zipexe.log",
-            TargetPlatform = targetPlatform,
-            Target = "exe",
-            Internalize = BuildParameters.RootDirectoryPath + "/src/chocolatey.console/ilmerge.internalize.ignore.txt",
-            Output = BuildParameters.Paths.Directories.PublishedApplications + "/choco-no7zip_merged/choco.exe",
-            PrimaryAssemblyName = BuildParameters.Paths.Directories.PublishedApplications + "/choco-no7zip/choco.exe",
-            AssemblyPaths = no7zAssembliesToILMerge });
-    }
-
-    return mergeConfigs;
-};
 
 Func<FilePathCollection> getScriptsToSign = () =>
 {
@@ -154,7 +81,7 @@ Task("Prepare-Chocolatey-Packages")
     CopyFile(BuildParameters.RootDirectoryPath + "/docs/legal/CREDITS.md", BuildParameters.Paths.Directories.ChocolateyNuspecDirectory + "/tools/chocolateyInstall/CREDITS.txt");
 
     // Run Chocolatey Unpackself
-    CopyFile(BuildParameters.Paths.Directories.PublishedApplications + "/choco_merged/choco.exe", BuildParameters.Paths.Directories.ChocolateyNuspecDirectory + "/tools/chocolateyInstall/choco.exe");
+    CopyFile(BuildParameters.Paths.Directories.PublishedApplications + "/choco/net7.0/choco.exe", BuildParameters.Paths.Directories.ChocolateyNuspecDirectory + "/tools/chocolateyInstall/choco.exe");
 
     StartProcess(BuildParameters.Paths.Directories.ChocolateyNuspecDirectory + "/tools/chocolateyInstall/choco.exe", new ProcessSettings{ Arguments = "unpackself -f -y --allow-unofficial-build" });
 
@@ -181,9 +108,8 @@ Task("Prepare-Chocolatey-Packages")
 
 Task("Build-ChocolateyNo7zip")
     .WithCriteria(() => BuildParameters.Configuration == "ReleaseOfficial", "Skipping No7zip because this isn't an official release")
-    .IsDependentOn("Build")
-    .IsDependentOn("Test")
-    .IsDependeeOf("Run-ILMerge")
+    .IsDependentOn("DotNetBuild")
+    .IsDependentOn("DotNetTest")
     .Does<BuildData>(data => RequireTool(ToolSettings.MSBuildExtensionPackTool, () =>
 {
     Information("Building {0} with No7zip", BuildParameters.SolutionFilePath);
@@ -202,7 +128,7 @@ Task("Build-ChocolateyNo7zip")
             .UseToolVersion(ToolSettings.BuildMSBuildToolVersion)
             .WithProperty("OutputPath", MakeAbsolute(new DirectoryPath(BuildParameters.Paths.Directories.PublishedApplications + "/choco-no7zip/")).FullPath)
             .WithProperty("TreatWarningsAsErrors", BuildParameters.TreatWarningsAsErrors.ToString())
-            .WithTarget("Build")
+            .WithTarget("DotNetBuild")
             .SetMaxCpuCount(ToolSettings.MaxCpuCount)
             .SetConfiguration("ReleaseOfficialNo7zip")
             .WithLogger(
@@ -242,7 +168,7 @@ Task("Prepare-ChocolateyNo7zip-Package")
     CopyFile(BuildParameters.RootDirectoryPath + "/docs/legal/CREDITS.md", nuspecDirectory + "/tools/chocolateyInstall/CREDITS.txt");
 
     // Run Chocolatey Unpackself
-    CopyFile(BuildParameters.Paths.Directories.PublishedApplications + "/choco-no7zip_merged/choco.exe", nuspecDirectory + "/tools/chocolateyInstall/choco.exe");
+    CopyFile(BuildParameters.Paths.Directories.PublishedApplications + "/choco-no7zip/choco.exe", nuspecDirectory + "/tools/chocolateyInstall/choco.exe");
 
     StartProcess(nuspecDirectory + "/tools/chocolateyInstall/choco.exe", new ProcessSettings{ Arguments = "unpackself -f -y --allow-unofficial-build" });
 
@@ -302,14 +228,14 @@ Task("Prepare-NuGet-Packages")
     .IsDependeeOf("Sign-Assemblies")
     .Does(() =>
 {
-    CleanDirectory(BuildParameters.Paths.Directories.NuGetNuspecDirectory + "/lib");
-    EnsureDirectoryExists(BuildParameters.Paths.Directories.NuGetNuspecDirectory + "/lib/net48");
+    CleanDirectory(BuildParameters.Paths.Directories.NuGetNuspecDirectory + "/lib/net7.0");
+    EnsureDirectoryExists(BuildParameters.Paths.Directories.NuGetNuspecDirectory + "/lib/net70");
 
     // Copy legal documents
     CopyFile(BuildParameters.RootDirectoryPath + "/docs/legal/CREDITS.md", BuildParameters.Paths.Directories.NuGetNuspecDirectory + "/lib/CREDITS.txt");
 
-    CopyFiles(BuildParameters.Paths.Directories.PublishedLibraries + "/chocolatey_merged/*", BuildParameters.Paths.Directories.NuGetNuspecDirectory + "/lib/net48");
-    CopyFile(BuildParameters.Paths.Directories.PublishedLibraries + "/chocolatey/chocolatey.xml", BuildParameters.Paths.Directories.NuGetNuspecDirectory + "/lib/net48/chocolatey.xml");
+    CopyFiles(BuildParameters.Paths.Directories.PublishedLibraries + "/chocolatey/net7.0/*", BuildParameters.Paths.Directories.NuGetNuspecDirectory + "/lib/net70");
+    CopyFile(BuildParameters.Paths.Directories.PublishedLibraries + "/chocolatey/net7.0/chocolatey.xml", BuildParameters.Paths.Directories.NuGetNuspecDirectory + "/lib/net70/chocolatey.xml");
 });
 
 Task("Prepare-MSI")
@@ -333,7 +259,7 @@ BuildParameters.Tasks.BuildMsiTask
     .WithCriteria(() => BuildParameters.IsTagged, "Skipping because build is not tagged");
 
 Task("Create-TarGz-Packages")
-    .IsDependentOn("Build")
+    .IsDependentOn("DotNetBuild")
     .IsDependeeOf("Package")
     .WithCriteria(!IsRunningOnWindows(), "Skipping because this is a Windows build")
     .Does(() =>
@@ -386,7 +312,6 @@ BuildParameters.SetParameters(context: Context,
                             getScriptsToSign: getScriptsToSign,
                             getFilesToSign: getFilesToSign,
                             getMsisToSign: getMsisToSign,
-                            getILMergeConfigs: getILMergeConfigs,
                             preferDotNetGlobalToolUsage: !IsRunningOnWindows(),
                             shouldBuildMsi: true,
                             msiUsedWithinNupkg: false,
@@ -400,4 +325,4 @@ ToolSettings.SetToolSettings(context: Context);
 
 BuildParameters.PrintParameters(Context);
 
-Build.Run();
+Build.RunDotNet();
