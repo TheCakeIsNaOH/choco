@@ -363,16 +363,6 @@ namespace chocolatey.tests.infrastructure.app.commands
             {
                 packageService.Verify(c => c.list_noop(configuration), Times.Once);
             }
-
-            [Fact]
-            public void should_report_deprecation_of_remote_sources()
-            {
-                MockLogger.Messages.Keys.ShouldContain("Warn");
-                MockLogger.Messages["Warn"].ShouldContain(@"Using the list command with remote sources is deprecated and will be made
-to only list locally installed packages in v2.0.0. Use the search, or find,
-command to find packages on remote sources (such as the Chocolatey Community
-Repository).");
-            }
         }
 
         public class when_noop_is_called_with_list_command_and_local_only : ChocolateyListCommandSpecsBase
@@ -439,16 +429,6 @@ Repository).");
             public void should_call_service_list_run()
             {
                 packageService.Verify(c => c.list_run(configuration), Times.Once);
-            }
-
-            [Fact]
-            public void should_report_deprecation_of_remote_sources()
-            {
-                MockLogger.Messages.Keys.ShouldContain("Warn");
-                MockLogger.Messages["Warn"].ShouldContain(@"Using the list command with remote sources is deprecated and will be made
-to only list locally installed packages in v2.0.0. Use the search, or find,
-command to find packages on remote sources (such as the Chocolatey Community
-Repository).");
             }
         }
 

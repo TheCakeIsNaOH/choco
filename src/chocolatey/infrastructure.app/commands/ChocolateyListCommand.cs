@@ -267,14 +267,12 @@ This specifies that the source is a Windows Feature and we should
 
         public virtual void noop(ChocolateyConfiguration configuration)
         {
-            log_deprecation_warning(configuration);
 
             _packageService.list_noop(configuration);
         }
 
         public virtual void run(ChocolateyConfiguration configuration)
         {
-            log_deprecation_warning(configuration);
 
             _packageService.ensure_source_app_installed(configuration);
             // note: you must leave the .ToList() here or else the method won't be evaluated!
@@ -303,28 +301,6 @@ This specifies that the source is a Windows Feature and we should
         public virtual bool may_require_admin_access()
         {
             return false;
-        }
-
-        // Marked as obsolete on purpose so we remember to remove
-        // this method when we make list local only, currently this
-        // is planned for v2.0.0, with #158.
-        [Obsolete("Remove once list is made local only!")]
-        private void log_deprecation_warning(ChocolateyConfiguration configuration)
-        {
-            if (configuration.CommandName.is_equal_to("list") && !configuration.ListCommand.LocalOnly)
-            {
-                var logger = ChocolateyLoggers.LogFileOnly;
-
-                if (configuration.RegularOutput)
-                {
-                    logger = ChocolateyLoggers.Normal;
-                }
-
-                this.Log().Warn(logger, @"Using the list command with remote sources is deprecated and will be made
-to only list locally installed packages in v2.0.0. Use the search, or find,
-command to find packages on remote sources (such as the Chocolatey Community
-Repository).");
-            }
         }
     }
 }
