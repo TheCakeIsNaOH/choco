@@ -27,14 +27,6 @@ namespace chocolatey.infrastructure.app.configuration
     [XmlRoot("chocolatey")]
     public class ConfigFileSettings
     {
-        [Obsolete("This will be removed once CCM v0.7.0 is no longer supported. Possibly in Chocolatey CLI v2.0.0.")]
-        [XmlElement(ElementName = "cacheLocation")]
-        public string CacheLocation { get; set; }
-
-        [Obsolete("This will be removed once CCM v0.7.0 is no longer supported. Possibly in Chocolatey CLI v2.0.0.")]
-        [XmlElement(ElementName = "commandExecutionTimeoutSeconds")]
-        public int CommandExecutionTimeoutSeconds { get; set; }
-
         [XmlArray("config")]
         public HashSet<ConfigFileConfigSetting> ConfigSettings { get; set; }
 
@@ -57,9 +49,7 @@ namespace chocolatey.infrastructure.app.configuration
 
             var item = (ConfigFileSettings) obj;
 
-            return (CacheLocation == item.CacheLocation)
-                && (CommandExecutionTimeoutSeconds == item.CommandExecutionTimeoutSeconds)
-                && (ConfigSettings == item.ConfigSettings)
+            return (ConfigSettings == item.ConfigSettings)
                 && (Sources == item.Sources)
                 && (Features == item.Features)
                 && (ApiKeys == item.ApiKeys);
@@ -68,9 +58,7 @@ namespace chocolatey.infrastructure.app.configuration
         public override int GetHashCode()
         {
             return HashCode
-                .Of(CacheLocation)
-                .And(CommandExecutionTimeoutSeconds)
-                .AndEach(ConfigSettings)
+                .Of(ConfigSettings)
                 .AndEach(Sources)
                 .AndEach(Features)
                 .AndEach(ApiKeys);
