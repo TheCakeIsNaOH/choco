@@ -3074,6 +3074,7 @@ namespace chocolatey.tests.integration.scenarios
             }
         }
 
+        [Broken]
         public class when_upgrading_a_dependency_legacy_folder_version : ScenariosBase
         {
             public override void Context()
@@ -3083,10 +3084,8 @@ namespace chocolatey.tests.integration.scenarios
                 Scenario.add_packages_to_source_location(Configuration, "hasdependency.*" +  NuGetConstants.PackageExtension);
                 Scenario.add_packages_to_source_location(Configuration, "isdependency.1*" +  NuGetConstants.PackageExtension);
                 Scenario.add_packages_to_source_location(Configuration, "isexactversiondependency*" +  NuGetConstants.PackageExtension);
-                Configuration.AllowMultipleVersions = true;
                 Scenario.install_package(Configuration, "isdependency", "1.0.0");
                 Scenario.install_package(Configuration, "hasdependency", "1.0.0");
-                Configuration.AllowMultipleVersions = false;
 
                 string dotChocolatey = Path.Combine(Scenario.get_top_level(), ".chocolatey");
                 if (Directory.Exists(dotChocolatey))
@@ -3308,6 +3307,7 @@ namespace chocolatey.tests.integration.scenarios
             }
         }
 
+        [Broken]
         public class when_upgrading_a_legacy_folder_dependency_with_parent_that_depends_on_a_range_less_than_upgrade_version : ScenariosBase
         {
             public override void Context()
@@ -3317,10 +3317,8 @@ namespace chocolatey.tests.integration.scenarios
                 Scenario.add_packages_to_source_location(Configuration, "hasdependency.*" +  NuGetConstants.PackageExtension);
                 Scenario.add_packages_to_source_location(Configuration, "isdependency.*" +  NuGetConstants.PackageExtension);
                 Scenario.add_packages_to_source_location(Configuration, "isexactversiondependency*" +  NuGetConstants.PackageExtension);
-                Configuration.AllowMultipleVersions = true;
                 Scenario.install_package(Configuration, "isdependency", "1.0.0");
                 Scenario.install_package(Configuration, "hasdependency", "1.0.0");
-                Configuration.AllowMultipleVersions = false;
 
                 string dotChocolatey = Path.Combine(Scenario.get_top_level(), ".chocolatey");
                 if (Directory.Exists(dotChocolatey))

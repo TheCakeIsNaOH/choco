@@ -534,9 +534,9 @@ folder.");
                     latestPackageVersion = installedPackage.PackageMetadata.Version;
                 }
 
-                if (installedPackage != null && version != null && version < installedPackage.PackageMetadata.Version && !config.AllowMultipleVersions && !config.AllowDowngrade)
+                if (installedPackage != null && version != null && version < installedPackage.PackageMetadata.Version && !config.AllowDowngrade)
                 {
-                    string logMessage = "A newer version of {0} (v{1}) is already installed.{2} Use --allow-downgrade or --force to attempt to install older versions, or use --side-by-side to allow multiple versions.".format_with(installedPackage.Name, installedPackage.Version, Environment.NewLine);
+                    string logMessage = "A newer version of {0} (v{1}) is already installed.{2} Use --allow-downgrade or --force to attempt to install older versions.".format_with(installedPackage.Name, installedPackage.Version, Environment.NewLine);
                     var nullResult = packageResultsToReturn.GetOrAdd(packageName, installedPackage);
                     nullResult.Messages.Add(new ResultMessage(ResultType.Error, logMessage));
                     this.Log().Error(ChocolateyLoggers.Important, logMessage);
@@ -657,15 +657,6 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                         {
                             var identitiesToUninstall = packagesToUninstall.Select(x => x.Identity);
                             resolvedPackages = resolvedPackages.Where(p => !(localPackagesDependencyInfos.Contains(p) && !identitiesToUninstall.Contains(p)));
-
-                            if (!config.AllowMultipleVersions)
-                            {
-                                // If forcing dependencies, then dependencies already added to packages to remove
-                                // If allow multiple is added, then new version of dependency will be added side by side
-                                // If neither, then package needs to be removed so it can be upgraded to the new version required by the parent
-
-                                packagesToUninstall.AddRange(allLocalPackages.Where(p => resolvedPackages.Select(x => x.Id).Contains(p.Name, StringComparer.OrdinalIgnoreCase)));
-                            }
                         }
                     }
                     catch (NuGetResolverConstraintException ex)
@@ -971,9 +962,9 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                 var pathResolver = NugetCommon.GetPathResolver(config, _fileSystem);
                 var nugetProject = new FolderNuGetProject(ApplicationParameters.PackagesLocation, pathResolver, NuGetFramework.AnyFramework);
 
-                if (version != null && version < installedPackage.PackageMetadata.Version && !config.AllowMultipleVersions && !config.AllowDowngrade)
+                if (version != null && version < installedPackage.PackageMetadata.Version && !config.AllowDowngrade)
                 {
-                    string logMessage = "A newer version of {0} (v{1}) is already installed.{2} Use --allow-downgrade or --force to attempt to upgrade to older versions, or use side by side to allow multiple versions.".format_with(installedPackage.PackageMetadata.Id, installedPackage.Version, Environment.NewLine);
+                    string logMessage = "A newer version of {0} (v{1}) is already installed.{2} Use --allow-downgrade or --force to attempt to upgrade to older versions".format_with(installedPackage.PackageMetadata.Id, installedPackage.Version, Environment.NewLine);
                     var nullResult = packageResultsToReturn.GetOrAdd(packageName, new PackageResult(installedPackage.PackageMetadata, pathResolver.GetInstallPath(installedPackage.PackageMetadata.Id, installedPackage.PackageMetadata.Version)));
                     nullResult.Messages.Add(new ResultMessage(ResultType.Error, logMessage));
                     this.Log().Error(ChocolateyLoggers.Important, logMessage);
@@ -1020,11 +1011,6 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                     }
 
                     continue;
-                }
-
-                if (pkgInfo != null && pkgInfo.IsSideBySide)
-                {
-                    //todo: #103 get smarter about realizing multiple versions have been installed before and allowing that
                 }
 
                 var packageResult = packageResultsToReturn.GetOrAdd(packageName, new PackageResult(availablePackage, pathResolver.GetInstallPath(availablePackage.Identity)));
@@ -1208,15 +1194,6 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                                 {
                                     var identitiesToUninstall = packagesToUninstall.Select(x => x.Identity);
                                     resolvedPackages = resolvedPackages.Where(p => !(localPackagesDependencyInfos.Contains(p) && !identitiesToUninstall.Contains(p)));
-
-                                    if (!config.AllowMultipleVersions)
-                                    {
-                                        // If forcing dependencies, then dependencies already added to packages to remove
-                                        // If allow multiple is added, then new version of dependency will be added side by side
-                                        // If neither, then package needs to be removed so it can be upgraded to the new version required by the parent
-
-                                        packagesToUninstall.AddRange(allLocalPackages.Where(p => resolvedPackages.Select(x => x.Id).Contains(p.Name, StringComparer.OrdinalIgnoreCase)));
-                                    }
                                 }
                             }
                             catch (NuGetResolverConstraintException ex)
@@ -1461,15 +1438,6 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                 packageResult.Messages.Add(new ResultMessage(ResultType.Note, logMessage));
 
                 this.Log().Info("{0}|{1}|{2}|{3}".format_with(installedPackage.Name, installedPackage.Version, latestPackage.Identity.Version, isPinned.to_string().to_lower()));
-
-                if (pkgInfo.IsSideBySide)
-                {
-                    var deprecationMessage = @"
-{0} v{1} has been installed as a side by side installation.
-Side by side installations are deprecated and is pending removal in v2.0.0".format_with(installedPackage.Name, installedPackage.Version);
-
-                    packageResult.Messages.Add(new ResultMessage(ResultType.Warn, deprecationMessage));
-                }
             }
 
             // Reset the configuration again once we are completely done with the processing of
@@ -1599,8 +1567,6 @@ Side by side installations are deprecated and is pending removal in v2.0.0".form
 
         public virtual void rename_legacy_package_version(ChocolateyConfiguration config, IPackageMetadata installedPackage, ChocolateyPackageInformation pkgInfo)
         {
-            if (pkgInfo != null && pkgInfo.IsSideBySide) return;
-
             var installDirectory = _fileSystem.combine_paths(ApplicationParameters.PackagesLocation, installedPackage.Id);
             if (!_fileSystem.directory_exists(installDirectory))
             {
@@ -2083,10 +2049,8 @@ Side by side installations are deprecated and is pending removal in v2.0.0".form
         private void ensure_nupkg_is_removed(IPackageMetadata removedPackage, ChocolateyPackageInformation pkgInfo)
         {
             this.Log().Debug(ChocolateyLoggers.Verbose, "Removing nupkg if it still exists.");
-            var isSideBySide = pkgInfo != null && pkgInfo.IsSideBySide;
-
-            var nupkgFile = "{0}{1}.nupkg".format_with(removedPackage.Id, isSideBySide ? "." + removedPackage.Version.to_string() : string.Empty);
-            var installDir = _fileSystem.combine_paths(ApplicationParameters.PackagesLocation, "{0}{1}".format_with(removedPackage.Id, isSideBySide ? "." + removedPackage.Version.to_string() : string.Empty));
+            var nupkgFile = "{0}.nupkg".format_with(removedPackage.Id);
+            var installDir = _fileSystem.combine_paths(ApplicationParameters.PackagesLocation, "{0}".format_with(removedPackage.Id));
             var nupkg = _fileSystem.combine_paths(installDir, nupkgFile);
 
             if (!_fileSystem.file_exists(nupkg)) return;
@@ -2119,8 +2083,7 @@ Side by side installations are deprecated and is pending removal in v2.0.0".form
         public virtual void remove_installation_files_unsafe(IPackageMetadata removedPackage, ChocolateyPackageInformation pkgInfo)
         {
             this.Log().Debug(ChocolateyLoggers.Verbose, "Ensuring removal of installation files.");
-            var isSideBySide = pkgInfo != null && pkgInfo.IsSideBySide;
-            var installDir = _fileSystem.combine_paths(ApplicationParameters.PackagesLocation, "{0}{1}".format_with(removedPackage.Id, isSideBySide ? "." + removedPackage.Version.to_string() : string.Empty));
+            var installDir = _fileSystem.combine_paths(ApplicationParameters.PackagesLocation, "{0}".format_with(removedPackage.Id));
 
             if (_fileSystem.directory_exists(installDir) && pkgInfo != null && pkgInfo.FilesSnapshot != null)
             {
@@ -2154,8 +2117,7 @@ Side by side installations are deprecated and is pending removal in v2.0.0".form
         public virtual void remove_installation_files(IPackageMetadata removedPackage, ChocolateyPackageInformation pkgInfo)
         {
             this.Log().Debug(ChocolateyLoggers.Verbose, "Ensuring removal of installation files.");
-            var isSideBySide = pkgInfo != null && pkgInfo.IsSideBySide;
-            var installDir = _fileSystem.combine_paths(ApplicationParameters.PackagesLocation, "{0}{1}".format_with(removedPackage.Id, isSideBySide ? "." + removedPackage.Version.to_string() : string.Empty));
+            var installDir = _fileSystem.combine_paths(ApplicationParameters.PackagesLocation, "{0}".format_with(removedPackage.Id));
 
             if (_fileSystem.directory_exists(installDir) && pkgInfo != null && pkgInfo.FilesSnapshot != null)
             {

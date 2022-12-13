@@ -62,12 +62,6 @@ namespace chocolatey.infrastructure.app.nuget
             return GetInstallPath(new PackageIdentity(id, version));
         }
 
-        [Obsolete("Side by Side installations are deprecated, and is pending removal in v2.0.0")]
-        public override string GetPackageDirectoryName(PackageIdentity packageIdentity)
-        {
-            return GetPackageDirectory(packageIdentity, UseSideBySidePaths);
-        }
-
         public string GetPackageDirectory(PackageIdentity packageIdentity, bool useVersionInPath)
         {
             string directory = packageIdentity.Id;

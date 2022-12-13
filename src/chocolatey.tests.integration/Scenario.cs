@@ -273,7 +273,6 @@ namespace chocolatey.tests.integration
             config.Information.IsProcessElevated = true;
             config.Information.IsLicensedVersion = false;
             config.AcceptLicense = true;
-            config.AllowMultipleVersions = false;
             config.AllowUnofficialBuild = true;
             config.CacheLocation = _fileSystem.get_full_path(_fileSystem.combine_paths(get_top_level(), "cache"));
             config.CommandExecutionTimeoutSeconds = 2700;
