@@ -203,7 +203,7 @@ namespace chocolatey.infrastructure.app.nuget
                     var httpSourceResource = repo.GetResource<HttpSourceResource>();
                     if (httpSourceResource != null)
                     {
-                        httpSourceResource.HttpSource.HttpCacheDirectory = System.IO.Path.Combine(configuration.CacheLocation, "NuGetHttpCache");
+                        httpSourceResource.HttpSource.HttpCacheDirectory = filesystem.combine_paths(configuration.CacheLocation, "NuGetHttpCache");
                     }
                 }
 
@@ -234,22 +234,11 @@ namespace chocolatey.infrastructure.app.nuget
             }
         }
 
-        // TODO: Refactor this to not use a tuple, or make private method.
-        public static IEnumerable<(SourceRepository repository,
-                PackageSearchResource searchResource,
-                FindPackageByIdResource findPackageByIdResource,
-                PackageMetadataResource packageMetadataResource,
-                ListResource listResource
-                )> GetRepositoryResources(IEnumerable<SourceRepository> packageRepositories)
+        public static IEnumerable<NuGetSourceResources> GetRepositoryResources(IEnumerable<SourceRepository> packageRepositories)
         {
             foreach (var repository in packageRepositories)
             {
-                yield return (
-                    repository,
-                    repository.GetResource<PackageSearchResource>(),
-                    repository.GetResource<FindPackageByIdResource>(),
-                    repository.GetResource<PackageMetadataResource>(),
-                    repository.GetResource<ListResource>());
+                yield return new NuGetSourceResources(repository);
             }
         }
 

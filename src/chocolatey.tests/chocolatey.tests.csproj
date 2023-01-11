@@ -132,6 +132,9 @@
     <Reference Include="nunit.framework, Version=3.13.3.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.13.3\lib\net40\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="RichardSzalay.MockHttp, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7059d3aca2a9eddc, processorArchitecture=MSIL">
+      <HintPath>..\packages\RichardSzalay.MockHttp.6.0.0\lib\net45\RichardSzalay.MockHttp.dll</HintPath>
+    </Reference>
     <Reference Include="Should, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Should.1.1.20\lib\Should.dll</HintPath>
     </Reference>
@@ -179,6 +182,7 @@
     <Compile Include="infrastructure.app\nuget\ChocolateyNugetLoggerSpecs.cs" />
     <Compile Include="infrastructure.app\nuget\ChocolateyNuGetProjectContextSpecs.cs" />
     <Compile Include="infrastructure.app\nuget\NugetCommonSpecs.cs" />
+    <Compile Include="infrastructure.app\nuget\NugetListSpecs.cs" />
     <Compile Include="infrastructure.app\services\AutomaticUninstallerServiceSpecs.cs" />
     <Compile Include="infrastructure.app\services\ChocolateyConfigSettingsServiceSpecs.cs" />
     <Compile Include="infrastructure.app\services\ChocolateyPackageServiceSpecs.cs" />

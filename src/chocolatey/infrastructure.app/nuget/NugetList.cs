@@ -26,6 +26,7 @@ namespace chocolatey.infrastructure.app.nuget
     using System.Threading;
     using System.Threading.Tasks;
     using configuration;
+    using domain;
     using filesystem;
     using NuGet.Common;
     using NuGet.Configuration;
@@ -42,18 +43,24 @@ namespace chocolatey.infrastructure.app.nuget
     {
         public static IEnumerable<IPackageSearchMetadata> GetPackages(ChocolateyConfiguration configuration, ILogger nugetLogger, IFileSystem filesystem)
         {
-            return execute_package_search(configuration, nugetLogger, filesystem).GetAwaiter().GetResult();
+            var packageRepositories = NugetCommon.GetRemoteRepositories(configuration, nugetLogger, filesystem);
+            var packageRepositoriesResources = NugetCommon.GetRepositoryResources(packageRepositories);
+            return ExecutePackageSearch(packageRepositoriesResources, configuration, nugetLogger, isCount: false).GetAwaiter().GetResult().packages;
         }
 
         public static int GetCount(ChocolateyConfiguration configuration, ILogger nugetLogger, IFileSystem filesystem)
         {
-            return execute_package_search(configuration, nugetLogger, filesystem).GetAwaiter().GetResult().Count();
-        }
-
-        private async static Task<IQueryable<IPackageSearchMetadata>> execute_package_search(ChocolateyConfiguration configuration, ILogger nugetLogger, IFileSystem filesystem)
-        {
             var packageRepositories = NugetCommon.GetRemoteRepositories(configuration, nugetLogger, filesystem);
             var packageRepositoriesResources = NugetCommon.GetRepositoryResources(packageRepositories);
+            return ExecutePackageSearch(packageRepositoriesResources, configuration, nugetLogger, isCount: true).GetAwaiter().GetResult().count;
+        }
+
+        public static async Task<(IEnumerable<IPackageSearchMetadata> packages, int count)> ExecutePackageSearch(
+            IEnumerable<NuGetSourceResources> packageRepositoriesResources,
+            ChocolateyConfiguration configuration,
+            ILogger nugetLogger,
+            bool isCount)
+        {
             string searchTermLower = configuration.Input.to_lower();
             SearchFilter searchFilter = new SearchFilter(configuration.Prerelease);
             searchFilter.IncludeDelisted = configuration.ListCommand.LocalOnly;
@@ -71,9 +78,9 @@ namespace chocolatey.infrastructure.app.nuget
                 foreach (var repositoryResources in packageRepositoriesResources)
                 {
 
-                    if (repositoryResources.listResource != null)
+                    if (repositoryResources.ListResource != null)
                     {
-                        var tempResults = await repositoryResources.listResource.ListAsync(searchTermLower, configuration.Prerelease, configuration.AllVersions, false, nugetLogger, CancellationToken.None);
+                        var tempResults = await repositoryResources.ListResource.ListAsync(searchTermLower, configuration.Prerelease, configuration.AllVersions, false, nugetLogger, CancellationToken.None);
                         var enumerator = tempResults.GetEnumeratorAsync();
 
                         while (await enumerator.MoveNextAsync())
@@ -94,7 +101,7 @@ namespace chocolatey.infrastructure.app.nuget
                         var latestResults = new List<IPackageSearchMetadata>();
                         do
                         {
-                            partResults.AddRange(await repositoryResources.searchResource.SearchAsync(searchTermLower, searchFilter, skipNumber, takeNumber, nugetLogger, CancellationToken.None));
+                            partResults.AddRange(await repositoryResources.SearchResource.SearchAsync(searchTermLower, searchFilter, skipNumber, takeNumber, nugetLogger, CancellationToken.None));
                             skipNumber += takeNumber;
                             latestResults.AddRange(partResults);
                         } while (partResults.Count >= takeNumber && takeNumber < totalToGet);
@@ -108,7 +115,7 @@ namespace chocolatey.infrastructure.app.nuget
                                     if (versionInfo.PackageSearchMetadata == null)
                                     {
                                         //This is horribly inefficient, having to get the metadata again but that is the NuGet resources for you
-                                        results.Add(await repositoryResources.packageMetadataResource.GetMetadataAsync(new PackageIdentity(result.Identity.Id, versionInfo.Version), cacheContext, nugetLogger, CancellationToken.None));
+                                        results.Add(await repositoryResources.PackageMetadataResource.GetMetadataAsync(new PackageIdentity(result.Identity.Id, versionInfo.Version), cacheContext, nugetLogger, CancellationToken.None));
                                     }
                                     else
                                     {
@@ -133,7 +140,7 @@ namespace chocolatey.infrastructure.app.nuget
                 {
                     foreach (var repositoryResources in packageRepositoriesResources)
                     {
-                        results.AddRange(await repositoryResources.packageMetadataResource.GetMetadataAsync(
+                        results.AddRange(await repositoryResources.PackageMetadataResource.GetMetadataAsync(
                             searchTermLower, configuration.Prerelease, false, cacheContext, nugetLogger, CancellationToken.None));
                     }
                 }
@@ -145,21 +152,18 @@ namespace chocolatey.infrastructure.app.nuget
                         foreach (var repositoryResources in packageRepositoriesResources)
                         {
                             //We want all versions available across all repositories
-                            versions.AddRange((await repositoryResources.findPackageByIdResource.GetAllVersionsAsync(searchTermLower, cacheContext, nugetLogger, CancellationToken.None))
+                            versions.AddRange((await repositoryResources.FindPackageByIdResource.GetAllVersionsAsync(searchTermLower, cacheContext, nugetLogger, CancellationToken.None))
                                 .Where(a => configuration.Prerelease || !a.IsPrerelease));
                         }
                         version = versions.Max();
-                        if (version == null) return new List<IPackageSearchMetadata>().AsQueryable();
+                        if (version == null) return (new List<IPackageSearchMetadata>(), 0);
                     }
 
-                    var exactPackage = find_package(searchTermLower, configuration, nugetLogger, cacheContext, packageRepositoriesResources.Select(x => x.packageMetadataResource), version);
+                    var exactPackage = find_package(searchTermLower, configuration, nugetLogger, cacheContext, packageRepositoriesResources.Select(x => x.PackageMetadataResource), version);
 
-                    if (exactPackage == null) return new List<IPackageSearchMetadata>().AsQueryable();
+                    if (exactPackage == null) return (new List<IPackageSearchMetadata>(), 0);
 
-                    return new List<IPackageSearchMetadata>()
-                    {
-                        exactPackage
-                    }.AsQueryable();
+                    return (new List<IPackageSearchMetadata>() { exactPackage }, 1);
                 }
             }
 
@@ -204,11 +208,13 @@ namespace chocolatey.infrastructure.app.nuget
 
             if (configuration.ListCommand.Page.HasValue)
             {
-                return results.AsQueryable().Skip(configuration.ListCommand.PageSize * configuration.ListCommand.Page.Value).Take(configuration.ListCommand.PageSize);
+                // TODO: fix returned count?
+                return (results.AsQueryable().Skip(configuration.ListCommand.PageSize * configuration.ListCommand.Page.Value).Take(configuration.ListCommand.PageSize), 0);
             }
             else
             {
-                return results.AsQueryable();
+                // TODO: fix returned count?
+                return (results, 0);
             }
         }
 
