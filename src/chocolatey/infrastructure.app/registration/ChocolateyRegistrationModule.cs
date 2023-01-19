@@ -78,7 +78,8 @@ namespace chocolatey.infrastructure.app.registration
             registrator.RegisterService<IEventSubscriptionManagerService, EventSubscriptionManagerService>();
 
             registrator.RegisterService<ITask>(
-                typeof(RemovePendingPackagesTask));
+                typeof(RemovePendingPackagesTask),
+                typeof(MigrateRememberedArgumentsToConfigTask));
 
             registrator.RegisterService<IValidation>(
                 typeof(GlobalConfigurationValidation),

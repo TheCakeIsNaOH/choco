@@ -31,7 +31,9 @@ namespace chocolatey.infrastructure.app.domain
         public IPackageMetadata Package { get; set; }
         public Registry RegistrySnapshot { get; set; }
         public PackageFiles FilesSnapshot { get; set; }
+        [Obsolete("Replaced by RememberedConfiguration")]
         public string Arguments { get; set; }
+        public RememberedConfigurationFile RememberedConfiguration { get; set; }
         public NuGetVersion VersionOverride { get; set; }
         public bool HasSilentUninstall { get; set; }
         public bool IsPinned { get; set; }

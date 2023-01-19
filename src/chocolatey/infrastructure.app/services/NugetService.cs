@@ -1050,7 +1050,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
                     continue;
                 }
 
-                SetConfigFromRememberedArguments(config, pkgInfo);
+                config = set_package_config_for_upgrade(config, pkgInfo);
                 var pathResolver = NugetCommon.GetPathResolver(_fileSystem);
                 var nugetProject = new FolderNuGetProject(ApplicationParameters.PackagesLocation, pathResolver, NuGetFramework.AnyFramework);
 
@@ -1666,48 +1666,8 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
         /// <returns>The original unmodified configuration, so it can be reset after upgrade</returns>
         protected virtual ChocolateyConfiguration SetConfigFromRememberedArguments(ChocolateyConfiguration config, ChocolateyPackageInformation packageInfo)
         {
-            if (!config.Features.UseRememberedArgumentsForUpgrades || string.IsNullOrWhiteSpace(packageInfo.Arguments)) return config;
-
-            var packageArgumentsUnencrypted = packageInfo.Arguments.ContainsSafe(" --") && packageInfo.Arguments.ToStringSafe().Length > 4 ? packageInfo.Arguments : NugetEncryptionUtility.DecryptString(packageInfo.Arguments);
-
-            var sensitiveArgs = true;
-            if (!ArgumentsUtility.SensitiveArgumentsProvided(packageArgumentsUnencrypted))
-            {
-                sensitiveArgs = false;
-                this.Log().Debug(ChocolateyLoggers.Verbose, "{0} - Adding remembered arguments for upgrade: {1}".FormatWith(packageInfo.Package.Id, packageArgumentsUnencrypted.EscapeCurlyBraces()));
-            }
-
-            var packageArgumentsSplit = packageArgumentsUnencrypted.Split(new[] { " --" }, StringSplitOptions.RemoveEmptyEntries);
-            var packageArguments = new List<string>();
-            foreach (var packageArgument in packageArgumentsSplit.OrEmpty())
-            {
-                var packageArgumentSplit = packageArgument.Split(new[] { '=' }, 2, StringSplitOptions.RemoveEmptyEntries);
-                var optionName = packageArgumentSplit[0].ToStringSafe();
-                var optionValue = string.Empty;
-                if (packageArgumentSplit.Length == 2)
-                {
-                    optionValue = packageArgumentSplit[1].ToStringSafe().UnquoteSafe();
-                    if (optionValue.StartsWith("'")) optionValue.UnquoteSafe();
-                }
-
-                if (sensitiveArgs)
-                {
-                    this.Log().Debug(ChocolateyLoggers.Verbose, "{0} - Adding '{1}' to upgrade arguments. Values not shown due to detected sensitive arguments".FormatWith(packageInfo.Package.Id, optionName.EscapeCurlyBraces()));
-                }
-                packageArguments.Add("--{0}{1}".FormatWith(optionName, string.IsNullOrWhiteSpace(optionValue) ? string.Empty : "=" + optionValue));
-            }
-
-            var originalConfig = config.DeepCopy();
-            // this changes config globally
-            ConfigurationOptions.OptionSet.Parse(packageArguments);
-
-            // there may be overrides from the user running upgrade
-            if (!string.IsNullOrWhiteSpace(originalConfig.SourceCommand.Username)) config.SourceCommand.Username = originalConfig.SourceCommand.Username;
-            if (!string.IsNullOrWhiteSpace(originalConfig.SourceCommand.Password)) config.SourceCommand.Password = originalConfig.SourceCommand.Password;
-            if (!string.IsNullOrWhiteSpace(originalConfig.SourceCommand.Certificate)) config.SourceCommand.Certificate = originalConfig.SourceCommand.Certificate;
-            if (!string.IsNullOrWhiteSpace(originalConfig.SourceCommand.CertificatePassword)) config.SourceCommand.CertificatePassword = originalConfig.SourceCommand.CertificatePassword;
-
-            return originalConfig;
+            if (!config.Features.UseRememberedArgumentsForUpgrades || packageInfo.RememberedConfiguration is null) return config;
+            return packageInfo.RememberedConfiguration.set_remembered_configuration(config);
         }
 
         private bool HasMissingDependency(PackageResult package, List<PackageResult> allLocalPackages)

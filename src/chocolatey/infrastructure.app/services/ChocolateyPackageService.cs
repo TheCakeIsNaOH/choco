@@ -518,7 +518,7 @@ Did you know Pro / Business automatically syncs with Programs and
                 HandleExtensionPackages(config, packageResult);
                 HandleTemplatePackages(config, packageResult);
                 HandleHookPackages(config, packageResult);
-                pkgInfo.Arguments = CaptureArguments(config, packageResult);
+                pkgInfo.RememberedConfiguration = capture_configuration(config);
                 pkgInfo.IsPinned = config.PinPackage;
             }
 
@@ -675,6 +675,11 @@ package '{0}' - stopping further execution".FormatWith(packageResult.Name));
             if (!config.Features.UsePowerShellHost) arguments.Append(" --use-system-powershell");
 
             return NugetEncryptionUtility.EncryptString(arguments.ToStringSafe());
+        }
+
+        private RememberedConfigurationFile capture_configuration(ChocolateyConfiguration config)
+        {
+            return new RememberedConfigurationFile(config);
         }
 
         public virtual ConcurrentDictionary<string, PackageResult> Install(ChocolateyConfiguration config)

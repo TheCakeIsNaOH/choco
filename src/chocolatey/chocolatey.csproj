@@ -208,6 +208,7 @@
     <Compile Include="infrastructure.app\commands\ChocolateyCommandBase.cs" />
     <Compile Include="infrastructure.app\domain\ApiKeyCommandType.cs" />
     <Compile Include="infrastructure.app\domain\CacheCommandType.cs" />
+    <Compile Include="infrastructure.app\domain\RememberedConfigurationFile.cs" />
     <Compile Include="infrastructure.app\domain\SourceTypes.cs" />
     <Compile Include="infrastructure.app\domain\ChocolateyPackageMetadata.cs" />
     <Compile Include="infrastructure.app\domain\TemplateCommandType.cs" />
@@ -288,6 +289,7 @@
     <Compile Include="infrastructure\logging\TraceLog.cs" />
     <Compile Include="infrastructure\registration\SecurityProtocol.cs" />
     <Compile Include="infrastructure\results\PowerShellExecutionResults.cs" />
+    <Compile Include="infrastructure.app\tasks\MigrateRememberedArgumentsToConfigTask.cs" />
     <Compile Include="infrastructure.app\tasks\RemovePendingPackagesTask.cs" />
     <Compile Include="infrastructure.app\templates\ChocolateyBeforeModifyTemplate.cs" />
     <Compile Include="infrastructure.app\templates\ChocolateyLicenseFileTemplate.cs" />

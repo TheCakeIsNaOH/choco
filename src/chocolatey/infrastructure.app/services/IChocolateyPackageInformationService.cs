@@ -25,6 +25,21 @@ namespace chocolatey.infrastructure.app.services
         ChocolateyPackageInformation Get(IPackageMetadata package);
         void Save(ChocolateyPackageInformation packageInformation);
         void Remove(IPackageMetadata package);
+        
+        /// <summary>
+        /// Read the remembered configuration file from the specified filepath.
+        /// </summary>
+        /// <param name="filepath">The filepath.</param>
+        /// <returns>RememberedConfigurationFile with entries based on the file if it exists, otherwise null</returns>
+        RememberedConfigurationFile read_remembered_config_from_file(string filePath);
+
+
+        /// <summary>
+        /// Saves the config to the specified file path.
+        /// </summary>
+        /// <param name="snapshot">The configuration snapshot.</param>
+        /// <param name="filePath">The file path.</param>
+        void save_remembered_config_to_file(RememberedConfigurationFile snapshot, string filePath);
 
 #pragma warning disable IDE1006
         [Obsolete("This overload is deprecated and will be removed in v3.")]

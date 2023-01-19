@@ -23,6 +23,7 @@ namespace chocolatey.infrastructure.app.services
     using configuration;
     using domain;
     using infrastructure.configuration;
+    using infrastructure.services;
     using NuGet.Packaging;
     using NuGet.Versioning;
     using results;
@@ -34,6 +35,7 @@ namespace chocolatey.infrastructure.app.services
         private readonly IFileSystem _fileSystem;
         private readonly IRegistryService _registryService;
         private readonly IFilesService _filesService;
+        private readonly IXmlService _xmlService;
         private readonly ChocolateyConfiguration _config;
         private const string RegistrySnapshotFile = ".registry";
         private const string RegistrySnapshotBadFile = ".registry.bad";
@@ -42,6 +44,7 @@ namespace chocolatey.infrastructure.app.services
         private const string SideBySideFile = ".sxs";
         private const string PinFile = ".pin";
         private const string ArgsFile = ".arguments";
+        private const string REMEMBERED_CONFIG_FILE = ".rememberedConfig";
         private const string ExtraFile = ".extra";
         private const string VersionOverrideFile = ".version";
 
@@ -49,19 +52,21 @@ namespace chocolatey.infrastructure.app.services
         // to prevent duplicated outputs.
         private HashSet<string> _deprecationWarning = new HashSet<string>();
 
-        public ChocolateyPackageInformationService(IFileSystem fileSystem, IRegistryService registryService, IFilesService filesService)
+        public ChocolateyPackageInformationService(IFileSystem fileSystem, IRegistryService registryService, IFilesService filesService, IXmlService xmlService)
         {
             _fileSystem = fileSystem;
             _registryService = registryService;
             _filesService = filesService;
+            _xmlService = xmlService;
             _config = Config.GetConfigurationSettings();
         }
 
-        public ChocolateyPackageInformationService(IFileSystem fileSystem, IRegistryService registryService, IFilesService filesService, ChocolateyConfiguration config)
+        public ChocolateyPackageInformationService(IFileSystem fileSystem, IRegistryService registryService, IFilesService filesService, IXmlService xmlService, ChocolateyConfiguration config)
         {
             _fileSystem = fileSystem;
             _registryService = registryService;
             _filesService = filesService;
+            _xmlService = xmlService;
             _config = config;
         }
 
@@ -146,6 +151,8 @@ A corrupt .registry file exists at {0}.
             var argsFile = _fileSystem.CombinePaths(pkgStorePath, ArgsFile);
             if (_fileSystem.FileExists(argsFile)) packageInformation.Arguments = _fileSystem.ReadFile(argsFile);
             var extraInfoFile = _fileSystem.CombinePaths(pkgStorePath, ExtraFile);
+            var configFile = _fileSystem.combine_paths(pkgStorePath, REMEMBERED_CONFIG_FILE);
+            if (_fileSystem.file_exists(configFile)) packageInformation.RememberedConfiguration = read_remembered_config_from_file(configFile);
             if (_fileSystem.FileExists(extraInfoFile)) packageInformation.ExtraInformation = _fileSystem.ReadFile(extraInfoFile);
 
             var versionOverrideFile = _fileSystem.CombinePaths(pkgStorePath, VersionOverrideFile);
@@ -199,11 +206,12 @@ A corrupt .registry file exists at {0}.
                );
             }
 
-            if (!string.IsNullOrWhiteSpace(packageInformation.Arguments))
+            if (packageInformation.RememberedConfiguration != null)
             {
                 var argsFile = _fileSystem.CombinePaths(pkgStorePath, ArgsFile);
                 if (_fileSystem.FileExists(argsFile)) _fileSystem.DeleteFile(argsFile);
-                _fileSystem.WriteFile(argsFile, packageInformation.Arguments);
+                if (_fileSystem.file_exists(configFile)) _fileSystem.delete_file(configFile);
+                save_remembered_config_to_file(packageInformation.RememberedConfiguration, configFile);
             }
             else
             {
@@ -304,6 +312,30 @@ A corrupt .registry file exists at {0}.
             }
 
             return preferredStorePath;
+        }
+
+        /// <summary>
+        /// Read the remembered configuration file from the specified filepath.
+        /// </summary>
+        /// <param name="filepath">The filepath.</param>
+        /// <returns>RememberedConfigurationFile with entries based on the file if it exists, otherwise null</returns>
+        public RememberedConfigurationFile ReadRememberedConfigFromFile(string filePath)
+        {
+            if (!_fileSystem.file_exists(filePath)) return null;
+
+            return _xmlService.deserialize<RememberedConfigurationFile>(filePath);
+        }
+
+        /// <summary>
+        /// Saves the config to the specified file path.
+        /// </summary>
+        /// <param name="snapshot">The configuration snapshot.</param>
+        /// <param name="filePath">The file path.</param>
+        public void SaveRememberedConfigToFile(RememberedConfigurationFile snapshot, string filePath)
+        {
+            if (snapshot == null) return;
+
+            _xmlService.serialize(snapshot, filePath);
         }
 
 #pragma warning disable IDE1006
