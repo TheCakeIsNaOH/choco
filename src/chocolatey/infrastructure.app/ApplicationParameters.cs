@@ -39,7 +39,8 @@ namespace chocolatey.infrastructure.app
         public static readonly string LicensedAssemblyLocation = _fileSystem.CombinePaths(InstallLocation, "extensions", "chocolatey", "chocolatey.licensed.dll");
 #elif DEBUG
         // Install location is choco.exe or chocolatey.dll
-        public static readonly string InstallLocation = _fileSystem.GetDirectoryName(_fileSystem.GetCurrentAssemblyPath());
+        private static string _installLocation = _fileSystem.GetDirectoryName(_fileSystem.GetCurrentAssemblyPath());
+        public static string InstallLocation => _installLocation;
         // when being used as a reference, start by looking next to Chocolatey, then in a subfolder.
         public static readonly string LicensedAssemblyLocation = _fileSystem.FileExists(_fileSystem.CombinePaths(InstallLocation, "chocolatey.licensed.dll")) ? _fileSystem.CombinePaths(InstallLocation, "chocolatey.licensed.dll") : _fileSystem.CombinePaths(InstallLocation, "extensions", "chocolatey", "chocolatey.licensed.dll");
 #else
@@ -61,15 +62,18 @@ namespace chocolatey.infrastructure.app
 #endif
 
         public static readonly string CommonAppDataChocolatey = _fileSystem.CombinePaths(System.Environment.GetFolderPath(System.Environment.SpecialFolder.CommonApplicationData), Name);
-        public static readonly string LoggingLocation = _fileSystem.CombinePaths(InstallLocation, "logs");
+        private static string _loggingLocation = _fileSystem.CombinePaths(InstallLocation, "logs");
+        public static string LoggingLocation => _loggingLocation;
         public static readonly string LoggingFile = @"chocolatey.log";
         public static readonly string LoggingSummaryFile = @"choco.summary.log";
         public static readonly string Log4NetConfigurationAssembly = @"chocolatey";
         public static string Log4NetConfigurationResource = @"chocolatey.infrastructure.logging.log4net.config.xml";
         public static readonly string ChocolateyFileResources = "chocolatey.resources";
         public static readonly string ChocolateyConfigFileResource = @"chocolatey.infrastructure.app.configuration.chocolatey.config";
-        public static readonly string GlobalConfigFileLocation = _fileSystem.CombinePaths(InstallLocation, "config", "chocolatey.config");
-        public static readonly string LicenseFileLocation = _fileSystem.CombinePaths(InstallLocation, "license", "chocolatey.license.xml");
+        private static string _globalConfigFileLocation = _fileSystem.CombinePaths(InstallLocation, "config", "chocolatey.config");
+        public static string GlobalConfigFileLocation => _globalConfigFileLocation;
+        private static string _licenseFileLocation = _fileSystem.CombinePaths(InstallLocation, "license", "chocolatey.license.xml");
+        public static string LicenseFileLocation => _licenseFileLocation;
         public static readonly string UserProfilePath = !string.IsNullOrWhiteSpace(System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile, System.Environment.SpecialFolderOption.DoNotVerify)) ?
               System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile, System.Environment.SpecialFolderOption.DoNotVerify)
             : CommonAppDataChocolatey;
@@ -86,13 +90,20 @@ namespace chocolatey.infrastructure.app
         public static readonly string OfficialChocolateyPublicKey = "79d02ea9cad655eb";
 
         public static string PackagesLocation = _fileSystem.CombinePaths(InstallLocation, "lib");
-        public static readonly string PackageFailuresLocation = _fileSystem.CombinePaths(InstallLocation, "lib-bad");
-        public static readonly string PackageBackupLocation = _fileSystem.CombinePaths(InstallLocation, "lib-bkp");
-        public static readonly string ShimsLocation = _fileSystem.CombinePaths(InstallLocation, "bin");
-        public static readonly string ChocolateyPackageInfoStoreLocation = _fileSystem.CombinePaths(InstallLocation, ".chocolatey");
-        public static readonly string ExtensionsLocation = _fileSystem.CombinePaths(InstallLocation, "extensions");
-        public static readonly string TemplatesLocation = _fileSystem.CombinePaths(InstallLocation, "templates");
-        public static readonly string HooksLocation = _fileSystem.CombinePaths(InstallLocation, "hooks");
+        private static string _packageFailuresLocation = _fileSystem.CombinePaths(InstallLocation, "lib-bad");
+        public static string PackageFailuresLocation => _packageFailuresLocation;
+        private static string _packageBackupLocation = _fileSystem.CombinePaths(InstallLocation, "lib-bkp");
+        public static string PackageBackupLocation => _packageBackupLocation;
+        private static string _shimsLocation = _fileSystem.CombinePaths(InstallLocation, "bin");
+        public static string ShimsLocation => _shimsLocation;
+        private static string _chocolateyPackageInfoStoreLocation = _fileSystem.CombinePaths(InstallLocation, ".chocolatey");
+        public static string ChocolateyPackageInfoStoreLocation = _chocolateyPackageInfoStoreLocation;
+        private static string _extensionsLocation = _fileSystem.CombinePaths(InstallLocation, "extensions");
+        public static string ExtensionsLocation => _extensionsLocation;
+        private static string _templatesLocation = _fileSystem.CombinePaths(InstallLocation, "templates");
+        public static string TemplatesLocation => _templatesLocation;
+        private static string _hooksLocation = _fileSystem.CombinePaths(InstallLocation, "hooks");
+        public static string HooksLocation => _hooksLocation;
         public static readonly string HookPackageIdExtension = ".hook";
         public static readonly string ChocolateyCommunityFeedPushSourceOld = "https://chocolatey.org/";
         public static readonly string ChocolateyCommunityFeedPushSource = "https://push.chocolatey.org/";
@@ -160,15 +171,17 @@ namespace chocolatey.infrastructure.app
         public static readonly string HashProviderFileLocked = "UnableToDetectChanges_FileLocked";
 
         /// <summary>
-        /// This is a readonly bool set to true. It is only shifted for specs.
+        /// This is a bool set to true. It is only shifted for specs.
         /// </summary>
-        public static readonly bool LockTransactionalInstallFiles = true;
+        private static  bool _lockTransactionalInstallFiles = true;
+        public static bool LockTransactionalInstallFiles => _lockTransactionalInstallFiles;
         public static readonly string PackagePendingFileName = ".chocolateyPending";
 
         /// <summary>
-        /// This is a readonly bool set to true. It is only shifted for specs.
+        /// This is a bool set to true. It is only shifted for specs.
         /// </summary>
-        public static readonly bool AllowPrompts = true;
+        private static bool _allowPrompts = true;
+        public static bool AllowPrompts => _allowPrompts;
 
         public static class ExitCodes
         {

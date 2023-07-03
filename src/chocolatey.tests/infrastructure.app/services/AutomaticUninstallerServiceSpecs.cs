@@ -22,6 +22,7 @@ namespace chocolatey.tests.infrastructure.app.services
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
+    using System.Reflection;
     using chocolatey.infrastructure.adapters;
     using chocolatey.infrastructure.app;
     using chocolatey.infrastructure.app.configuration;
@@ -89,7 +90,7 @@ namespace chocolatey.tests.infrastructure.app.services
                 FileSystem.Setup(f => f.GetFullPath(ExpectedUninstallString)).Returns(ExpectedUninstallString);
                 FileSystem.Setup(x => x.FileExists(ExpectedUninstallString)).Returns(true);
 
-                var field = typeof(ApplicationParameters).GetField("AllowPrompts");
+                var field = typeof(ApplicationParameters).GetField("_allowPrompts", BindingFlags.NonPublic | BindingFlags.Static);
                 field.SetValue(null, false);
             }
         }
