@@ -172,7 +172,7 @@ namespace chocolatey.infrastructure.app.services
 
         public void EnsureSourceAppInstalled(ChocolateyConfiguration config, Action<PackageResult, ChocolateyConfiguration> ensureAction)
         {
-            if (Platform.GetPlatform() != PlatformType.Windows) throw new NotImplementedException("This source is not supported on non-Windows systems");
+            if (!OperatingSystem.IsWindows()) throw new NotImplementedException("This source is not supported on non-Windows systems");
 
             //ensure at least python 2.7.9 is installed
             var python = _fileSystem.GetExecutablePath("python");
@@ -226,6 +226,8 @@ namespace chocolatey.infrastructure.app.services
                     return;
                 }
             }
+
+            if (!OperatingSystem.IsWindows()) throw new FileNotFoundException("Unable to find pip");
 
             var topLevelPath = string.Empty;
             var python34PathKey = _registryService.GetKey(RegistryHive.LocalMachine, "SOFTWARE\\Python\\PythonCore\\3.4\\InstallPath");

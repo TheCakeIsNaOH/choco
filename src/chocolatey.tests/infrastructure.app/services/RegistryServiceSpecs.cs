@@ -16,6 +16,7 @@
 
 namespace chocolatey.tests.infrastructure.app.services
 {
+    using System.Runtime.Versioning;
     using chocolatey.infrastructure.app.services;
     using chocolatey.infrastructure.filesystem;
     using chocolatey.infrastructure.services;
@@ -48,6 +49,7 @@ namespace chocolatey.tests.infrastructure.app.services
         }
 
         [WindowsOnly]
+        [SupportedOSPlatform("windows")]
         [Platform(Exclude = "Mono")]
         public class When_RegistryService_get_installer_keys_is_called : RegistryServiceSpecsBase
         {
@@ -71,6 +73,7 @@ namespace chocolatey.tests.infrastructure.app.services
         }
 
         [WindowsOnly]
+        [SupportedOSPlatform("windows")]
         [Platform(Exclude = "Mono")]
         public class When_RegistryService_get_key_is_called_for_a_value_that_exists : RegistryServiceSpecsBase
         {
@@ -114,6 +117,7 @@ namespace chocolatey.tests.infrastructure.app.services
         }
 
         [WindowsOnly]
+        [SupportedOSPlatform("windows")]
         [Platform(Exclude = "Mono")]
         public class When_RegistryService_get_key_is_called_for_a_value_that_does_not_exist : RegistryServiceSpecsBase
         {

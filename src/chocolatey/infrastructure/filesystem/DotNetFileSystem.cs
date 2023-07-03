@@ -77,12 +77,12 @@ namespace chocolatey.infrastructure.filesystem
                 throw new ApplicationException("Path to combine cannot be empty. Tried to combine null with '{0}'.{1}".FormatWith(string.Join(",", rightItems), string.IsNullOrWhiteSpace(methodName) ? string.Empty : " Method called from '{0}'".FormatWith(methodName)));
             }
 
-            var combinedPath = Platform.GetPlatform() == PlatformType.Windows ? leftItem : leftItem.Replace('\\', '/');
+            var combinedPath = OperatingSystem.IsWindows() ? leftItem : leftItem.Replace('\\', '/');
             foreach (var rightItem in rightItems)
             {
                 if (rightItem.Contains(":")) throw new ApplicationException("Cannot combine a path with ':' attempted to combine '{0}' with '{1}'".FormatWith(rightItem, combinedPath));
 
-                var rightSide = Platform.GetPlatform() == PlatformType.Windows ? rightItem : rightItem.Replace('\\', '/');
+                var rightSide = OperatingSystem.IsWindows() ? rightItem : rightItem.Replace('\\', '/');
                 if (rightSide.StartsWith(Path.DirectorySeparatorChar.ToStringSafe()) || rightSide.StartsWith(Path.AltDirectorySeparatorChar.ToStringSafe()))
                 {
                     combinedPath = Path.Combine(combinedPath, rightSide.Substring(1));
@@ -136,7 +136,7 @@ namespace chocolatey.infrastructure.filesystem
         {
             if (string.IsNullOrWhiteSpace(executableName)) return string.Empty;
 
-            var isWindows = Platform.GetPlatform() == PlatformType.Windows;
+            var isWindows = OperatingSystem.IsWindows();
             IList<string> extensions = new List<string>();
 
             if (GetFilenameWithoutExtension(executableName).IsEqualTo(executableName) && isWindows)
@@ -175,7 +175,7 @@ namespace chocolatey.infrastructure.filesystem
 
         public string GetCurrentAssemblyPath()
         {
-            return Assembly.GetExecutingAssembly().CodeBase.Replace(Platform.GetPlatform() == PlatformType.Windows ? "file:///" : "file://", string.Empty);
+            return Assembly.GetExecutingAssembly().CodeBase.Replace(OperatingSystem.IsWindows() ? "file:///" : "file://", string.Empty);
         }
 
         #endregion
@@ -221,14 +221,14 @@ namespace chocolatey.infrastructure.filesystem
 
         public string GetFilenameWithoutExtension(string filePath)
         {
-            if (Platform.GetPlatform() == PlatformType.Windows) return Path.GetFileNameWithoutExtension(filePath);
+            if (OperatingSystem.IsWindows()) return Path.GetFileNameWithoutExtension(filePath);
 
             return Path.GetFileNameWithoutExtension(filePath.Replace('\\', '/'));
         }
 
         public string GetFileExtension(string filePath)
         {
-            if (Platform.GetPlatform() == PlatformType.Windows) return Path.GetExtension(filePath);
+            if (OperatingSystem.IsWindows()) return Path.GetExtension(filePath);
 
             return Path.GetExtension(filePath.Replace('\\', '/'));
         }
@@ -384,7 +384,7 @@ namespace chocolatey.infrastructure.filesystem
 
         public bool CopyFileUnsafe(string sourceFilePath, string destinationFilePath, bool overwriteExisting)
         {
-            if (Platform.GetPlatform() != PlatformType.Windows)
+            if (!OperatingSystem.IsWindows())
             {
                 CopyFile(sourceFilePath, destinationFilePath, overwriteExisting);
                 return true;
@@ -595,7 +595,7 @@ namespace chocolatey.infrastructure.filesystem
 
         public string GetDirectoryName(string filePath)
         {
-            if (Platform.GetPlatform() != PlatformType.Windows && !string.IsNullOrWhiteSpace(filePath))
+            if (!OperatingSystem.IsWindows() && !string.IsNullOrWhiteSpace(filePath))
             {
                 filePath = filePath.Replace('\\', '/');
             }
@@ -671,7 +671,7 @@ namespace chocolatey.infrastructure.filesystem
             if (string.IsNullOrWhiteSpace(directoryPath) || string.IsNullOrWhiteSpace(newDirectoryPath)) throw new ApplicationException("You must provide a directory to move from or to.");
 
             // Linux / macOS do not have a SystemDrive environment variable, instead, everything is under "/"
-            var systemDrive = Platform.GetPlatform() == PlatformType.Windows ? Environment.GetEnvironmentVariable("SystemDrive") : "/";
+            var systemDrive = OperatingSystem.IsWindows() ? Environment.GetEnvironmentVariable("SystemDrive") : "/";
             if (CombinePaths(directoryPath, "").IsEqualTo(CombinePaths(systemDrive, ""))) throw new ApplicationException("Cannot move or delete the root of the system drive");
 
             try
@@ -796,7 +796,7 @@ namespace chocolatey.infrastructure.filesystem
             if (string.IsNullOrWhiteSpace(directoryPath)) throw new ApplicationException("You must provide a directory to delete.");
 
             // Linux / macOS do not have a SystemDrive environment variable, instead, everything is under "/"
-            var systemDrive = Platform.GetPlatform() == PlatformType.Windows ? Environment.GetEnvironmentVariable("SystemDrive") : "/";
+            var systemDrive = OperatingSystem.IsWindows() ? Environment.GetEnvironmentVariable("SystemDrive") : "/";
             if (CombinePaths(directoryPath, "").IsEqualTo(CombinePaths(systemDrive, ""))) throw new ApplicationException("Cannot move or delete the root of the system drive");
 
             if (overrideAttributes)

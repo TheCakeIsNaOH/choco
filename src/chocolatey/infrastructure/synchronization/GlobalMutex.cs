@@ -41,10 +41,14 @@ namespace chocolatey.infrastructure.synchronization
             var mutexId = "Global\\{{{0}}}".FormatWith(AppGuid);
             _mutex = new Mutex(initiallyOwned: false, name: mutexId);
 
-            var allowEveryoneRule = new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), MutexRights.FullControl, AccessControlType.Allow);
-            var securitySettings = new MutexSecurity();
-            securitySettings.AddAccessRule(allowEveryoneRule);
-            _mutex.SetAccessControl(securitySettings);
+            if (OperatingSystem.IsWindows())
+            {
+                var allowEveryoneRule = new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null),
+                    MutexRights.FullControl, AccessControlType.Allow);
+                var securitySettings = new MutexSecurity();
+                securitySettings.AddAccessRule(allowEveryoneRule);
+                _mutex.SetAccessControl(securitySettings);
+            }
         }
 
         /// <summary>
@@ -79,7 +83,7 @@ namespace chocolatey.infrastructure.synchronization
         public static void Enter(Action action, int timeout)
         {
 
-            if (Platform.GetPlatform() == PlatformType.Windows)
+            if (OperatingSystem.IsWindows())
             {
                 using (new GlobalMutex(timeout))
                 {
@@ -103,7 +107,7 @@ namespace chocolatey.infrastructure.synchronization
         {
             var returnValue = default(T);
 
-            if (Platform.GetPlatform() == PlatformType.Windows)
+            if (OperatingSystem.IsWindows())
             {
                 using (new GlobalMutex(timeout))
                 {

@@ -15,6 +15,7 @@
 
 namespace chocolatey.tests.infrastructure.app.utility
 {
+    using System;
     using chocolatey.infrastructure.app.utility;
     using chocolatey.infrastructure.app.configuration;
     using chocolatey.infrastructure.platforms;
@@ -52,7 +53,7 @@ namespace chocolatey.tests.infrastructure.app.utility
 
             public When_PackageUtility_is_checking_if_package_is_dependency(string packageName, string configNames, bool expectedResult)
             {
-                if (Platform.GetPlatform() != PlatformType.Windows) configNames = configNames.Replace("\\", "/");
+                if (!OperatingSystem.IsWindows()) configNames = configNames.Replace("\\", "/");
 
                 _packageName = packageName;
                 _config.PackageNames = configNames;

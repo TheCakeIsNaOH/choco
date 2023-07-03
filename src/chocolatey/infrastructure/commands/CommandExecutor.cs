@@ -163,7 +163,7 @@ namespace chocolatey.infrastructure.commands
                 process = FileSystem.GetFullPath(process);
             }
 
-            if (Platform.GetPlatform() != PlatformType.Windows)
+            if (!OperatingSystem.IsWindows())
             {
                 arguments = process + " " + arguments;
                 process = "mono";

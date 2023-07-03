@@ -11,6 +11,7 @@
     <RootNamespace>chocolatey.resources</RootNamespace>
     <AssemblyName>chocolatey.resources</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <WarningsAsErrors>CA1416</WarningsAsErrors>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>

@@ -140,7 +140,7 @@ namespace chocolatey.infrastructure.app.services
 
         public void EnsureSourceAppInstalled(ChocolateyConfiguration config, Action<PackageResult, ChocolateyConfiguration> ensureAction)
         {
-            if (Platform.GetPlatform() != PlatformType.Windows) throw new NotImplementedException("This source is not supported on non-Windows systems");
+            if (!OperatingSystem.IsWindows()) throw new NotImplementedException("This source is not supported on non-Windows systems");
 
             var runnerConfig = new ChocolateyConfiguration
             {
@@ -173,6 +173,8 @@ namespace chocolatey.infrastructure.app.services
 
         private string GetRootDirectory()
         {
+            if (!string.IsNullOrWhiteSpace(_rootDirectory) || !OperatingSystem.IsWindows()) return String.Empty;
+
             var setupKey = _registryService.GetKey(RegistryHive.LocalMachine, "SOFTWARE\\Cygwin\\setup");
             if (setupKey != null)
             {
