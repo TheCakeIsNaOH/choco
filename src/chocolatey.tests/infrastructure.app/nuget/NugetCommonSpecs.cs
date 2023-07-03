@@ -45,8 +45,8 @@ namespace chocolatey.tests.infrastructure.app.nuget
             {
                 _configuration = new ChocolateyConfiguration();
                 _nugetLogger.ResetCalls();
-                _packageDownloader.ResetCalls();
-                _filesystem.ResetCalls();
+                _packageDownloader.Invocations.Clear();
+                _filesystem.Invocations.Clear();
 
                 _filesystem.Setup(f => f.GetFullPath(It.IsAny<string>())).Returns((string a) =>
                 {
