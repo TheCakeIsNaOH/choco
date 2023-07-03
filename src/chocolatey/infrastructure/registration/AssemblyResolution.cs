@@ -27,6 +27,7 @@ namespace chocolatey.infrastructure.registration
     using chocolatey.infrastructure.app.runners;
     using filesystem;
     using Assembly = adapters.Assembly;
+    using AssemblyExtensions = chocolatey.AssemblyExtensions;
 
     public class AssemblyResolution
     {
