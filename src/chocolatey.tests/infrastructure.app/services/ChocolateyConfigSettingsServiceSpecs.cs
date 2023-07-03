@@ -19,7 +19,7 @@
 
             public override void Context()
             {
-                XmlService.ResetCalls();
+                XmlService.Invocations.Clear();
             }
         }
 
