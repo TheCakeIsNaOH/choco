@@ -30,6 +30,12 @@ namespace chocolatey.infrastructure.cryptography
         {
             if (string.IsNullOrWhiteSpace(cleartextValue)) return null;
 
+            // TODO fix this
+            if (!OperatingSystem.IsWindows())
+            {
+                return cleartextValue;
+            }
+
             var decryptedByteArray = Encoding.UTF8.GetBytes(cleartextValue);
             byte[] encryptedByteArray;
             try
@@ -38,7 +44,7 @@ namespace chocolatey.infrastructure.cryptography
             }
             catch (Exception ex)
             {
-                if (Platform.GetPlatform() != PlatformType.Windows && ex is CryptographicException)
+                if (!OperatingSystem.IsWindows() && ex is CryptographicException)
                 {
                     this.Log().Warn(@"Could not encrypt with LocalMachine scope.
 Falling back to CurrentUser scope for encryption.
@@ -58,6 +64,12 @@ Anything encrypted as CurrentUser can only be decrypted by your current user.");
 
         public string DecryptString(string encryptedString)
         {
+            // TODO fix this
+            if (!OperatingSystem.IsWindows())
+            {
+                return encryptedString;
+            }
+
             var encryptedByteArray = Convert.FromBase64String(encryptedString);
             byte[] decryptedByteArray;
 
@@ -67,7 +79,7 @@ Anything encrypted as CurrentUser can only be decrypted by your current user.");
             }
             catch (Exception ex)
             {
-                if (Platform.GetPlatform() != PlatformType.Windows && ex is CryptographicException)
+                if (!OperatingSystem.IsWindows() && ex is CryptographicException)
                 {
                     this.Log().Warn(@"Could not decrypt with LocalMachine scope.
 Falling back to CurrentUser scope for decryption.

@@ -18,7 +18,9 @@ namespace chocolatey.infrastructure.powershell
 {
     using System;
     using System.Globalization;
+    using System.Management.Automation;
     using System.Management.Automation.Host;
+    using System.Runtime.Versioning;
     using app;
     using app.configuration;
     using app.domain;
@@ -65,10 +67,15 @@ namespace chocolatey.infrastructure.powershell
             // users need at least v2 to even use Chocolatey
             // this allows us to shortcut the check for the v1/2 key
             var version = new Version(2, 0);
-            var majorMinor = RegistryService.GetRegistryValue(RegistryHiveType.LocalMachine, "SOFTWARE\\Microsoft\\PowerShell\\3\\PowerShellEngine", "PowerShellVersion");
-            if (majorMinor != null)
+
+            if (OperatingSystem.IsWindows())
             {
-                version = new Version(majorMinor.Value);
+                var majorMinor = RegistryService.GetRegistryValue(RegistryHiveType.LocalMachine,
+                    "SOFTWARE\\Microsoft\\PowerShell\\3\\PowerShellEngine", "PowerShellVersion");
+                if (majorMinor != null)
+                {
+                    version = new Version(majorMinor.Value);
+                }
             }
 
             return version;

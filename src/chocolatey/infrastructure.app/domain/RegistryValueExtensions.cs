@@ -17,11 +17,13 @@
 namespace chocolatey.infrastructure.app.domain
 {
     using System;
+    using System.Runtime.Versioning;
     using System.Security;
     using Microsoft.Win32;
 
     public static class RegistryValueExtensions
     {
+        [SupportedOSPlatform("windows")]
         public static string AsXmlSafeString(this RegistryKey key, string name)
         {
             if (key == null) return string.Empty;
@@ -36,6 +38,7 @@ namespace chocolatey.infrastructure.app.domain
         }
 
 #pragma warning disable IDE1006
+        [SupportedOSPlatform("windows")]
         [Obsolete("This overload is deprecated and will be removed in v3.")]
         public static string get_value_as_string(this RegistryKey key, string name)
             => AsXmlSafeString(key, name);

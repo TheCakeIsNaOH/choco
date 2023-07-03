@@ -61,7 +61,7 @@ namespace chocolatey.tests.integration.infrastructure.filesystem
             public void GetExecutablePath_should_find_existing_executable()
             {
                 FileSystem.GetExecutablePath("cmd").Should().BeEquivalentTo(
-                    Platform.GetPlatform() == PlatformType.Windows
+                    OperatingSystem.IsWindows()
                         ? "C:\\Windows\\system32\\cmd.exe"
                         : "cmd"
                     );
@@ -71,7 +71,7 @@ namespace chocolatey.tests.integration.infrastructure.filesystem
             public void GetExecutablePath_should_find_existing_executable_with_extension()
             {
                 FileSystem.GetExecutablePath("cmd.exe").Should().BeEquivalentTo(
-                    Platform.GetPlatform() == PlatformType.Windows
+                    OperatingSystem.IsWindows()
                         ? "c:\\windows\\system32\\cmd.exe"
                         : "cmd.exe"
                 );

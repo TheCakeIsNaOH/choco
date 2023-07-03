@@ -553,7 +553,7 @@ folder.");
 
                 var installedPackage = allLocalPackages.FirstOrDefault(p => p.Name.IsEqualTo(packageName));
 
-                if (Platform.GetPlatform() != PlatformType.Windows && !packageName.EndsWith(".template"))
+                if (!OperatingSystem.IsWindows() && !packageName.EndsWith(".template"))
                 {
                     string logMessage = "{0} is not a supported package on non-Windows systems.{1}Only template packages are currently supported.".FormatWith(packageName, Environment.NewLine);
                     this.Log().Warn(ChocolateyLoggers.Important, logMessage);
@@ -2532,7 +2532,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
 
         protected void NormalizeNuspecCasing(IPackageSearchMetadata packageMetadata, string packageLocation)
         {
-            if (Platform.GetPlatform() == PlatformType.Windows) return;
+            if (OperatingSystem.IsWindows()) return;
             this.Log().Debug(ChocolateyLoggers.Verbose, "Fixing nuspec casing if required");
 
             var expectedNuspec = _fileSystem.CombinePaths(packageLocation, "{0}{1}"

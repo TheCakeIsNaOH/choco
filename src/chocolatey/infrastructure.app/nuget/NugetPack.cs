@@ -63,7 +63,7 @@ namespace chocolatey.infrastructure.app.nuget
             // Always exclude the nuspec file
             // Review: This exclusion should be done by the package builder because it knows which file would collide with the auto-generated
             // manifest file.
-            var filter = Platform.GetPlatform() == PlatformType.Windows ? @"**\*" : "**/*";
+            var filter = OperatingSystem.IsWindows() ? @"**\*" : "**/*";
             var excludes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var wildCards = excludes.Concat(new[] { filter + PackagingConstants.ManifestExtension, filter + NuGetConstants.PackageExtension });
 

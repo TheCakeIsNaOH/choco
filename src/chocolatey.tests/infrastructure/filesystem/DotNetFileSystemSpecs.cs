@@ -78,7 +78,7 @@ namespace chocolatey.tests.infrastructure.filesystem
             public void GetDirectoryName_should_return_the_directory_of_the_path_to_the_file()
             {
                 FileSystem.GetDirectoryName("C:\\temp\\test.txt").Should().Be(
-                    Platform.GetPlatform() == PlatformType.Windows
+                    OperatingSystem.IsWindows()
                         ? "C:\\temp"
                         : "C:/temp");
             }
@@ -87,7 +87,7 @@ namespace chocolatey.tests.infrastructure.filesystem
             public void Combine_should_combine_the_file_paths_of_all_the_included_items_together()
             {
                 FileSystem.CombinePaths("C:\\temp", "yo", "filename.txt").Should().Be(
-                    Platform.GetPlatform() == PlatformType.Windows
+                    OperatingSystem.IsWindows()
                         ? "C:\\temp\\yo\\filename.txt"
                         : "C:/temp/yo/filename.txt");
             }
@@ -96,7 +96,7 @@ namespace chocolatey.tests.infrastructure.filesystem
             public void Combine_should_combine_when_paths_have_backslashes_in_subpaths()
             {
                 FileSystem.CombinePaths("C:\\temp", "yo\\timmy", "filename.txt").Should().Be(
-                    Platform.GetPlatform() == PlatformType.Windows
+                    OperatingSystem.IsWindows()
                         ? "C:\\temp\\yo\\timmy\\filename.txt"
                         : "C:/temp/yo/timmy/filename.txt");
             }
@@ -105,7 +105,7 @@ namespace chocolatey.tests.infrastructure.filesystem
             public void Combine_should_combine_when_paths_start_with_backslashes_in_subpaths()
             {
                 FileSystem.CombinePaths("C:\\temp", "\\yo", "filename.txt").Should().Be(
-                    Platform.GetPlatform() == PlatformType.Windows
+                    OperatingSystem.IsWindows()
                         ? "C:\\temp\\yo\\filename.txt"
                         : "C:/temp/yo/filename.txt");
             }
@@ -114,7 +114,7 @@ namespace chocolatey.tests.infrastructure.filesystem
             public void Combine_should_combine_when_paths_start_with_forwardslashes_in_subpaths()
             {
                 FileSystem.CombinePaths("C:\\temp", "/yo", "filename.txt").Should().Be(
-                    Platform.GetPlatform() == PlatformType.Windows
+                    OperatingSystem.IsWindows()
                         ? "C:\\temp\\yo\\filename.txt"
                         : "C:/temp/yo/filename.txt");
             }
@@ -151,7 +151,7 @@ namespace chocolatey.tests.infrastructure.filesystem
             public void GetExecutablePath_should_find_existing_executable()
             {
                 FileSystem.GetExecutablePath("cmd").ToLowerSafe().Should().BeEquivalentTo(
-                    Platform.GetPlatform() == PlatformType.Windows
+                    OperatingSystem.IsWindows()
                         ? "c:\\windows\\system32\\cmd.exe"
                         : "cmd");
             }
@@ -160,7 +160,7 @@ namespace chocolatey.tests.infrastructure.filesystem
             public void GetExecutablePath_should_find_existing_executable_with_extension()
             {
                 FileSystem.GetExecutablePath("cmd.exe").ToLowerSafe().Should().BeEquivalentTo(
-                    Platform.GetPlatform() == PlatformType.Windows
+                    OperatingSystem.IsWindows()
                         ? "c:\\windows\\system32\\cmd.exe"
                         : "cmd.exe"
                 );
@@ -207,7 +207,7 @@ namespace chocolatey.tests.infrastructure.filesystem
             [Fact]
             public void GetExecutablePath_should_find_existing_executable()
             {
-                if (Platform.GetPlatform() == PlatformType.Windows)
+                if (OperatingSystem.IsWindows())
                 {
                     FileSystem.GetExecutablePath("ls").Should().Be("ls");
                 }

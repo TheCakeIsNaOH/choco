@@ -30,6 +30,7 @@ namespace chocolatey.infrastructure.app.services
     using infrastructure.services;
     using tolerance;
     using Registry = domain.Registry;
+    using System.Runtime.Versioning;
 
     /// <summary>
     ///   Allows comparing registry
@@ -53,6 +54,7 @@ namespace chocolatey.infrastructure.app.services
             _fileSystem = fileSystem;
         }
 
+        [SupportedOSPlatform("windows")]
         private RegistryKey OpenKey(RegistryHive hive, RegistryView view)
         {
             return FaultTolerance.TryCatchWithLoggingException(
@@ -61,12 +63,14 @@ namespace chocolatey.infrastructure.app.services
                  logWarningInsteadOfError: true);
         }
 
+        [SupportedOSPlatform("windows")]
         private void AddKey(IList<RegistryKey> keys, RegistryHive hive, RegistryView view)
         {
             var key = OpenKey(hive, view);
             if (key != null) keys.Add(key);
         }
 
+        [SupportedOSPlatform("windows")]
         public Registry GetInstallerKeys()
         {
             var snapshot = new Registry();
@@ -118,6 +122,7 @@ namespace chocolatey.infrastructure.app.services
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="snapshot">The snapshot.</param>
+        [SupportedOSPlatform("windows")]
         public void UpdateSnapshot(RegistryKey key, Registry snapshot)
         {
             if (key == null) return;
@@ -248,6 +253,7 @@ namespace chocolatey.infrastructure.app.services
             key.Dispose();
         }
 
+        [SupportedOSPlatform("windows")]
         private void GetMsiInformation(RegistryApplicationKey appKey, RegistryKey key)
         {
             var userDataProductKeyId = GetMsiUserDataKey(key.Name);
@@ -331,6 +337,7 @@ namespace chocolatey.infrastructure.app.services
         private Regex _programFilesRegex = new Regex(@"(?<Drive>\w)[\:\?]\\(?<ProgFiles>[Pp]rogram\s[Ff]iles|[Pp]rogram\s[Ff]iles\s\(x86\))\\(?:[Mm]icrosoft[^\\]*|[Cc]ommon\s[Ff]iles|IIS|MSBuild|[Rr]eference\s[Aa]ssemblies|[Ww]indows[^\\]*|(?<Name>[^\\]+))\\", RegexOptions.Compiled);
         private StringBuilder _userDataKey = new StringBuilder();
 
+        [SupportedOSPlatform("windows")]
         private string GetMsiUserDataKey(string name)
         {
             _userDataKey.Clear();
@@ -373,6 +380,7 @@ namespace chocolatey.infrastructure.app.services
             _xmlService.Serialize(snapshot, filePath);
         }
 
+        [SupportedOSPlatform("windows")]
         public bool InstallerKeyExists(string keyPath)
         {
             return GetInstallerKeys().RegistryKeys.Any(k => k.KeyPath == keyPath);
@@ -388,6 +396,7 @@ namespace chocolatey.infrastructure.app.services
             return _xmlService.Deserialize<Registry>(filePath, 2);
         }
 
+        [SupportedOSPlatform("windows")]
         private void GetValues(RegistryKey key, string subKeyName, IList<GenericRegistryValue> values, bool expandValues)
         {
             if (key != null)
@@ -413,6 +422,7 @@ namespace chocolatey.infrastructure.app.services
             }
         }
 
+        [SupportedOSPlatform("windows")]
         public IEnumerable<GenericRegistryValue> GetEnvironmentValues()
         {
             IList<GenericRegistryValue> environmentValues = new List<GenericRegistryValue>();
@@ -428,6 +438,7 @@ namespace chocolatey.infrastructure.app.services
             return after.Except(before).ToList();
         }
 
+        [SupportedOSPlatform("windows")]
         public IEnumerable<GenericRegistryValue> GetRemovedEnvironmentValues(IEnumerable<GenericRegistryValue> before, IEnumerable<GenericRegistryValue> after)
         {
             var removals = new List<GenericRegistryValue>();
@@ -444,6 +455,7 @@ namespace chocolatey.infrastructure.app.services
             return removals;
         }
 
+        [SupportedOSPlatform("windows")]
         public RegistryKey GetKey(RegistryHive hive, string subKeyPath)
         {
             IList<RegistryKey> keyLocations = new List<RegistryKey>();
@@ -469,6 +481,7 @@ namespace chocolatey.infrastructure.app.services
             return null;
         }
 
+        [SupportedOSPlatform("windows")]
         public static GenericRegistryValue GetRegistryValue(RegistryHiveType hive, string subKeyPath, string registryValue)
         {
             var hiveActual = (RegistryHive)Enum.Parse(typeof(RegistryHive), hive.ToStringSafe(), ignoreCase: true);
@@ -517,46 +530,57 @@ namespace chocolatey.infrastructure.app.services
         }
 
 #pragma warning disable IDE1006
+        [SupportedOSPlatform("windows")]
         [Obsolete("This overload is deprecated and will be removed in v3.")]
         public Registry get_installer_keys()
             => GetInstallerKeys();
 
+        [SupportedOSPlatform("windows")]
         [Obsolete("This overload is deprecated and will be removed in v3.")]
         public void evaluate_keys(RegistryKey key, Registry snapshot)
             => UpdateSnapshot(key, snapshot);
 
+        [SupportedOSPlatform("windows")]
         [Obsolete("This overload is deprecated and will be removed in v3.")]
         public Registry get_installer_key_differences(Registry before, Registry after)
             => GetInstallerKeysChanged(before, after);
 
+        [SupportedOSPlatform("windows")]
         [Obsolete("This overload is deprecated and will be removed in v3.")]
         public void save_to_file(Registry snapshot, string filePath)
             => SaveRegistrySnapshot(snapshot, filePath);
 
+        [SupportedOSPlatform("windows")]
         [Obsolete("This overload is deprecated and will be removed in v3.")]
         public bool installer_value_exists(string keyPath, string value)
             => InstallerKeyExists(keyPath);
 
+        [SupportedOSPlatform("windows")]
         [Obsolete("This overload is deprecated and will be removed in v3.")]
         public Registry read_from_file(string filePath)
             => ReadRegistrySnapshot(filePath);
 
+        [SupportedOSPlatform("windows")]
         [Obsolete("This overload is deprecated and will be removed in v3.")]
         public IEnumerable<GenericRegistryValue> get_environment_values()
             => GetEnvironmentValues();
 
+        [SupportedOSPlatform("windows")]
         [Obsolete("This overload is deprecated and will be removed in v3.")]
         public IEnumerable<GenericRegistryValue> get_added_changed_environment_differences(IEnumerable<GenericRegistryValue> before, IEnumerable<GenericRegistryValue> after)
             => GetNewAndModifiedEnvironmentValues(before, after);
 
+        [SupportedOSPlatform("windows")]
         [Obsolete("This overload is deprecated and will be removed in v3.")]
         public IEnumerable<GenericRegistryValue> get_removed_environment_differences(IEnumerable<GenericRegistryValue> before, IEnumerable<GenericRegistryValue> after)
             => GetRemovedEnvironmentValues(before, after);
 
+        [SupportedOSPlatform("windows")]
         [Obsolete("This overload is deprecated and will be removed in v3.")]
         public RegistryKey get_key(RegistryHive hive, string subKeyPath)
             => GetKey(hive, subKeyPath);
 
+        [SupportedOSPlatform("windows")]
         [Obsolete("This overload is deprecated and will be removed in v3.")]
         public static GenericRegistryValue get_value(RegistryHiveType hive, string subKeyPath, string registryValue)
             => GetRegistryValue(hive, subKeyPath, registryValue);

@@ -113,7 +113,7 @@ namespace chocolatey.infrastructure.adapters
             }
             set
             {
-                if (!IsOutputRedirected) System.Console.BufferWidth = value;
+                if (!IsOutputRedirected && OperatingSystem.IsWindows()) System.Console.BufferWidth = value;
             }
         }
 
@@ -127,20 +127,20 @@ namespace chocolatey.infrastructure.adapters
             }
             set
             {
-                if (!IsOutputRedirected) System.Console.BufferHeight = value;
+                if (!IsOutputRedirected && OperatingSystem.IsWindows()) System.Console.BufferHeight = value;
             }
         }
 
         public void SetBufferSize(int width, int height)
         {
-            if (!IsOutputRedirected) System.Console.SetBufferSize(width, height);
+            if (!IsOutputRedirected && OperatingSystem.IsWindows()) System.Console.SetBufferSize(width, height);
         }
 
         public string Title
         {
             get
             {
-                if (!IsOutputRedirected) return System.Console.Title;
+                if (!IsOutputRedirected && OperatingSystem.IsWindows()) return System.Console.Title;
 
                 return string.Empty;
             }
@@ -170,7 +170,7 @@ namespace chocolatey.infrastructure.adapters
             }
             set
             {
-                if (!IsOutputRedirected) System.Console.CursorSize = value;
+                if (!IsOutputRedirected && OperatingSystem.IsWindows()) System.Console.CursorSize = value;
             }
         }
 
@@ -204,7 +204,7 @@ namespace chocolatey.infrastructure.adapters
             }
             set
             {
-                if (!IsOutputRedirected) System.Console.WindowWidth = value;
+                if (!IsOutputRedirected && OperatingSystem.IsWindows()) System.Console.WindowWidth = value;
             }
         }
 
@@ -218,13 +218,13 @@ namespace chocolatey.infrastructure.adapters
             }
             set
             {
-                if (!IsOutputRedirected) System.Console.WindowHeight = value;
+                if (!IsOutputRedirected && OperatingSystem.IsWindows()) System.Console.WindowHeight = value;
             }
         }
 
         public void SetWindowSize(int width, int height)
         {
-            if (!IsOutputRedirected) System.Console.SetWindowSize(width, height);
+            if (!IsOutputRedirected && OperatingSystem.IsWindows()) System.Console.SetWindowSize(width, height);
         }
 
         public int WindowLeft
@@ -237,7 +237,7 @@ namespace chocolatey.infrastructure.adapters
             }
             set
             {
-                if (!IsOutputRedirected) System.Console.WindowLeft = value;
+                if (!IsOutputRedirected && OperatingSystem.IsWindows()) System.Console.WindowLeft = value;
             }
         }
 
@@ -251,13 +251,13 @@ namespace chocolatey.infrastructure.adapters
             }
             set
             {
-                if (!IsOutputRedirected) System.Console.WindowTop = value;
+                if (!IsOutputRedirected && OperatingSystem.IsWindows()) System.Console.WindowTop = value;
             }
         }
 
         public void SetWindowPosition(int width, int height)
         {
-            if (!IsOutputRedirected) System.Console.SetWindowPosition(width, height);
+            if (!IsOutputRedirected && OperatingSystem.IsWindows()) System.Console.SetWindowPosition(width, height);
         }
 
         /// <remarks>
@@ -301,7 +301,7 @@ namespace chocolatey.infrastructure.adapters
 
         private bool IsWindows()
         {
-            return Platform.GetPlatform() == PlatformType.Windows;
+            return OperatingSystem.IsWindows();
         }
 
         private CONSOLE_SCREEN_BUFFER_INFO GetConsoleBuffer()

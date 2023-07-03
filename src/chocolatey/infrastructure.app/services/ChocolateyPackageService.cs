@@ -455,7 +455,7 @@ Did you know Pro / Business automatically syncs with Programs and
             // initialize this here so it can be used for the install location later
             bool powerShellRan = false;
 
-            if (packageResult.Success && config.Information.PlatformType == PlatformType.Windows)
+            if (packageResult.Success && OperatingSystem.IsWindows())
             {
                 if (!config.SkipPackageInstallProvider)
                 {
@@ -466,7 +466,7 @@ Did you know Pro / Business automatically syncs with Programs and
                     if (powerShellRan)
                     {
                         // we don't care about the exit code
-                        if (config.Information.PlatformType == PlatformType.Windows) CommandExecutor.ExecuteStatic(_shutdownExe, "/a", config.CommandExecutionTimeoutSeconds, _fileSystem.GetCurrentDirectory(), (s, e) => { }, (s, e) => { }, false, false);
+                        if (OperatingSystem.IsWindows()) CommandExecutor.ExecuteStatic(_shutdownExe, "/a", config.CommandExecutionTimeoutSeconds, _fileSystem.GetCurrentDirectory(), (s, e) => { }, (s, e) => { }, false, false);
                     }
 
                     var installersDifferences = _registryService.GetInstallerKeysChanged(installersBefore, _registryService.GetInstallerKeys());
@@ -505,7 +505,7 @@ Did you know Pro / Business automatically syncs with Programs and
             }
             else
             {
-                if (config.Information.PlatformType != PlatformType.Windows) this.Log().Info(ChocolateyLoggers.Important, () => " Skipping PowerShell and shimgen portions of the install due to non-Windows.");
+                if (!OperatingSystem.IsWindows()) this.Log().Info(ChocolateyLoggers.Important, () => " Skipping PowerShell and shimgen portions of the install due to non-Windows.");
                 if (packageResult.Success)
                 {
                     _configTransformService.Run(packageResult, config);
@@ -1005,13 +1005,13 @@ Would have determined packages that are out of date based on what is
 
         private void BeforeModifyAction(PackageResult packageResult, ChocolateyConfiguration config)
         {
-            if (!config.SkipPackageInstallProvider && config.Information.PlatformType == PlatformType.Windows)
+            if (!config.SkipPackageInstallProvider && OperatingSystem.IsWindows())
             {
                 _powershellService.BeforeModify(config, packageResult);
             }
             else
             {
-                if (config.Information.PlatformType != PlatformType.Windows) this.Log().Info(ChocolateyLoggers.Important, () => " Skipping beforemodify PowerShell script due to non-Windows.");
+                if (!OperatingSystem.IsWindows()) this.Log().Info(ChocolateyLoggers.Important, () => " Skipping beforemodify PowerShell script due to non-Windows.");
             }
         }
 
@@ -1313,7 +1313,7 @@ The recent package changes indicate a reboot is necessary.
         public virtual void HandlePackageUninstall(PackageResult packageResult, ChocolateyConfiguration config)
         {
             //These items only apply to windows systems.
-            if (config.Information.PlatformType == PlatformType.Windows)
+            if (OperatingSystem.IsWindows())
             {
                 _shimgenService.Uninstall(config, packageResult);
 
@@ -1723,7 +1723,7 @@ ATTENTION: You must take manual action to remove {1} from
 
         private IEnumerable<GenericRegistryValue> GetInitialEnvironment(ChocolateyConfiguration config, bool allowLogging = true)
         {
-            if (config.Information.PlatformType != PlatformType.Windows) return Enumerable.Empty<GenericRegistryValue>();
+            if (!OperatingSystem.IsWindows()) return Enumerable.Empty<GenericRegistryValue>();
             var environmentBefore = _registryService.GetEnvironmentValues();
 
             if (allowLogging && config.Features.LogEnvironmentValues)
@@ -1742,7 +1742,7 @@ ATTENTION: You must take manual action to remove {1} from
 
         private void LogEnvironmentChanges(ChocolateyConfiguration config, IEnumerable<GenericRegistryValue> environmentBefore, out IEnumerable<GenericRegistryValue> environmentChanges, out IEnumerable<GenericRegistryValue> environmentRemovals)
         {
-            if (config.Information.PlatformType != PlatformType.Windows)
+            if (!OperatingSystem.IsWindows())
             {
                 environmentChanges = Enumerable.Empty<GenericRegistryValue>();
                 environmentRemovals = Enumerable.Empty<GenericRegistryValue>();
