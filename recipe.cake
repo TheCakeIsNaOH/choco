@@ -319,6 +319,7 @@ BuildParameters.SetParameters(context: Context,
                             shouldRunNuGet: IsRunningOnWindows(),
                             shouldAuthenticodeSignPowerShellScripts: IsRunningOnWindows(),
                             shouldPublishAwsLambdas: false,
+                            shouldRunSonarQube: false,
                             chocolateyNupkgGlobbingPattern: "/**/chocolatey[!-no7zip]*.nupkg");
 
 ToolSettings.SetToolSettings(context: Context);
