@@ -101,7 +101,7 @@ namespace chocolatey.infrastructure.app.nuget
 #pragma warning restore IDE0060 // unused method parameter (nugetLogger)
         {
             // Set user agent for all NuGet library calls. Should not affect any HTTP calls that Chocolatey itself would make.
-            UserAgent.SetUserAgentString(new UserAgentStringBuilder("{0}/{1} via NuGet Client".FormatWith(ApplicationParameters.Headers["User-Agent"].ToString(), configuration.Information.ChocolateyProductVersion)));
+            UserAgent.SetUserAgentString(new UserAgentStringBuilder("{0}/{1} via NuGet Client".FormatWith(ApplicationParameters.UserAgent, configuration.Information.ChocolateyProductVersion)));
 
             // ensure credentials can be grabbed from configuration
             SetHttpHandlerCredentialService(configuration);

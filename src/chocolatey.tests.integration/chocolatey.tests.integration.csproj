@@ -1,13 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <OutputType>Library</OutputType>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <OverwriteReadOnlyFiles>true</OverwriteReadOnlyFiles>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <UseWindowsForms>true</UseWindowsForms>
-    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
-    <OutputPath>bin\ReleaseOfficialNo7zip\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'NoResources|AnyCPU'">
     <OutputPath>bin\NoResources\</OutputPath>
@@ -45,9 +43,6 @@
     <Content Include="infrastructure\filesystem\Slipsum.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Analyzer Include="..\packages\FluentAssertions.Analyzers.0.19.1\analyzers\dotnet\cs\FluentAssertions.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Chocolatey.NuGet.Common" Version="3.4.2" />

@@ -31,9 +31,6 @@
     <ProjectReference Include="..\chocolatey.console\chocolatey.console.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\packages\FluentAssertions.Analyzers.0.19.1\analyzers\dotnet\cs\FluentAssertions.Analyzers.dll" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Chocolatey.NuGet.Commands" Version="3.4.2" />
     <PackageReference Include="Chocolatey.NuGet.Common" Version="3.4.2" />
     <PackageReference Include="Chocolatey.NuGet.Configuration" Version="3.4.2" />
