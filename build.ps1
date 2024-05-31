@@ -65,6 +65,9 @@ catch {
     Write-Output 'Unable to set PowerShell to use TLS 1.2 and TLS 1.1 due to old .NET Framework installed. If you see underlying connection closed or trust errors, you may need to upgrade to .NET Framework 4.5+ and PowerShell v3'
 }
 
+#REMOVE ME, TEMP SET EXTRA nuget source:
+$ENV:NUGETDEVRESTORE_SOURCE = "https://nuget.naoh.host/repository/nuget-public/index.json"
+
 [Reflection.Assembly]::LoadWithPartialName("System.Security") | Out-Null
 function MD5HashFile([string] $filePath) {
     if ([string]::IsNullOrEmpty($filePath) -or !(Test-Path $filePath -PathType Leaf)) {
