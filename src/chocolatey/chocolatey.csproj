@@ -56,8 +56,9 @@
     <PackageReference Include="Microsoft.Bcl.HashCode" Version="6.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.3" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.6.0-preview.5 " />
     <PackageReference Include="Microsoft.Web.Xdt" Version="3.1.0" />
+    <PackageReference Include="Rhino.Licensing" Version="1.6.0-alpha-20240531" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="SimpleInjector" Version="3.3.2" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
