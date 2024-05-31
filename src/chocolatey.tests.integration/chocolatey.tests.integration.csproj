@@ -6,6 +6,7 @@
     <OverwriteReadOnlyFiles>true</OverwriteReadOnlyFiles>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputPath>bin\Debug\</OutputPath>
+    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'NoResources|AnyCPU'">
     <OutputPath>bin\NoResources\</OutputPath>
