@@ -37,11 +37,6 @@ namespace Chocolatey.PowerShell.Helpers
         /// <returns>True if running on Windows and the process has administrative rights.</returns>
         public static bool IsElevated()
         {
-            if (!OperatingSystem.IsWindows())
-            {
-                return false;
-            }
-
             using (var identity = WindowsIdentity.GetCurrent(TokenAccessLevels.Query | TokenAccessLevels.Duplicate))
             {
                 if (identity is null)

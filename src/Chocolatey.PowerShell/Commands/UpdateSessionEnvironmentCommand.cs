@@ -25,7 +25,7 @@ namespace Chocolatey.PowerShell.Commands
     [OutputType(typeof(void))]
     public sealed class UpdateSessionEnvironmentCommand : ChocolateyCmdlet
     {
-        [SupportedOSPlatform("windows")]
+
         protected override void End()
         {
             var calledByAlias = MyInvocation?.InvocationName.ToLower() == "refreshenv";

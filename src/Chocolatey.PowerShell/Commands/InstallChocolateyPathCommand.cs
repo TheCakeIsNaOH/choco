@@ -34,7 +34,7 @@ namespace Chocolatey.PowerShell.Commands
         [Alias("Scope", "Type")]
         public EnvironmentVariableTarget PathType { get; set; } = EnvironmentVariableTarget.User;
 
-        [SupportedOSPlatform("windows")]
+        
         protected override void End()
         {
             Paths.InstallPathEntry(this, Path, PathType);

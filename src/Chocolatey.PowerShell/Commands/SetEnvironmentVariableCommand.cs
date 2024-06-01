@@ -35,7 +35,7 @@ namespace Chocolatey.PowerShell.Commands
         [Parameter(Position = 2)]
         public EnvironmentVariableTarget Scope { get; set; }
 
-        [SupportedOSPlatform("windows")]
+        
         protected override void End()
         {
             EnvironmentHelper.SetVariable(this, Name, Scope, Value);

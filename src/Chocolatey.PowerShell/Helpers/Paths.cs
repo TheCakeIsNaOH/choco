@@ -105,7 +105,7 @@ namespace Chocolatey.PowerShell.Helpers
         /// <param name="cmdlet">The cmdlet running the method.</param>
         /// <param name="pathEntry">The path entry to add/install.</param>
         /// <param name="scope">The target scope of the PATH variable to modify.</param>
-        [SupportedOSPlatform("windows")]
+        
         public static void InstallPathEntry(PSCmdlet cmdlet, string pathEntry, EnvironmentVariableTarget scope)
         {
             var pathEntries = new List<string>(ParsePathString(EnvironmentHelper.GetVariable(cmdlet, EnvironmentVariables.Path, scope, preserveVariables: true)));
@@ -138,7 +138,7 @@ namespace Chocolatey.PowerShell.Helpers
         /// <param name="cmdlet">The cmdlet running the method.</param>
         /// <param name="pathEntry">The path entry to remove/uninstall.</param>
         /// <param name="scope">The target scope of the PATH variable to modify.</param>
-        [SupportedOSPlatform("windows")]
+        
         public static void UninstallPathEntry(PSCmdlet cmdlet, string pathEntry, EnvironmentVariableTarget scope)
         {
             var pathEntries = new List<string>(ParsePathString(EnvironmentHelper.GetVariable(cmdlet, EnvironmentVariables.Path, scope, preserveVariables: true)));
