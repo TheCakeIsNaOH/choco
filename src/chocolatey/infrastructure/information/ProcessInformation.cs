@@ -33,7 +33,7 @@ namespace chocolatey.infrastructure.information
     {
         public static bool UserIsAdministrator()
         {
-            if (Platform.GetPlatform() != PlatformType.Windows)
+            if (!OperatingSystem.IsWindows())
             {
                 return false;
             }
@@ -122,7 +122,7 @@ namespace chocolatey.infrastructure.information
 
         public static bool IsElevated()
         {
-            if (Platform.GetPlatform() != PlatformType.Windows)
+            if (!OperatingSystem.IsWindows())
             {
                 return false;
             }
@@ -151,7 +151,7 @@ namespace chocolatey.infrastructure.information
 
         public static bool UserIsSystem()
         {
-            if (Platform.GetPlatform() != PlatformType.Windows)
+            if (!OperatingSystem.IsWindows())
             {
                 return false;
             }

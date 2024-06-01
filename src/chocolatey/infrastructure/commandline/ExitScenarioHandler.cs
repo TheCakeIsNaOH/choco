@@ -48,7 +48,7 @@ namespace chocolatey.infrastructure.commandline
 
         public static void SetHandler()
         {
-            if (Platform.GetPlatform() != PlatformType.Windows)
+            if (!OperatingSystem.IsWindows())
             {
                 return;
             }

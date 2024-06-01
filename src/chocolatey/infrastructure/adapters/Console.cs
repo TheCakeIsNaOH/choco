@@ -17,6 +17,7 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using chocolatey.infrastructure.app;
 using chocolatey.infrastructure.commandline;
 using chocolatey.infrastructure.platforms;
@@ -127,6 +128,7 @@ namespace chocolatey.infrastructure.adapters
             }
         }
 
+        [SupportedOSPlatform("windows")]
         public int BufferWidth
         {
             get
@@ -147,6 +149,7 @@ namespace chocolatey.infrastructure.adapters
             }
         }
 
+        [SupportedOSPlatform("windows")]
         public int BufferHeight
         {
             get
@@ -158,6 +161,7 @@ namespace chocolatey.infrastructure.adapters
 
                 return GetConsoleBuffer().dwSize.Y; //the current console window height
             }
+
             set
             {
                 if (!IsOutputRedirected)
@@ -167,6 +171,7 @@ namespace chocolatey.infrastructure.adapters
             }
         }
 
+        [SupportedOSPlatform("windows")]
         public void SetBufferSize(int width, int height)
         {
             if (!IsOutputRedirected)
@@ -175,6 +180,7 @@ namespace chocolatey.infrastructure.adapters
             }
         }
 
+        [SupportedOSPlatform("windows")]
         public string Title
         {
             get
@@ -208,6 +214,7 @@ namespace chocolatey.infrastructure.adapters
             }
         }
 
+        [SupportedOSPlatform("windows")]
         public int CursorSize
         {
             get
@@ -219,6 +226,7 @@ namespace chocolatey.infrastructure.adapters
 
                 return GetConsoleBuffer().dwCursorPosition.Y;
             }
+
             set
             {
                 if (!IsOutputRedirected)
@@ -302,6 +310,7 @@ namespace chocolatey.infrastructure.adapters
             }
         }
 
+        [SupportedOSPlatform("windows")]
         public int WindowLeft
         {
             get
@@ -322,6 +331,7 @@ namespace chocolatey.infrastructure.adapters
             }
         }
 
+        [SupportedOSPlatform("windows")]
         public int WindowTop
         {
             get
@@ -342,6 +352,7 @@ namespace chocolatey.infrastructure.adapters
             }
         }
 
+        [SupportedOSPlatform("windows")]
         public void SetWindowPosition(int width, int height)
         {
             if (!IsOutputRedirected)
@@ -400,7 +411,7 @@ namespace chocolatey.infrastructure.adapters
 
         private bool IsWindows()
         {
-            return Platform.GetPlatform() == PlatformType.Windows;
+            return OperatingSystem.IsWindows();
         }
 
         private CONSOLE_SCREEN_BUFFER_INFO GetConsoleBuffer()

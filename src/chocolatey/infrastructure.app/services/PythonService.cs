@@ -173,7 +173,7 @@ namespace chocolatey.infrastructure.app.services
 
         public void EnsureSourceAppInstalled(ChocolateyConfiguration config, Action<PackageResult, ChocolateyConfiguration> ensureAction)
         {
-            if (Platform.GetPlatform() != PlatformType.Windows)
+            if (!OperatingSystem.IsWindows())
             {
                 throw new NotImplementedException("This source is not supported on non-Windows systems");
             }
@@ -232,6 +232,15 @@ namespace chocolatey.infrastructure.app.services
                     _exePath = pipPath;
                     return;
                 }
+            }
+
+            if (!OperatingSystem.IsWindows())
+            {
+                if (string.IsNullOrWhiteSpace(_exePath))
+                {
+                    throw new FileNotFoundException("Unable to find pip");
+                }
+                    return;
             }
 
             var topLevelPath = string.Empty;

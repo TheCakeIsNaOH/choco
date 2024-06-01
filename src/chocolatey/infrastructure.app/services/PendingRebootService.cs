@@ -18,6 +18,7 @@ using chocolatey.infrastructure.app.configuration;
 using Microsoft.Win32;
 using chocolatey.infrastructure.platforms;
 using System;
+using System.Runtime.Versioning;
 
 namespace chocolatey.infrastructure.app.services
 {
@@ -41,7 +42,7 @@ namespace chocolatey.infrastructure.app.services
         /// <returns><c>true</c> if reboot is required; otherwise <c>false</c>.</returns>
         public bool IsRebootPending(ChocolateyConfiguration config)
         {
-            if (config.Information.PlatformType != PlatformType.Windows)
+            if (!OperatingSystem.IsWindows())
             {
                 return false;
             }
@@ -63,6 +64,7 @@ namespace chocolatey.infrastructure.app.services
         /// <returns>
         ///   <c>true</c> if [is pending computer rename]; otherwise, <c>false</c>.
         /// </returns>
+        [SupportedOSPlatform("windows")]
         private bool IsPendingComputerRename()
         {
             var path = "SYSTEM\\CurrentControlSet\\Control\\ComputerName\\{0}";
@@ -89,6 +91,7 @@ namespace chocolatey.infrastructure.app.services
         /// <remarks>
         /// https://blogs.technet.microsoft.com/askperf/2008/04/23/understanding-component-based-servicing/
         /// </remarks>
+        [SupportedOSPlatform("windows")]
         private bool IsPendingComponentBasedServicing()
         {
             if (!IsAtLeastVistaSp1())
@@ -112,6 +115,7 @@ namespace chocolatey.infrastructure.app.services
         /// <returns>
         ///   <c>true</c> if is pending windows automatic update; otherwise, <c>false</c>.
         /// </returns>
+        [SupportedOSPlatform("windows")]
         private bool IsPendingWindowsAutoUpdate()
         {
             var path = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\\Auto Update\\RebootRequired";
@@ -129,6 +133,7 @@ namespace chocolatey.infrastructure.app.services
         /// <returns>
         ///   <c>false</c>, however, additional information provided in debug log to indicate if it was ignored.
         /// </returns>
+        [SupportedOSPlatform("windows")]
         private bool IsPendingFileRenameOperation()
         {
             var path = "SYSTEM\\CurrentControlSet\\Control\\Session Manager";
@@ -158,6 +163,7 @@ namespace chocolatey.infrastructure.app.services
         /// https://support.microsoft.com/kb/832475
         /// 0x00000000 (0)	No pending restart.
         /// </remarks>
+        [SupportedOSPlatform("windows")]
         private bool IsPendingPackageInstaller()
         {
             var path = "SOFTWARE\\Microsoft\\Updates";
@@ -180,6 +186,7 @@ namespace chocolatey.infrastructure.app.services
         /// https://support.microsoft.com/kb/832475
         /// 0x00000000 (0)	No pending restart.
         /// </remarks>
+        [SupportedOSPlatform("windows")]
         private bool IsPendingPackageInstallerSysWow64()
         {
             var path = "SOFTWARE\\Wow6432Node\\Microsoft\\Updates";
@@ -192,6 +199,7 @@ namespace chocolatey.infrastructure.app.services
             return result;
         }
 
+        [SupportedOSPlatform("windows")]
         private string GetRegistryKeyString(string path, string value)
         {
             var key = _registryService.GetKey(RegistryHive.LocalMachine, path);
@@ -204,6 +212,7 @@ namespace chocolatey.infrastructure.app.services
             return key.GetValue(value, string.Empty).ToStringSafe();
         }
 
+        [SupportedOSPlatform("windows")]
         private object GetRegistryKeyValue(string path, string value)
         {
             var key = _registryService.GetKey(RegistryHive.LocalMachine, path);

@@ -5,6 +5,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Configurations>Debug;NoResources;Release;ReleaseOfficial;WIX</Configurations>
     <NoWarn>$(NoWarn);CS1591;NU1605</NoWarn>
+    <WarningsAsErrors></WarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseOfficial|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>

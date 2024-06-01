@@ -74,7 +74,7 @@ namespace chocolatey.infrastructure.logging
             {
                 var assembly = Assembly.GetExecutingAssembly();
                 var resource = ApplicationParameters.Log4NetConfigurationResource;
-                if (Platform.GetPlatform() != PlatformType.Windows)
+                if (!OperatingSystem.IsWindows())
                 {
                     // it became much easier to do this once we realized that updating the current mappings is about impossible.
                     resource = resource.Replace("log4net.", "log4net.mono.");
