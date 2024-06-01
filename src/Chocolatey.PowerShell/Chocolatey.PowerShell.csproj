@@ -3,6 +3,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <WarningsAsErrors>CA1416</WarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseOfficial|AnyCPU' or '$(Configuration)|$(Platform)' == 'ReleaseOfficialNo7zip|AnyCPU'">
     <OutputPath>bin\ReleaseOfficial\</OutputPath>

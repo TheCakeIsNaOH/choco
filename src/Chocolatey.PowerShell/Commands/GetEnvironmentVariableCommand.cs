@@ -16,6 +16,7 @@
 
 using System;
 using System.Management.Automation;
+using System.Runtime.Versioning;
 using Chocolatey.PowerShell.Helpers;
 using Chocolatey.PowerShell.Shared;
 
@@ -37,6 +38,7 @@ namespace Chocolatey.PowerShell.Commands
         // Avoid logging environment variable names by accident.
         protected override bool Logging { get; } = false;
 
+        [SupportedOSPlatform("windows")]
         protected override void End()
         {
             if (PreserveVariables)

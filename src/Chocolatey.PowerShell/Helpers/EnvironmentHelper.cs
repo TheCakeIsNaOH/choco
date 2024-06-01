@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
+using System.Runtime.Versioning;
 using Chocolatey.PowerShell.Shared;
 using Chocolatey.PowerShell.Win32;
 using Microsoft.Win32;
@@ -36,8 +37,9 @@ namespace Chocolatey.PowerShell.Helpers
         /// <param name="name">The name of the environment variable to retrieve.</param>
         /// <param name="scope">The scope to look in for the environment variable.</param>
         /// <returns>The value of the environment variable as a string.</returns>
+        [SupportedOSPlatform("windows")]
         public static string GetVariable(PSCmdlet cmdlet, string name, EnvironmentVariableTarget scope)
-        { 
+        {
             return GetVariable(cmdlet, name, scope, preserveVariables: false);
         }
 
@@ -49,6 +51,7 @@ namespace Chocolatey.PowerShell.Helpers
         /// <param name="scope">The scope to look in for the environment variable.</param>
         /// <param name="preserveVariables">Whether to preserve environment variable names in the retrieved value. If false, environment names will be expanded.</param>
         /// <returns>The value of the environment variable as a string.</returns>
+        [SupportedOSPlatform("windows")]
         public static string GetVariable(PSCmdlet cmdlet, string name, EnvironmentVariableTarget scope, bool preserveVariables)
         {
             if (scope == EnvironmentVariableTarget.Process)
@@ -88,6 +91,7 @@ namespace Chocolatey.PowerShell.Helpers
         /// <param name="scope">The scope of the environment variables to look up.</param>
         /// <returns>The registry key associated with the targeted <paramref name="scope"/> of environment variables.</returns>
         /// <exception cref="NotSupportedException">Thrown if <paramref name="scope"/> is not <see cref="EnvironmentVariableTarget.User"/> or <see cref="EnvironmentVariableTarget.Machine"/>.</exception>
+        [SupportedOSPlatform("windows")]
         private static RegistryKey GetEnvironmentKey(EnvironmentVariableTarget scope, bool writable = false)
         {
             switch (scope)
@@ -107,6 +111,7 @@ namespace Chocolatey.PowerShell.Helpers
         /// </summary>
         /// <param name="scope">The scope to lookup environment variable names in.</param>
         /// <returns></returns>
+        [SupportedOSPlatform("windows")]
         public static string[] GetVariableNames(EnvironmentVariableTarget scope)
         {
             if (scope == EnvironmentVariableTarget.Process)
@@ -135,6 +140,7 @@ namespace Chocolatey.PowerShell.Helpers
         /// <param name="name">The name of the environment variable to set.</param>
         /// <param name="scope">The scope to set the environment variable in.</param>
         /// <param name="value">The value to set the environment variable to.</param>
+        [SupportedOSPlatform("windows")]
         public static void SetVariable(PSCmdlet cmdlet, string name, EnvironmentVariableTarget scope, string value)
         {
             if (scope == EnvironmentVariableTarget.Process)
@@ -205,6 +211,7 @@ namespace Chocolatey.PowerShell.Helpers
         /// Updates the current session environment, ensuring environment changes are reflected in the current session.
         /// </summary>
         /// <param name="cmdlet">The cmdlet calling the method.</param>
+        [SupportedOSPlatform("windows")]
         public static void UpdateSession(PSCmdlet cmdlet)
         {
             var userName = GetVariable(cmdlet, EnvironmentVariables.Username, EnvironmentVariableTarget.Process);

@@ -590,7 +590,7 @@ folder.");
 
                 var installedPackage = allLocalPackages.FirstOrDefault(p => p.Name.IsEqualTo(packageName));
 
-                if (Platform.GetPlatform() != PlatformType.Windows && !packageName.EndsWith(".template"))
+                if (!OperatingSystem.IsWindows() && !packageName.EndsWith(".template"))
                 {
                     var logMessage = "{0} is not a supported package on non-Windows systems.{1}Only template packages are currently supported.".FormatWith(packageName, Environment.NewLine);
                     this.Log().Warn(ChocolateyLoggers.Important, logMessage);
@@ -2752,7 +2752,7 @@ Please see https://docs.chocolatey.org/en-us/troubleshooting for more
 
         protected void NormalizeNuspecCasing(IPackageSearchMetadata packageMetadata, string packageLocation)
         {
-            if (Platform.GetPlatform() == PlatformType.Windows)
+            if (OperatingSystem.IsWindows())
             {
                 return;
             }

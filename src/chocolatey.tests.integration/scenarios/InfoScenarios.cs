@@ -397,7 +397,7 @@ namespace chocolatey.tests.integration.scenarios
             public void Should_set_source_to_expected_value()
             {
                 Results[0].Source.Should().Be(
-                    ((Platform.GetPlatform() == PlatformType.Windows ? "file:///" : "file://") + Path.Combine(Environment.CurrentDirectory, "PackageOutput"))
+                    ((OperatingSystem.IsWindows() ? "file:///" : "file://") + Path.Combine(Environment.CurrentDirectory, "PackageOutput"))
                     .Replace("\\", "/"));
             }
 

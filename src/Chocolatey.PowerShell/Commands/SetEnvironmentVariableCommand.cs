@@ -16,6 +16,7 @@
 
 using System;
 using System.Management.Automation;
+using System.Runtime.Versioning;
 using Chocolatey.PowerShell.Helpers;
 using Chocolatey.PowerShell.Shared;
 
@@ -34,6 +35,7 @@ namespace Chocolatey.PowerShell.Commands
         [Parameter(Position = 2)]
         public EnvironmentVariableTarget Scope { get; set; }
 
+        [SupportedOSPlatform("windows")]
         protected override void End()
         {
             EnvironmentHelper.SetVariable(this, Name, Scope, Value);

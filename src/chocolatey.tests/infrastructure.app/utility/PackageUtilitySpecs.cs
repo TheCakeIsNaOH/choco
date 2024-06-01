@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using chocolatey.infrastructure.app.utility;
 using chocolatey.infrastructure.app.configuration;
 using chocolatey.infrastructure.platforms;
@@ -52,7 +53,7 @@ namespace chocolatey.tests.infrastructure.app.utility
 
             public When_PackageUtility_is_checking_if_package_is_dependency(string packageName, string configNames, bool expectedResult)
             {
-                if (Platform.GetPlatform() != PlatformType.Windows)
+                if (!OperatingSystem.IsWindows())
                 {
                     configNames = configNames.Replace("\\", "/");
                 }

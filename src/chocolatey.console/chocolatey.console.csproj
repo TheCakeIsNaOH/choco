@@ -104,6 +104,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
+    <WarningsAsErrors>CA1416</WarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\SolutionVersion.cs">

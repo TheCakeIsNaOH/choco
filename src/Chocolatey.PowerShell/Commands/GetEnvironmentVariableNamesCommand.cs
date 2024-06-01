@@ -16,6 +16,7 @@
 
 using System;
 using System.Management.Automation;
+using System.Runtime.Versioning;
 using Chocolatey.PowerShell.Helpers;
 using Chocolatey.PowerShell.Shared;
 
@@ -31,7 +32,7 @@ namespace Chocolatey.PowerShell.Commands
         // Do not log function call
         protected override bool Logging { get; } = false;
 
-
+        [SupportedOSPlatform("windows")]
         protected override void End()
         {
             WriteObject(EnvironmentHelper.GetVariableNames(Scope));

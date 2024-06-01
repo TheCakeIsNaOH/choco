@@ -15,6 +15,7 @@
 // limitations under the License.
 
 using System.Management.Automation;
+using System.Runtime.Versioning;
 using Chocolatey.PowerShell.Helpers;
 using Chocolatey.PowerShell.Shared;
 
@@ -24,6 +25,7 @@ namespace Chocolatey.PowerShell.Commands
     [OutputType(typeof(void))]
     public sealed class UpdateSessionEnvironmentCommand : ChocolateyCmdlet
     {
+        [SupportedOSPlatform("windows")]
         protected override void End()
         {
             var calledByAlias = MyInvocation?.InvocationName.ToLower() == "refreshenv";

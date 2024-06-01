@@ -14,6 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 
@@ -36,7 +37,7 @@ namespace Chocolatey.PowerShell.Helpers
         /// <returns>True if running on Windows and the process has administrative rights.</returns>
         public static bool IsElevated()
         {
-            if (!IsWindows())
+            if (!OperatingSystem.IsWindows())
             {
                 return false;
             }

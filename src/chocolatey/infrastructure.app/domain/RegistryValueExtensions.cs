@@ -15,6 +15,7 @@
 // limitations under the License.
 
 using System;
+using System.Runtime.Versioning;
 using System.Security;
 using Microsoft.Win32;
 
@@ -22,6 +23,7 @@ namespace chocolatey.infrastructure.app.domain
 {
     public static class RegistryValueExtensions
     {
+        [SupportedOSPlatform("windows")]
         public static string AsXmlSafeString(this RegistryKey key, string name)
         {
             if (key == null)
@@ -40,6 +42,7 @@ namespace chocolatey.infrastructure.app.domain
 
 #pragma warning disable IDE0022, IDE1006
         [Obsolete("This overload is deprecated and will be removed in v3.")]
+        [SupportedOSPlatform("windows")]
         public static string get_value_as_string(this RegistryKey key, string name)
             => AsXmlSafeString(key, name);
 #pragma warning restore IDE0022, IDE1006

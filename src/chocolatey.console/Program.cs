@@ -305,7 +305,7 @@ command.");
 
         private static void ThrowIfNotDotNet48()
         {
-            if (Platform.GetPlatform() == PlatformType.Windows)
+            if (OperatingSystem.IsWindows())
             {
                 // https://learn.microsoft.com/en-us/dotnet/framework/migration-guide/how-to-determine-which-versions-are-installed#minimum-version
                 const int net48ReleaseBuild = 528040;

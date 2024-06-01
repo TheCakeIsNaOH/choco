@@ -47,7 +47,7 @@ namespace chocolatey.infrastructure.app.utility
                     || (package.ContainsSafe(packageName)
                         && (package.ContainsSafe(".nupkg")
                             || package.ContainsSafe(".nuspec")
-                            || package.ContainsSafe("{0}".FormatWith(Platform.GetPlatform() == PlatformType.Windows ? "\\" : "/"))
+                            || package.ContainsSafe("{0}".FormatWith(OperatingSystem.IsWindows() ? "\\" : "/"))
                         )
                     )
                 )

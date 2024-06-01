@@ -267,10 +267,13 @@ namespace chocolatey.infrastructure.app.configuration
             var setUserEnvironmentVariables = true;
             try
             {
-                var userIdentity = WindowsIdentity.GetCurrent();
-                if (userIdentity != null && userIdentity.User == ApplicationParameters.LocalSystemSid)
+                if (OperatingSystem.IsWindows())
                 {
-                    setUserEnvironmentVariables = false;
+                    var userIdentity = WindowsIdentity.GetCurrent();
+                    if (userIdentity != null && userIdentity.User == ApplicationParameters.LocalSystemSid)
+                    {
+                        setUserEnvironmentVariables = false;
+                    }
                 }
             }
             catch (Exception ex)

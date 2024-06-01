@@ -22,6 +22,7 @@ using chocolatey.infrastructure.filesystem;
 using Environment = System.Environment;
 using chocolatey.infrastructure.platforms;
 using chocolatey.infrastructure.information;
+using System.Runtime.Versioning;
 
 namespace chocolatey.infrastructure.app
 {
@@ -49,9 +50,9 @@ namespace chocolatey.infrastructure.app
         // start from the assembly location and if unfound, head to the machine
         // locations instead. This is a merge of official and Debug modes.
         private static IAssembly _assemblyForLocation = Assembly.GetEntryAssembly().UnderlyingType != null ? Assembly.GetEntryAssembly() : Assembly.GetExecutingAssembly();
-        public static readonly string InstallLocation = _fileSystem.FileExists(_fileSystem.CombinePaths(_fileSystem.GetDirectoryName(_assemblyForLocation.CodeBase.Replace(Platform.GetPlatform() == PlatformType.Windows ? "file:///" : "file://", string.Empty)), "chocolatey.dll")) ||
-                                                        _fileSystem.FileExists(_fileSystem.CombinePaths(_fileSystem.GetDirectoryName(_assemblyForLocation.CodeBase.Replace(Platform.GetPlatform() == PlatformType.Windows ? "file:///" : "file://", string.Empty)), "choco.exe")) ?
-                _fileSystem.GetDirectoryName(_assemblyForLocation.CodeBase.Replace(Platform.GetPlatform() == PlatformType.Windows ? "file:///" : "file://", string.Empty)) :
+        public static readonly string InstallLocation = _fileSystem.FileExists(_fileSystem.CombinePaths(_fileSystem.GetDirectoryName(_assemblyForLocation.CodeBase.Replace(OperatingSystem.IsWindows() ? "file:///" : "file://", string.Empty)), "chocolatey.dll")) ||
+                                                        _fileSystem.FileExists(_fileSystem.CombinePaths(_fileSystem.GetDirectoryName(_assemblyForLocation.CodeBase.Replace(OperatingSystem.IsWindows() ? "file:///" : "file://", string.Empty)), "choco.exe")) ?
+                _fileSystem.GetDirectoryName(_assemblyForLocation.CodeBase.Replace(OperatingSystem.IsWindows() ? "file:///" : "file://", string.Empty)) :
                 !string.IsNullOrWhiteSpace(System.Environment.GetEnvironmentVariable(ChocolateyInstallEnvironmentVariableName)) ?
                     System.Environment.GetEnvironmentVariable(ChocolateyInstallEnvironmentVariableName) :
                     @"C:\ProgramData\Chocolatey"
@@ -117,6 +118,7 @@ namespace chocolatey.infrastructure.app
         public static readonly string PowerShellModulePathProcessProgramFiles = _fileSystem.CombinePaths(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFiles), "WindowsPowerShell\\Modules");
         public static readonly string PowerShellModulePathProcessDocuments = _fileSystem.CombinePaths(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "WindowsPowerShell\\Modules");
         public static readonly string LocalSystemSidString = "S-1-5-18";
+        [SupportedOSPlatform("windows")]
         public static readonly SecurityIdentifier LocalSystemSid = new SecurityIdentifier(LocalSystemSidString);
         public static readonly List<string> PublicNuGetSources = new List<string>()
         {
