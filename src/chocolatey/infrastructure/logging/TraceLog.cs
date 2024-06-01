@@ -56,48 +56,7 @@ namespace chocolatey.infrastructure.logging
         /// <remarks>Based on http://stackoverflow.com/a/27467753/18475 </remarks>
         private void EnableNetworkLogging()
         {
-            var logging = typeof(WebRequest).Assembly.GetType("System.Net.Logging");
-            var isInitialized = logging.GetField("s_LoggingInitialized", BindingFlags.NonPublic | BindingFlags.Static);
-            if (isInitialized != null)
-            {
-                if (!(bool)isInitialized.GetValue(null))
-                {
-                    //// force initialization
-                    HttpWebRequest.Create("http://localhost");
-                    var waitForInitializationThread = new Thread(() =>
-                    {
-                        while (!(bool)isInitialized.GetValue(null))
-                        {
-                            Thread.Sleep(100);
-                        }
-                    });
-
-                    waitForInitializationThread.Start();
-                    waitForInitializationThread.Join();
-                }
-            }
-
-            EnableTraceSource("s_WebTraceSource", logging, this); //System.Net
-            EnableTraceSource("s_HttpListenerTraceSource", logging, this); //System.Net.HttpListener
-            EnableTraceSource("s_SocketsTraceSource", logging, this); //System.Net.Sockets
-            EnableTraceSource("s_CacheTraceSource", logging, this);  //System.Net.Cache
-
-            var isEnabled = logging.GetField("s_LoggingEnabled", BindingFlags.NonPublic | BindingFlags.Static);
-            if (isEnabled != null)
-            {
-                isEnabled.SetValue(null, true);
-            }
-        }
-
-        private static void EnableTraceSource(string fieldName, Type logging, TraceListener listener)
-        {
-            var traceSource = (TraceSource)logging.GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
-            if (traceSource != null)
-            {
-                traceSource.Attributes["tracemode"] = "protocolonly";
-                traceSource.Listeners.Add(listener);
-                traceSource.Switch.Level = SourceLevels.Information;
-            }
+            var listener = new HttpEventListener();
         }
 
         public override void Write(string message)
