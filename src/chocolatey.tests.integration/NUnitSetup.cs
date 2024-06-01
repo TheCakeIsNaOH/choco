@@ -73,43 +73,43 @@ namespace chocolatey.tests.integration
 
             var applicationLocation = fileSystem.GetDirectoryName(fileSystem.GetCurrentAssemblyPath());
 
-            var field = typeof(ApplicationParameters).GetField("InstallLocation");
+            var field = typeof(ApplicationParameters).GetField("_installLocation", BindingFlags.NonPublic | BindingFlags.Static);
             field.SetValue(null, applicationLocation);
 
-            field = typeof(ApplicationParameters).GetField("LoggingLocation");
+            field = typeof(ApplicationParameters).GetField("_loggingLocation", BindingFlags.NonPublic | BindingFlags.Static);
             field.SetValue(null, fileSystem.CombinePaths(ApplicationParameters.InstallLocation, "logs"));
 
-            field = typeof(ApplicationParameters).GetField("GlobalConfigFileLocation");
+            field = typeof(ApplicationParameters).GetField("_globalConfigFileLocation", BindingFlags.NonPublic | BindingFlags.Static);
             field.SetValue(null, fileSystem.CombinePaths(ApplicationParameters.InstallLocation, "config", "chocolatey.config"));
 
-            field = typeof(ApplicationParameters).GetField("LicenseFileLocation");
+            field = typeof(ApplicationParameters).GetField("_licenseFileLocation", BindingFlags.NonPublic | BindingFlags.Static);
             field.SetValue(null, fileSystem.CombinePaths(ApplicationParameters.InstallLocation, "license", "chocolatey.license.xml"));
 
             field = typeof(ApplicationParameters).GetField("PackagesLocation");
             field.SetValue(null, fileSystem.CombinePaths(ApplicationParameters.InstallLocation, "lib"));
 
-            field = typeof(ApplicationParameters).GetField("PackageFailuresLocation");
+            field = typeof(ApplicationParameters).GetField("_packageFailuresLocation", BindingFlags.NonPublic | BindingFlags.Static);
             field.SetValue(null, fileSystem.CombinePaths(ApplicationParameters.InstallLocation, "lib-bad"));
 
-            field = typeof(ApplicationParameters).GetField("PackageBackupLocation");
+            field = typeof(ApplicationParameters).GetField("_packageBackupLocation", BindingFlags.NonPublic | BindingFlags.Static);
             field.SetValue(null, fileSystem.CombinePaths(ApplicationParameters.InstallLocation, "lib-bkp"));
 
-            field = typeof(ApplicationParameters).GetField("ShimsLocation");
+            field = typeof(ApplicationParameters).GetField("_shimsLocation", BindingFlags.NonPublic | BindingFlags.Static);
             field.SetValue(null, fileSystem.CombinePaths(ApplicationParameters.InstallLocation, "bin"));
 
-            field = typeof(ApplicationParameters).GetField("ChocolateyPackageInfoStoreLocation");
+            field = typeof(ApplicationParameters).GetField("_chocolateyPackageInfoStoreLocation", BindingFlags.NonPublic | BindingFlags.Static);
             field.SetValue(null, fileSystem.CombinePaths(ApplicationParameters.InstallLocation, ".chocolatey"));
 
-            field = typeof(ApplicationParameters).GetField("ExtensionsLocation");
+            field = typeof(ApplicationParameters).GetField("_extensionsLocation", BindingFlags.NonPublic | BindingFlags.Static);
             field.SetValue(null, fileSystem.CombinePaths(ApplicationParameters.HooksLocation, "extensions"));
 
-            field = typeof(ApplicationParameters).GetField("TemplatesLocation");
+            field = typeof(ApplicationParameters).GetField("_templatesLocation", BindingFlags.NonPublic | BindingFlags.Static);
             field.SetValue(null, fileSystem.CombinePaths(ApplicationParameters.HooksLocation, "templates"));
 
-            field = typeof(ApplicationParameters).GetField("HooksLocation");
+            field = typeof(ApplicationParameters).GetField("_hooksLocation", BindingFlags.NonPublic | BindingFlags.Static);
             field.SetValue(null, fileSystem.CombinePaths(ApplicationParameters.InstallLocation, "hooks"));
 
-            field = typeof(ApplicationParameters).GetField("LockTransactionalInstallFiles");
+            field = typeof(ApplicationParameters).GetField("_lockTransactionalInstallFiles", BindingFlags.NonPublic | BindingFlags.Static);
             field.SetValue(null, false);
 
             // we need to speed up specs a bit, so only try filesystem locking operations twice
