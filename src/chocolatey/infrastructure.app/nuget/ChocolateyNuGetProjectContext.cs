@@ -98,7 +98,7 @@ namespace chocolatey.infrastructure.app.nuget
             }
         }
 
-        public ExecutionContext ExecutionContext
+        public NuGet.ProjectManagement.ExecutionContext ExecutionContext
         {
             get
             {

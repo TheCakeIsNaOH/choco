@@ -33,6 +33,7 @@ using chocolatey.infrastructure.tolerance;
 using Assembly = chocolatey.infrastructure.adapters.Assembly;
 using Environment = chocolatey.infrastructure.adapters.Environment;
 using static chocolatey.StringResources;
+using Directory = Alphaleonis.Win32.Filesystem.Directory;
 
 namespace chocolatey.infrastructure.filesystem
 {

@@ -19,6 +19,9 @@ using System.Threading;
 using Alphaleonis.Win32.Filesystem;
 using chocolatey.infrastructure.app.configuration;
 using NuGet.Protocol.Core.Types;
+using Directory = Alphaleonis.Win32.Filesystem.Directory;
+using Path = Alphaleonis.Win32.Filesystem.Path;
+
 
 namespace chocolatey.infrastructure.app.nuget
 {

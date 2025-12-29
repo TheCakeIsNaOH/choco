@@ -65,7 +65,9 @@
     <ProjectReference Include="..\chocolatey.console\chocolatey.console.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\packages\FluentAssertions.Analyzers.0.19.1\analyzers\dotnet\cs\FluentAssertions.Analyzers.dll" />
+    <Compile Include="..\chocolatey\StringResources.cs">
+      <Link>Shared\StringResources.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\SampleResource.txt" />
