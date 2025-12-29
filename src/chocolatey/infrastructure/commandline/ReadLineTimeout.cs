@@ -31,6 +31,8 @@ namespace chocolatey.infrastructure.commandline
         private readonly AutoResetEvent _foregroundResponseReset;
         private string _input;
         private readonly Thread _responseThread;
+        private CancellationTokenSource _tokenSource;
+        private CancellationToken _cancellationToken;
 
         private bool _isDisposing;
 
@@ -38,6 +40,8 @@ namespace chocolatey.infrastructure.commandline
         {
             _backgroundResponseReset = new AutoResetEvent(false);
             _foregroundResponseReset = new AutoResetEvent(false);
+            _tokenSource = new CancellationTokenSource();
+            _cancellationToken = _tokenSource.Token;
             _responseThread = new Thread(ConsoleRead)
             {
                 IsBackground = true
@@ -47,7 +51,7 @@ namespace chocolatey.infrastructure.commandline
 
         private void ConsoleRead()
         {
-            while (true)
+            while (!_cancellationToken.IsCancellationRequested)
             {
                 _backgroundResponseReset.WaitOne();
                 _input = Console.ReadLine();
@@ -75,7 +79,8 @@ namespace chocolatey.infrastructure.commandline
             }
 
             _isDisposing = true;
-            _responseThread.Abort();
+            _tokenSource.Cancel();
+            _tokenSource.Dispose();
             _backgroundResponseReset.Close();
             _backgroundResponseReset.Dispose();
             _foregroundResponseReset.Close();
