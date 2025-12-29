@@ -20,8 +20,7 @@ namespace chocolatey.tests.infrastructure.adapters
             public override void Context()
             {
                 Console = new Console();
-                _allowPromptsField = typeof(ApplicationParameters)
-                    .GetField(nameof(ApplicationParameters.AllowPrompts), BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+                _allowPromptsField = typeof(ApplicationParameters).GetField("_allowPrompts", BindingFlags.NonPublic | BindingFlags.Static);
                 _originalAllowPrompts = (bool)_allowPromptsField.GetValue(null);
                 _allowPromptsField.SetValue(null, false);
             }
