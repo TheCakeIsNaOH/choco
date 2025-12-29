@@ -7,6 +7,7 @@
     <AssemblyTitle>chocolatey.benchmark</AssemblyTitle>
     <Product>chocolatey.benchmark</Product>
     <Copyright>Copyright ©  2024</Copyright>
+    <NoWarn>$(NoWarn);CS1591;NU1605</NoWarn>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
   </PropertyGroup>

@@ -12,6 +12,7 @@
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
+    <NoWarn>$(NoWarn);CS1591;NU1605</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'NoResources|AnyCPU'">
     <OutputPath>bin\NoResources\</OutputPath>

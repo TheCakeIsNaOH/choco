@@ -4,7 +4,7 @@
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
     <OutputType>Library</OutputType>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <NoWarn>$(NoWarn);CS1591;NU1605</NoWarn>
     <Configurations>Debug;NoResources;Release;ReleaseOfficial;WIX</Configurations>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>..\..\docs\logo\chocolatey.ico</ApplicationIcon>
