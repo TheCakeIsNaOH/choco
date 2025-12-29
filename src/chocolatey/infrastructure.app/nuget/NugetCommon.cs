@@ -99,7 +99,7 @@ namespace chocolatey.infrastructure.app.nuget
             "chocolatey".Log().Debug("Process Tree: {0}", processTree);
 
             var userAgent = new StringBuilder()
-                .Append(ApplicationParameters.UserAgent)
+                .Append(ApplicationParameters.Headers["User-Agent"].ToString())
                 .Append('/')
                 .Append(VersionInformation.GetCurrentInformationalVersion(Assembly.GetAssembly(typeof(NugetCommon))));
 

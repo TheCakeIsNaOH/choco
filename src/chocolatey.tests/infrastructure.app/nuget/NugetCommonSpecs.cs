@@ -183,7 +183,7 @@ namespace chocolatey.tests.infrastructure.app.nuget
                 const string nugetClientVersion = "6.4.1";
                 var currentProcess = Process.GetCurrentProcess();
                 var expectedUserAgentRegexString = @"^{0}\/[\d\.]+(-[A-za-z\d\.-]+)? {1}\/[\d\.]+(-[A-Za-z\d\.-]+)? (\([A-za-z\d\.-]+(, [A-Za-z\d\.-]+)?\) )?via NuGet Client\/{2}".FormatWith(
-                    ApplicationParameters.UserAgent,
+                    ApplicationParameters.Headers["User-Agent"].ToString(),
                     currentProcess.ProcessName,
                     Regex.Escape(nugetClientVersion));
                 UserAgent.UserAgentString.Should().MatchRegex(expectedUserAgentRegexString);
