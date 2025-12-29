@@ -98,7 +98,7 @@ Get-WebFile
     }
 
     # Create a FTPWebRequest object to handle the connection to the ftp server
-    $ftprequest = [System.Net.FtpWebRequest]::create($url)
+    $ftprequest = [System.Net.FtpWebRequest]::Create($url)
 
     # check if a proxy is required
     $explicitProxy = $env:chocolateyProxyLocation
