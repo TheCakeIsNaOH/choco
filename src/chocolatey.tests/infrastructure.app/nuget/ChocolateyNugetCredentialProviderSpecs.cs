@@ -205,12 +205,12 @@ namespace chocolatey.tests.infrastructure.app.nuget
             }
 
             [Fact]
-            public void Should_Provide_Password_Using_1252_Codepage()
+            public void Should_Provide_Password_Using_UTF8()
             {
                 // The following looks odd, but this is a workaround to
                 // allow passwords using non-ascii characters to be used
                 // against sources.
-                Result.Password.Should().Be("tÃ¸tally_sÃ¦cure_pÃ¥ssword!!!");
+                Result.Password.Should().Be("tøtally_sæcure_påssword!!!");
             }
         }
 
@@ -236,12 +236,9 @@ namespace chocolatey.tests.infrastructure.app.nuget
             }
 
             [Fact]
-            public void Should_Provide_Password_Using_1252_Codepage()
+            public void Should_Provide_Password_Using_UTF8()
             {
-                // The following looks odd, but this is a workaround to
-                // allow passwords using non-ascii characters to be used
-                // against sources.
-                Result.Password.Should().Be("tÃ¸tally_sÃ¦cure_pÃ¥ssword!!!");
+                Result.Password.Should().Be("tøtally_sæcure_påssword!!!");
             }
         }
 

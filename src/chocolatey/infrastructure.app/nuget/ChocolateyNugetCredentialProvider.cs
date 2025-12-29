@@ -82,7 +82,7 @@ namespace chocolatey.infrastructure.app.nuget
                 {
                     this.Log().Debug("Using passed in credentials");
 
-                    return Task.FromResult(new CredentialResponse(ToNetworkCredentials(_config.SourceCommand.Username, _config.SourceCommand.Password, isRetry)));
+                    return Task.FromResult(new CredentialResponse(new NetworkCredential(_config.SourceCommand.Username, _config.SourceCommand.Password)));
                 }
             }
 
@@ -157,9 +157,7 @@ namespace chocolatey.infrastructure.app.nuget
                 this.Log().Debug("Using saved credentials");
             }
 
-            var credentials = ToNetworkCredentials(source.Username, NugetEncryptionUtility.DecryptString(source.EncryptedPassword), isRetry);
-
-            return Task.FromResult(new CredentialResponse(credentials));
+            return Task.FromResult(new CredentialResponse(new NetworkCredential(source.Username, NugetEncryptionUtility.DecryptString(source.EncryptedPassword))));
         }
 
 #pragma warning disable IDE0060 // unused method parameter
@@ -189,52 +187,13 @@ namespace chocolatey.infrastructure.app.nuget
                 return CredentialCache.DefaultNetworkCredentials;
             }
 
-            var credentials = ToNetworkCredentials(username, password, isRetry: false);
+            var credentials = new NetworkCredential
+            {
+                UserName = username,
+                Password = password
+            };
 
             return credentials;
-        }
-
-        private static NetworkCredential ToNetworkCredentials(string username, string password, bool isRetry)
-        {
-            if (isRetry)
-            {
-                // If we have already attempted using the fallback legacy
-                // way to set the string, then we will just return the network
-                // credentials as is, and assume that the server expects the
-                // encoding used to be the same as the bug in .NET 4.8.1 that
-                // causes incorrect encodings to be used.
-
-                return new NetworkCredential(username, password);
-            }
-
-            var utf8Bytes = Encoding.UTF8.GetBytes(password);
-            try
-            {
-                var legacyEncoding = GetEncoding(1252);
-
-                var legacyPassword = legacyEncoding.GetString(utf8Bytes);
-
-                return new NetworkCredential(username, legacyPassword);
-            }
-            catch
-            {
-                return new NetworkCredential(username, password);
-            }
-        }
-
-        private static Encoding GetEncoding(int codepage)
-        {
-            try
-            {
-                return Encoding.GetEncoding(codepage);
-            }
-            catch
-            {
-                // If the code page specified isn't available,
-                // then let us fall back to the default encoding
-                // used on the system.
-                return Encoding.Default;
-            }
         }
 
 #pragma warning disable IDE0022, IDE1006
