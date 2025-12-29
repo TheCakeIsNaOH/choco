@@ -273,6 +273,7 @@ namespace chocolatey.infrastructure.adapters
 
                 return GetConsoleBuffer().dwSize.X; //the current console window width
             }
+            [SupportedOSPlatform("windows")]
             set
             {
                 if (!IsOutputRedirected)

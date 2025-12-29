@@ -70,7 +70,11 @@
     <PackageReference Include="AlphaFS" Version="2.3.0-dev-221109-0007" />
     <PackageReference Include="Chocolatey.BestPractices" Version="1.0.0" />
     <PackageReference Include="log4net" Version="2.0.12" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel.Core" Version="2.3.6" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.1" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.1" />
     <PackageReference Include="Microsoft.Web.Xdt" Version="3.1.0" />
     <PackageReference Include="SimpleInjector" Version="3.3.2" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
