@@ -77,6 +77,7 @@
     <PackageReference Include="Microsoft.AspNetCore.SystemWebAdapters" Version="2.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.SystemWebAdapters.CoreServices" Version="2.2.1" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.1" />
+    <PackageReference Include="System.Runtime.Serialization.Formatters" Version="10.0.1" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\SolutionVersion.cs">

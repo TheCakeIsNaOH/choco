@@ -67,6 +67,7 @@
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
+    <PackageReference Include="System.Runtime.Serialization.Formatters" Version="10.0.1" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.3" />
     <PackageReference Include="Microsoft.AspNetCore.SystemWebAdapters" Version="2.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.SystemWebAdapters.CoreServices" Version="2.2.1" />
