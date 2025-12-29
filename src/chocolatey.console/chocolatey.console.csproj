@@ -9,6 +9,7 @@
     <ApplicationIcon>..\..\docs\logo\chocolatey.ico</ApplicationIcon>
     <StartupObject>chocolatey.console.Program</StartupObject>
     <NoWin32Manifest>true</NoWin32Manifest>
+    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
   <PropertyGroup>

@@ -44,8 +44,8 @@ namespace chocolatey
         {
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
 #pragma warning disable SYSLIB0011
+                var formatter = new BinaryFormatter();
                 formatter.Serialize(ms, other);
                 ms.Position = 0;
                 return (T)formatter.Deserialize(ms);
